@@ -42,6 +42,10 @@ def validate_inputs(slug: str, data: dict[str, Any]) -> dict[str, Any]:
     expected = shapes.get(slug)
     if expected is None:
         raise ValueError("Algorithme inconnu")
+    # Sorting is an optional extension: an API request with only tableau
+    # displays the array in its original order, just like the classroom lesson.
+    if slug == "tableau" and set(data) == {"tableau"}:
+        data = {**data, "ordre": "Aucun"}
     if set(data) != expected:
         raise ValueError("Les champs fournis ne correspondent pas à cet algorithme.")
 
@@ -66,8 +70,8 @@ def validate_inputs(slug: str, data: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("Le tableau doit contenir de 1 à 40 entiers.")
         for item in values:
             integer(item)
-        if data["ordre"] not in ("Croissant", "Décroissant"):
-            raise ValueError("Ordre de tri inconnu.")
+        if data["ordre"] not in ("Aucun", "Croissant", "Décroissant"):
+            raise ValueError("Choisis Aucun, Croissant ou Décroissant.")
     elif slug == "matrice":
         matrix = data["matrice"]
         if not isinstance(matrix, list) or not (1 <= len(matrix) <= 10):

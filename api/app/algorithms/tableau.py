@@ -1,4 +1,4 @@
-"""Selection sort, preserving the descending-first strategy from the project."""
+"""Tableau: classroom-style declaration, filling and display; sorting is optional."""
 
 from .schema import AlgorithmInputError, AlgorithmResult, AlgorithmSpec, CodeSection, InputField
 
@@ -21,56 +21,76 @@ def tri(tableau: list[int], ordre: str = "Croissant") -> list[int]:
     raise AlgorithmInputError("L'ordre de tri doit être croissant ou décroissant.")
 
 
-def execute(tableau: list[int], ordre: str) -> AlgorithmResult:
+def afficher_tableau(tableau: list[int]) -> list[int]:
+    """Return a copy of the filled array without modifying its order."""
     if not tableau:
         raise AlgorithmInputError("Le tableau doit contenir au moins une valeur.")
-    t = tableau.copy()
-    steps = ["Tableau initial : " + str(t)]
-    for i in range(len(t) - 1):
+    return tableau.copy()
+
+
+def execute(tableau: list[int], ordre: str = "Aucun") -> AlgorithmResult:
+    """Display the original array, or run the optional selection-sort exercise."""
+    initial = afficher_tableau(tableau)
+    n = len(initial)
+    steps = [f"Déclaration : tableau T de {n} éléments (indices de 0 à {n - 1})."]
+    for i, value in enumerate(initial[:12]):
+        steps.append(f"Remplissage : T[{i}] ← {value}")
+    if n > 12:
+        steps.append(f"… {n - 12} autres éléments remplis, non détaillés.")
+
+    if ordre == "Aucun":
+        steps.append("Affichage : lire T de l'indice 0 au dernier, sans changer l'ordre.")
+        return AlgorithmResult(initial, tuple(steps),
+                               f"Tableau affiché : {n} élément(s), indices de 0 à {n - 1}. Aucun tri appliqué.")
+
+    if ordre not in ("Croissant", "Décroissant"):
+        raise AlgorithmInputError("Choisis Aucun, Croissant ou Décroissant.")
+
+    steps.append(f"Exercice facultatif : tri par sélection ({ordre.lower()}).")
+    t = initial.copy()
+    for i in range(n - 1):
         p = i
-        for j in range(i + 1, len(t)):
+        for j in range(i + 1, n):
             if t[j] > t[p]:
                 p = j
         t[i], t[p] = t[p], t[i]
-        if i < 12:
-            steps.append(f"Passage {i + 1} : maximum placé en position {i + 1} → {t}")
-    if len(t) - 1 > 12:
-        steps.append("… autres passages non affichés.")
+        if i < 8:
+            steps.append(f"Tri, passage {i + 1} : {t}")
+    if n - 1 > 8:
+        steps.append("… autres passages du tri non détaillés.")
     if ordre == "Croissant":
-        steps.append("Inversion du résultat pour obtenir l'ordre croissant.")
-    result = tri(tableau, ordre)
-    steps.append("Résultat : " + str(result))
-    return AlgorithmResult(result, tuple(steps), "Tri par sélection ; la liste de départ n'est pas modifiée.")
+        steps.append("Inversion du résultat décroissant pour obtenir l'ordre croissant.")
+    result = tri(initial, ordre)
+    steps.append("Affichage du tableau trié.")
+    return AlgorithmResult(result, tuple(steps),
+                           f"Tri facultatif ({ordre.lower()}) appliqué. Le tableau initial n'est pas modifié.")
 
 
 SPEC = AlgorithmSpec(
-    slug="tableau", name="TABLEAU", full_name="Tableau et tri par sélection",
+    slug="tableau", name="TABLEAU", full_name="Déclarer, remplir et afficher un tableau",
     category="Structures de données", icon="📊",
-    summary="Remplir un tableau puis le trier par sélection.",
-    principle="À chaque passage, placer le maximum à sa position. Le tri d'origine est décroissant ; l'ordre croissant s'obtient par inversion.",
-    pseudocode="""Fonction TRI(T : Tableau d'Entier, n : Entier) : Tableau
+    summary="Comprendre la déclaration, le remplissage et l’affichage d’un tableau. Tri facultatif.",
+    principle="Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre. Un tri peut être étudié en exercice facultatif.",
+    pseudocode="""Procédure REMPLIR(@T : Tab, n : Entier)
 Début
-    Pour i de 0 à n - 2 Faire
-        p ← i
-        Pour j de i + 1 à n - 1 Faire
-            Si T[j] > T[p] Alors
-                p ← j
-            Fin Si
-        Fin Pour
-        Si p ≠ i Alors
-            aux ← T[i]
-            T[i] ← T[p]
-            T[p] ← aux
-        Fin Si
+    Pour i de 0 à n - 1 Faire
+        Lire(T[i])
     Fin Pour
-    Retourner T
 Fin
-// Ordre décroissant ; inverser le tableau pour l'ordre croissant.""",
+
+Procédure AFFICHER(T : Tab, n : Entier)
+Début
+    Pour i de 0 à n - 1 Faire
+        Écrire(T[i])
+    Fin Pour
+Fin""",
     inputs=(InputField("tableau", "Éléments du tableau", "int_list", "8, 3, 11, 2, 5",
                         hint="Séparer les entiers par des virgules."),
-            InputField("ordre", "Ordre de tri", "choice", "Croissant", options=("Croissant", "Décroissant"))),
-    function=tri, execute=execute, example="[8, 3, 11, 2, 5] → [2, 3, 5, 8, 11]",
-    tags=("tableau", "tri", "sélection"),
+            InputField("ordre", "Tri (facultatif)", "choice", "Aucun",
+                       options=("Aucun", "Croissant", "Décroissant"),
+                       hint="Aucun : afficher simplement le tableau. Choisis un ordre pour essayer le tri.")),
+    function=afficher_tableau, execute=execute, example="T = [8, 3, 11, 2, 5] ; T[0] = 8 ; n = 5",
+    tags=("tableau", "déclaration", "remplissage", "affichage", "tri", "sélection"),
     code_sections=(
         CodeSection(
             title="Déclarer le tableau — TDNT et TDOG",
@@ -130,7 +150,7 @@ Fin""",
         print(T[i])""",
         ),
         CodeSection(
-            title="Trier le tableau (tri par sélection)",
+            title="Exercice facultatif — trier le tableau (tri par sélection)",
             pseudocode="""Fonction TRI(T : Tab, n : Entier) : Tab
 Début
     Pour i de 0 à n - 2 Faire
@@ -159,7 +179,7 @@ Fin""",
             T[i] = T[p]
             T[p] = a
     return T""",
-            note="C'est ton tri par sélection d'origine, en ordre décroissant. Pour afficher l'ordre croissant : changer  >  par  < .",
+            note="Exercice facultatif : le tri d’origine classe dans l’ordre décroissant. Pour trier directement en croissant, remplacer > par < dans ce code ; dans l’atelier, le tri croissant inverse le résultat décroissant.",
         ),
     ),
     limits="Maximum 40 entiers pour garder un atelier facile à lire.",

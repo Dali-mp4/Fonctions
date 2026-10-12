@@ -263,17 +263,20 @@
   {
     "slug": "tableau",
     "name": "TABLEAU",
-    "title": "Tableau et tri par sélection",
+    "title": "Déclarer, remplir et afficher un tableau",
     "category": "Structures de données",
     "level": "Bases · 3ème Info",
     "method": "base",
     "collection": "general",
     "icon": "📊",
-    "summary": "Remplir un tableau puis le trier par sélection.",
-    "principle": "À chaque passage, placer le maximum à sa position. Le tri d'origine est décroissant ; l'ordre croissant s'obtient par inversion.",
-    "example": "[8, 3, 11, 2, 5] → [2, 3, 5, 8, 11]",
+    "summary": "Comprendre la déclaration, le remplissage et l’affichage d’un tableau. Tri facultatif.",
+    "principle": "Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre. Un tri peut être étudié en exercice facultatif.",
+    "example": "T = [8, 3, 11, 2, 5] ; T[0] = 8 ; n = 5",
     "tags": [
       "tableau",
+      "déclaration",
+      "remplissage",
+      "affichage",
       "tri",
       "sélection"
     ],
@@ -291,16 +294,17 @@
       },
       {
         "name": "ordre",
-        "label": "Ordre de tri",
+        "label": "Tri (facultatif)",
         "kind": "choice",
-        "default": "Croissant",
+        "default": "Aucun",
         "min_value": null,
         "max_value": null,
         "options": [
+          "Aucun",
           "Croissant",
           "Décroissant"
         ],
-        "hint": ""
+        "hint": "Aucun : afficher simplement le tableau. Choisis un ordre pour essayer le tri."
       }
     ],
     "code_sections": [
@@ -329,10 +333,10 @@
         "note": ""
       },
       {
-        "title": "Trier le tableau (tri par sélection)",
+        "title": "Exercice facultatif — trier le tableau (tri par sélection)",
         "pseudocode": "Fonction TRI(T : Tab, n : Entier) : Tab\nDébut\n    Pour i de 0 à n - 2 Faire\n        p ← i\n        Pour j de i + 1 à n - 1 Faire\n            Si T[j] > T[p] Alors\n                p ← j\n            Fin Si\n        Fin Pour\n        Si p ≠ i Alors\n            a ← T[i]\n            T[i] ← T[p]\n            T[p] ← a\n        Fin Si\n    Fin Pour\n    Retourner T\nFin",
         "python": "def tri(T, n):\n    for i in range(n - 1):\n        p = i\n        for j in range(i + 1, n):\n            if T[j] > T[p]:\n                p = j\n        if p != i:\n            a = T[i]\n            T[i] = T[p]\n            T[p] = a\n    return T",
-        "note": "C'est ton tri par sélection d'origine, en ordre décroissant. Pour afficher l'ordre croissant : changer  >  par  < ."
+        "note": "Exercice facultatif : le tri d’origine classe dans l’ordre décroissant. Pour trier directement en croissant, remplacer > par < dans ce code ; dans l’atelier, le tri croissant inverse le résultat décroissant."
       }
     ]
   },

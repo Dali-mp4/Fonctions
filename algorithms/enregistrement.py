@@ -57,9 +57,9 @@ Fin Enregistrement
 // Le dictionnaire Python utilisé dans l'atelier est
 // une représentation pédagogique, pas un type identique.""",
     inputs=(InputField("champs", "Champs de l'enregistrement", "records",
-                        (("nom", "chaîne", "Amira"), ("age", "entier", "17"), ("admis", "booléen", "Vrai"))),),
+                        (("nom", "chaîne", "3mor"), ("age", "entier", "17"), ("admis", "booléen", "Vrai"))),),
     function=enregistrer, execute=execute,
-    example="nom = 'Amira' · age = 17 · admis = Vrai",
+    example="nom = '3mor' · age = 17 · admis = Vrai",
     tags=("enregistrement", "types", "champs"),
     code_sections=(
         CodeSection(

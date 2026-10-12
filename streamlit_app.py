@@ -9,7 +9,7 @@ from ui.style import apply_styles, footer
 
 
 st.set_page_config(
-    page_title="Fonctions · Algorithmique pour les lycéens tunisiens",
+    page_title="Algo Fi Jib",
     page_icon="🧠", layout="wide", initial_sidebar_state="collapsed",
 )
 apply_styles()
@@ -49,9 +49,9 @@ def go_library() -> None:
 
 
 with st.sidebar:
-    st.markdown("## 🧠 FONCTIONS")
-    st.caption("Apprendre · Comprendre · Tester")
-    st.info("7 modules fondateurs. Le projet évoluera vers 3ème et 4ème Info.")
+    st.markdown("Algo Fi Jib")
+    st.caption("Apprendre · Python · Collection Bac")
+    st.info("EL ALGO LKOL, FI JIBEK.")
 
 navigation = st.navigation(
     [page_home, page_library, page_programmes, page_algorithm], position="top"

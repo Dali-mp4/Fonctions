@@ -50,7 +50,7 @@ def go_library() -> None:
 
 with st.sidebar:
     st.markdown("Algo Fi Jib")
-    st.caption("Apprendre · Python · Collection Bac")
+    st.caption("Algorithmes · Python · Collection Bac")
     st.info("EL ALGO LKOL, FI JIBEK.")
 
 navigation = st.navigation(

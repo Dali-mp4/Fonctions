@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { algorithms } from "@/lib/catalog";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { revisionWithImplementationSelect } from "@/lib/revision-select";
 import { ReviewerWorkspace } from "@/components/reviewer-workspace";
 import { TeamRoles } from "@/components/team-roles";
 
@@ -62,7 +63,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     if (!sb) { setListError("Supabase n'est pas configuré."); setLoading(false); return; }
     setLoading(true);
     const { data, error: queryError } = await sb.from("revisions")
-      .select("id,title,explanation,pseudocode,python_code,status,test_status,review_note,edit_seq,updated_at,created_by,implementations(method_type,topics(slug,title))")
+      .select(revisionWithImplementationSelect)
       .eq("created_by", userId).order("updated_at", { ascending: false }).limit(100);
     if (queryError) setListError(queryError.message);
     else { setDrafts((data ?? []) as unknown as Revision[]); setListError(""); }

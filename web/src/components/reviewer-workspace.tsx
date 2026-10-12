@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ClipboardCheck, RefreshCw, Send } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { revisionWithImplementationSelect } from "@/lib/revision-select";
 import type { Revision } from "@/components/studio-client";
 
 export function ReviewerWorkspace({userId}: {userId:string}) {
@@ -18,7 +19,7 @@ export function ReviewerWorkspace({userId}: {userId:string}) {
     if (!sb) return;
     setLoading(true);
     const {data, error: e} = await sb.from("revisions")
-      .select("id,title,explanation,pseudocode,python_code,status,test_status,review_note,edit_seq,updated_at,created_by,implementations(method_type,topics(slug,title))")
+      .select(revisionWithImplementationSelect)
       .eq("status", "submitted").order("updated_at", {ascending:true}).limit(100);
     if (e) setError(e.message); else {setQueue((data ?? []) as unknown as Revision[]);setError("");}
     setLoading(false);

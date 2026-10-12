@@ -159,7 +159,7 @@ Fin""",
             T[i] = T[p]
             T[p] = a
     return T""",
-            note="C'est ton tri par sélection d'origine, en ordre décroissant. Pour afficher l'ordre croissant : changer ">" par "<".",
+            note="C'est ton tri par sélection d'origine, en ordre décroissant. Pour afficher l'ordre croissant : changer > par <.",
         ),
     ),
     limits="Maximum 40 entiers pour garder un atelier facile à lire.",

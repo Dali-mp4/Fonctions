@@ -83,3 +83,14 @@ The planned isolated execution image includes the standard library `random` and 
 ## GitHub development
 
 The original Streamlit branch `streamlit-v1-modular` and original `main` stay available. This v2 branch is an independent application. Future platform changes should be made by feature branches and PR reviews.
+
+## Milestone 2 — collaborator workspace (October 2026)
+
+After completing the initial Supabase migration, run **`supabase/migrations/002_contributor_workspace.sql`** *once* in the Supabase SQL Editor. This is required even if your Google or email login already works.
+
+- **Contributors:** list their own revisions, reopen a private draft, edit without creating duplicates, and read reviewer feedback. Saving is protected by the `update_draft` RPC; it checks ownership, permissions, draft status and an edit-sequence number so another browser tab cannot silently overwrite recent work. Every edit clears prior test evidence.
+- **Owners:** use the team roles section in `/studio` to grant `contributor` or `reviewer`, or return someone to `student`. The person must already have a registered account; their User UID is visible under **Supabase → Authentication → Users**. Role assignments are audited. No one can grant `owner` through the app.
+- **Reviewers:** see submitted revisions and may request changes with a written review note using the `request_revision_changes` RPC, but cannot review their own contributions.
+- **Not yet enabled:** running or submitting new Python code, marking a test as passed, publishing a contribution, and inviting users by email through the app. The reviewer queue will stay empty until an isolated sandbox issues verifiable tests for submitted revisions.
+
+**Quick verification:** Sign in as owner, create a draft, refresh `/studio`, reopen and edit it, then refresh and confirm the edit persists. Create a separate student account to verify `/studio` is denied, and use its Auth User UID in the owner team form to grant contributor rights. The new contributor should then see the editor after signing in. Do not share Supabase service-role/secret keys.

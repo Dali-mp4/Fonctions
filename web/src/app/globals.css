@@ -39,3 +39,42 @@
 .workspace-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .workspace-grid>.panel{min-width:0}
 @media(max-width:600px){.workspace-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Milestone 2: collaborative contributor workspace */
+.studio-workspace{margin-top:28px}
+.studio-workspace>.studio-banner{max-width:620px;margin-bottom:28px}
+.studio-panel-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:35px 0 15px}
+.studio-panel-head h2{font-size:23px;display:flex;gap:12px;align-items:center;margin:0}
+.studio-panel-head h2 svg{color:var(--purple)}
+.studio-actions{display:flex;flex-wrap:wrap;gap:8px}
+.studio-actions .btn,.studio-panel-head>.btn{padding:11px 14px}
+.studio-hint{font-size:12px;color:#a3aec0;line-height:1.8;margin:8px 0 17px}
+.draft-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.draft-card{border:1px solid #333c51;border-radius:13px;background:#151a29;padding:20px;display:flex;align-items:flex-start;flex-direction:column;gap:10px;min-width:0}
+.draft-card.selected{border-color:#ae92fa;background:#1e1b31}
+.draft-meta{color:#c0a4ff;font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:800}
+.draft-card strong{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.draft-card small,.studio-muted{font-size:11px;color:#909bab}
+.draft-card button{font-weight:800;color:#d0baff;background:none;padding:5px 0;border:0;font-size:12px}
+.draft-card button:hover{text-decoration:underline}
+.review-message{border-left:2px solid #bba2ff;padding-left:10px;color:#e2d1ff;font-size:12px;line-height:1.6;margin:0}
+.studio-workspace .studio-layout{margin-top:27px}
+.studio-form .success-strip{display:flex;gap:8px;align-items:center}
+.workspace-section{margin-top:50px;border-top:1px solid #30384c;padding-top:16px}
+.studio-empty{padding:25px;background:#141928;border:1px dashed #414459;border-radius:13px;color:#a5b0c2;font-size:13px;line-height:1.6}
+.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.review-card{background:#151a29;border:1px solid #333c51;border-radius:13px;padding:21px;min-width:0}
+.review-card h3{margin:10px 0 9px}
+.review-card>p{font-size:12px;color:#b4bdd0;line-height:1.8}
+.review-card details{margin:18px 0;border:1px solid #3a4055;border-radius:9px;padding:14px}
+.review-card summary{cursor:pointer;color:#c4aafa;font-size:12px;font-weight:700}
+.review-card pre{background:#0c1120;white-space:pre-wrap;overflow-wrap:anywhere;max-height:230px;overflow:auto;padding:14px;color:#d8e1ee;border-radius:7px;font-size:12px}
+.review-card h4{font-size:13px;margin:20px 0 8px}
+.review-card label,.team-role-form label{display:flex;flex-direction:column;gap:8px;font-size:12px;color:#cbd4e3}
+.review-card textarea,.team-role-form input,.team-role-form select{width:100%;background:#101421;border:1px solid #353c50;color:#e9edf6;border-radius:9px;padding:12px;outline:0}
+.review-card label button{align-self:flex-start;margin-top:5px}
+.review-card>small{display:block;margin-top:14px;color:#a2aebf}
+.team-role-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:end;gap:15px;background:#151a29;border:1px solid #343b4e;border-radius:14px;padding:20px;margin:16px 0}
+.team-role-form button{white-space:nowrap}
+@media(max-width:960px){.draft-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.team-role-form{grid-template-columns:1fr 1fr}.team-role-form button{justify-self:start}}
+@media(max-width:600px){.studio-panel-head{flex-direction:column;align-items:flex-start}.studio-actions{width:100%}.draft-grid,.review-grid,.team-role-form{grid-template-columns:minmax(0,1fr)}.team-role-form button{width:100%}}

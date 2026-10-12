@@ -66,7 +66,6 @@ Exemple : l ← 2 ; c ← 3""",
 l = 2
 c = 3
 M = array([[float()] * c] * l)""",
-            note="Déclaration NumPy avec float(), comme dans ton code d'origine. NumPy permet l'accès à M[i, j]. L'atelier utilise actuellement des valeurs entières.",
         ),
         CodeSection(
             title="Remplir manuellement",

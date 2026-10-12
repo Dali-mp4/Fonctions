@@ -53,7 +53,7 @@ Fin""",
         CodeSection(
             title="Déclarer la matrice — TDNT et TDOG",
             pseudocode="""TDNT (Tableau de Déclaration des Nouveaux Types)
-    Mat = Tableau de 2 Lignes et 3 Colonnes de Réels
+    Mat = Tableau de 2 Lignes et 3 Colonnes de type Réels
 
 TDOG (Tableau de Déclaration des Objets Globaux)
     Objet       Type / Nature

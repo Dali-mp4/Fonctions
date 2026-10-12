@@ -1,4 +1,4 @@
-"""Shared visual identity for Fonctions."""
+"""Shared visual identity for Algo Fi Jib — Fonctions."""
 
 import streamlit as st
 
@@ -51,8 +51,8 @@ def apply_styles() -> None:
 
 def footer() -> None:
     st.markdown(
-        '<div class="fn-foot">Algo Fi Jib · Projet éducatif indépendant pour les élèves tunisiens du secondaire. '
+        '<div class="fn-foot">Algo Fi Jib — Fonctions · Projet éducatif indépendant pour les lycéens tunisiens. '
         'Collection en évolution — les modules disponibles ne représentent pas l’intégralité '
-        'des programmes de 3ème et 4ème Sciences de l’Informatique (7ata ken mekch section info ysl7oulk). Med Ali Tej</div>',
+        'des programmes de 3ème et 4ème Sciences de l’Informatique. 7ata ken mekch section info, ysl7oulk ! · Med Ali Tej</div>',
         unsafe_allow_html=True,
     )

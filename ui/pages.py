@@ -41,8 +41,8 @@ def render_cards(specs: list[AlgorithmSpec], go_to: Callable[[str], None], *, ke
 
 def home(specs: Mapping[str, AlgorithmSpec], go_to: Callable[[str], None], go_catalog: Callable[[], None]) -> None:
     st.markdown(
-        '<div class="fn-hero"><span class="fn-pill">🇹🇳 POUR LES LYCÉES TUNSIENS · VERSION BÊTA</span>'
-        '<h1>El algorithmes yweli <em>birasmi fi jib.</em></h1>'
+        '<div class="fn-hero"><span class="fn-pill">🇹🇳 POUR LES LYCÉENS TUNISIENS · VERSION BÊTA</span>'
+        '<h1>El Algo Kollou <em>Fi Jibek !</em></h1>'
         '<p>Explore les fonctions, teste tes propres valeurs et découvre comment '
         'chaque algorithme fonctionne — en pseudo-code et en Python. '
         'Une bibliothèque qui grandit avec tes cours.</p></div>',
@@ -80,7 +80,7 @@ def home(specs: Mapping[str, AlgorithmSpec], go_to: Callable[[str], None], go_ca
     with st.container(border=True):
         st.markdown("#### 🎓 Et la 4ème Info ?")
         st.write("Le parcours Bac Info est prévu. Pour l'instant, tu peux déjà réviser "
-                 "les bases grâce aux modules publiés. De nouvelles fonctions arriveront au fin du projet.")
+                 "les bases grâce aux modules publiés. De nouvelles fonctions arriveront au fil du projet.")
 
 
 def library(specs: Mapping[str, AlgorithmSpec], go_to: Callable[[str], None]) -> None:
@@ -215,7 +215,7 @@ def algorithm_page(specs: Mapping[str, AlgorithmSpec], go_catalog: Callable[[], 
         if spec.limits:
             st.markdown("#### À retenir")
             st.write(spec.limits)
-        st.caption("Objectif : comprendre le raisonnement, pas seulement mémoriser le code. <span style='color: #FFFFFF !important; font-weight: bold; opacity: 1 !important;'>Na7i la7fatha !</span>", unsafe_allow_html=True)
+        st.markdown("**Na7i la7fatha !** — L'objectif est de comprendre le raisonnement, pas seulement de mémoriser le code.")
     with t3:
         st.caption(
             "Code pédagogique adapté aux notions scolaires : les vérifications techniques "

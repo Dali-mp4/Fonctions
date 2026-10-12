@@ -49,3 +49,77 @@ def test_all_seven_can_be_executed_with_classroom_examples():
         r = client.post(f"/api/v1/algorithms/{slug}/run", json={"inputs": inputs})
         assert r.status_code == 200, (slug, r.text)
         assert r.json()["value"] == expected, slug
+
+
+def test_tableau_defaults_to_display_without_sorting():
+    values = [8, 3, 11, 2, 5]
+    response = client.post(
+        "/api/v1/algorithms/tableau/run",
+        json={"inputs": {"tableau": values, "ordre": "Aucun"}},
+    )
+    assert response.status_code == 200
+    result = response.json()
+    assert result["value"] == values
+    assert "Aucun tri" in result["note"]
+    assert any("Déclaration" in step for step in result["steps"])
+    assert any("Remplissage" in step for step in result["steps"])
+    assert any("Affichage" in step for step in result["steps"])
+    assert all("Tri, passage" not in step for step in result["steps"])
+
+
+def test_tableau_sort_is_optional_and_preserves_original():
+    values = [8, 3, 11, 2, 5]
+    for order, expected in [
+        ("Croissant", [2, 3, 5, 8, 11]),
+        ("Décroissant", [11, 8, 5, 3, 2]),
+    ]:
+        r = client.post(
+            "/api/v1/algorithms/tableau/run",
+            json={"inputs": {"tableau": values, "ordre": order}},
+        )
+        assert r.status_code == 200
+        assert r.json()["value"] == expected
+        assert "Tri facultatif" in r.json()["note"]
+    assert values == [8, 3, 11, 2, 5]
+    assert client.post(
+        "/api/v1/algorithms/tableau/run",
+        json={"inputs": {"tableau": values, "ordre": "Inconnu"}},
+    ).status_code == 422
+
+
+def test_classroom_tableau_content_prioritizes_array_basics():
+    spec = client.get("/api/v1/algorithms/tableau").json()
+    assert "remplir" in spec["title"]
+    assert "affichage" in spec["summary"]
+    assert spec["inputs"][1]["default"] == "Aucun"
+    assert spec["inputs"][1]["options"] == ["Aucun", "Croissant", "Décroissant"]
+    assert [c["title"] for c in spec["code_sections"]][:4] == [
+        "Déclarer le tableau — TDNT et TDOG",
+        "Remplir manuellement",
+        "Remplir aléatoirement",
+        "Afficher les éléments",
+    ]
+    assert "facultatif" in spec["code_sections"][-1]["title"]
+
+
+def test_matrice_stays_unchanged_and_has_no_sort_option():
+    spec = client.get("/api/v1/algorithms/matrice").json()
+    assert len(spec["inputs"]) == 1
+    assert spec["inputs"][0]["name"] == "matrice"
+    assert all("trier" not in c["title"].lower() for c in spec["code_sections"])
+    r = client.post(
+        "/api/v1/algorithms/matrice/run",
+        json={"inputs": {"matrice": [[8, 3, 11], [2, 5, 1]]}},
+    )
+    assert r.status_code == 200
+    assert r.json()["value"] == [[8, 3, 11], [2, 5, 1]]
+
+
+def test_tableau_omitting_sort_choice_also_defaults_to_display():
+    r = client.post(
+        "/api/v1/algorithms/tableau/run",
+        json={"inputs": {"tableau": [7, 1, 5]}},
+    )
+    assert r.status_code == 200
+    assert r.json()["value"] == [7, 1, 5]
+    assert "Aucun tri" in r.json()["note"]

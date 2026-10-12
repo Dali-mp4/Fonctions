@@ -48,6 +48,15 @@ npm run dev
 
 Open **http://localhost:3000**. The public library requires no Supabase credentials. To run the built-in algorithms, start the API at **http://127.0.0.1:8000**.
 
+## Classroom display: Tableau and Matrice
+
+In the **Essayer** tab, results are rendered as accessible tables rather than raw JSON lists:
+
+- **TABLEAU**: one row of values, with columns labelled by 0-based indices (`T[0]`, `T[1]`, etc.). The default choice **Tri (facultatif) → Aucun** displays the values in their original order. You can choose ascending or descending selection sort as a separate exercise.
+- **MATRICE**: a two-dimensional grid with visible **Ligne 0, Ligne 1** and **Col. 0, Col. 1** headers. Its cell coordinates match `M[i, j]`. **No matrix sorting** has been added; it remains a future exercise for contributors.
+
+The classroom code sections for declaration (TDNT/TDOG), manual/random filling and display remain available, and the tableau sorting code is retained as an explicitly optional section.
+
 ## Enable login and private drafts
 
 1. Create a **new** Supabase project (do not use real students' production data for experiments).

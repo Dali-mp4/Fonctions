@@ -215,7 +215,7 @@ def algorithm_page(specs: Mapping[str, AlgorithmSpec], go_catalog: Callable[[], 
         if spec.limits:
             st.markdown("#### À retenir")
             st.write(spec.limits)
-        st.caption("Objectif : comprendre le raisonnement, pas seulement mémoriser le code. **<span style='color: white;'>Na7i la7fatha !</span>**", unsafe_allow_html=True)
+        st.caption("Objectif : comprendre le raisonnement, pas seulement mémoriser le code. <span style='color: white; font-weight: bold;'>Na7i la7fatha !</span>", unsafe_allow_html=True)
     with t3:
         st.caption(
             "Code pédagogique adapté aux notions scolaires : les vérifications techniques "

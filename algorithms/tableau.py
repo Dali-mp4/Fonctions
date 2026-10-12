@@ -87,7 +87,6 @@ Exemple : n ← 5""",
 
 n = 5
 T = array([float()] * n)""",
-            note="Déclaration NumPy avec float(), comme dans ton code d'origine. Dans l'atelier, les valeurs saisies sont pour l'instant des entiers.",
         ),
         CodeSection(
             title="Remplir manuellement",

@@ -1,6 +1,6 @@
-# FONCTIONS 🧠
+# Algo Fi Jib — Fonctions 🧠
 
-**Bibliothèque interactive d'algorithmique pour les lycéens tunisiens.**
+**Algo Fi Jib** est le nom public du projet **Fonctions**, une bibliothèque interactive d'algorithmique pour les lycéens tunisiens.
 
 Cette version est une première base éducative : **7 modules existants**, en pseudo-code, Python et exécution interactive. Elle **ne prétend pas couvrir la totalité** des programmes de 3ème ou 4ème Sciences de l'Informatique.
 
@@ -105,15 +105,16 @@ Pour vérifier la nomenclature :
 ## Tester
 
 ```bash
-pip install pytest
+python -m pip install -r requirements.txt -r requirements-dev.txt
 python -m pytest -q
+python -m compileall -q streamlit_app.py algorithms ui tests
 ```
 
-## Mettre en ligne sans perturber l'app actuelle
+Le workflow GitHub Actions (`.github/workflows/ci.yml`) exécute ces vérifications sur les branches de travail et sur les pull requests vers `streamlit-v1-modular`.
 
-1. Tester cette version dans un dépôt ou une branche séparée.
-2. Si tu veux remplacer le déploiement existant, mettre à jour **Main file path** dans Streamlit Community Cloud vers `streamlit_app.py` à la racine de ce projet (ou le chemin correspondant dans ton dépôt).
-3. Confirmer la validation avant de modifier la branche/deployment en production.
+## Contribuer et déployer sans toucher au site public
+
+Consulte le [guide de développement et de déploiement](docs/DEVELOPMENT.md) : branches `feature/`, `fix/`, `chore/`, pull requests, tests et déploiement de test. GitHub Actions **ne déploie pas** le site et ne modifie pas `main`.
 
 Pas de comptes ni de base de données pour cette version. Le code métier reste réutilisable si un frontend sur mesure est développé plus tard.
 

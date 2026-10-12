@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Fonctions: Streamlit navigation; algorithms are independent Python modules.
+# Algo Fi Jib — Fonctions: independent Python algorithms and Streamlit navigation.
 # Launch on Windows: py -m streamlit run streamlit_app.py
 
 from algorithms.registry import discover_algorithms
@@ -9,7 +9,7 @@ from ui.style import apply_styles, footer
 
 
 st.set_page_config(
-    page_title="Algo Fi Jib",
+    page_title="Algo Fi Jib — Fonctions",
     page_icon="🧠", layout="wide", initial_sidebar_state="collapsed",
 )
 apply_styles()
@@ -49,9 +49,9 @@ def go_library() -> None:
 
 
 with st.sidebar:
-    st.markdown("Algo Fi Jib")
-    st.caption("Algorithmes · Python · Collection Bac")
-    st.info("EL ALGO LKOL, FI JIBEK.")
+    st.markdown("## 🧠 Algo Fi Jib — Fonctions")
+    st.caption("Algorithmique · Python · 3ème et 4ème Info")
+    st.info("El Algo Kollou Fi Jibek !")
 
 navigation = st.navigation(
     [page_home, page_library, page_programmes, page_algorithm], position="top"

@@ -1,7 +1,11 @@
+node_modules/
+.next/
+*.tsbuildinfo
 __pycache__/
-*.py[cod]
 .pytest_cache/
 .venv/
 .env
+.env.local
+.env.*.local
+*.pyc
 .DS_Store
-.streamlit/secrets.toml

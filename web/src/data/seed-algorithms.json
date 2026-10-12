@@ -1,0 +1,398 @@
+[
+  {
+    "slug": "enregistrement",
+    "name": "ENREGISTREMENT",
+    "title": "Valeurs nommées et typées",
+    "category": "Structures de données",
+    "level": "Bases · 3ème Info",
+    "method": "base",
+    "collection": "general",
+    "icon": "🗂️",
+    "summary": "Définir des champs nommés avec des valeurs de types différents.",
+    "principle": "Associer un nom, un type et une valeur à chaque champ, puis les regrouper. Ici, la représentation Python est un dictionnaire.",
+    "example": "nom = '3mor' · age = 17 · admis = Vrai",
+    "tags": [
+      "enregistrement",
+      "types",
+      "champs"
+    ],
+    "limits": "Les noms de champs doivent être uniques et valides. Démonstration via un dictionnaire Python.",
+    "inputs": [
+      {
+        "name": "champs",
+        "label": "Champs de l'enregistrement",
+        "kind": "records",
+        "default": [
+          [
+            "nom",
+            "chaîne",
+            "3mor"
+          ],
+          [
+            "age",
+            "entier",
+            "17"
+          ],
+          [
+            "admis",
+            "booléen",
+            "Vrai"
+          ]
+        ],
+        "min_value": null,
+        "max_value": null,
+        "options": [],
+        "hint": ""
+      }
+    ],
+    "code_sections": [
+      {
+        "title": "Déclarer un enregistrement — TDNT et TDOG",
+        "pseudocode": "TDNT (Tableau de Déclaration des Nouveaux Types)\n    Eleve = Enregistrement\n        nom : Chaîne\n        age : Entier\n        admis : Booléen\n    Fin\n\nTDOG (Tableau de Déclaration des Objets Globaux)\n    Objet       Type / Nature\n    E           Eleve",
+        "python": "E = {\n    \"nom\": str(),\n    \"age\": int(),\n    \"admis\": bool()\n}",
+        "note": "Exemple fixe à trois champs. L'atelier permet aussi d'ajouter d'autres champs : c'est une interface plus générale."
+      },
+      {
+        "title": "Remplir les champs",
+        "pseudocode": "Procédure REMPLIR(@E : Eleve)\nDébut\n    Lire(E.nom)\n    Lire(E.age)\n    Lire(E.admis)\nFin",
+        "python": "def remplir(E):\n    E[\"nom\"] = input(\"Entrer le nom : \")\n    E[\"age\"] = int(input(\"Entrer l'âge : \"))\n    E[\"admis\"] = input(\"Admis (Vrai/Faux) : \") == \"Vrai\"\n    return E",
+        "note": ""
+      },
+      {
+        "title": "Afficher les champs",
+        "pseudocode": "Procédure AFFICHER(E : Eleve)\nDébut\n    Écrire(E.nom)\n    Écrire(E.age)\n    Écrire(E.admis)\nFin",
+        "python": "def afficher(E):\n    print(E[\"nom\"])\n    print(E[\"age\"])\n    print(E[\"admis\"])",
+        "note": ""
+      }
+    ]
+  },
+  {
+    "slug": "matrice",
+    "name": "MATRICE",
+    "title": "Tableau à deux dimensions",
+    "category": "Structures de données",
+    "level": "Bases · 3ème Info",
+    "method": "base",
+    "collection": "general",
+    "icon": "▦",
+    "summary": "Remplir et afficher une matrice d'entiers.",
+    "principle": "Une matrice est organisée en lignes et colonnes. On parcourt ses cellules à l'aide de deux indices.",
+    "example": "[[1, 2, 3], [4, 5, 6]] → 2 lignes × 3 colonnes",
+    "tags": [
+      "matrice",
+      "indices",
+      "tableau"
+    ],
+    "limits": "Maximum 10 × 10 cellules pour garder l'affichage clair.",
+    "inputs": [
+      {
+        "name": "matrice",
+        "label": "Valeurs de la matrice",
+        "kind": "matrix",
+        "default": "1, 2, 3\n4, 5, 6",
+        "min_value": null,
+        "max_value": null,
+        "options": [],
+        "hint": "Une ligne par rangée, avec les entiers séparés par des virgules."
+      }
+    ],
+    "code_sections": [
+      {
+        "title": "Déclarer la matrice — TDNT et TDOG",
+        "pseudocode": "TDNT (Tableau de Déclaration des Nouveaux Types)\n    Mat = Tableau de 2 Lignes et 3 Colonnes de type Réels\n\nTDOG (Tableau de Déclaration des Objets Globaux)\n    Objet       Type / Nature\n    M           Mat\n    l, c        Entier\n\nExemple : l ← 2 ; c ← 3",
+        "python": "from numpy import array\n\nl = 2\nc = 3\nM = array([[float()] * c] * l)",
+        "note": ""
+      },
+      {
+        "title": "Remplir manuellement",
+        "pseudocode": "Procédure REMPLIR(@M : Mat, l, c : Entier)\nDébut\n    Pour i de 0 à l - 1 Faire\n        Pour j de 0 à c - 1 Faire\n            Lire(M[i, j])\n        Fin Pour\n    Fin Pour\nFin",
+        "python": "def remplir(M, l, c):\n    for i in range(l):\n        for j in range(c):\n            M[i, j] = float(input(\"Entrer une valeur : \"))\n    return M",
+        "note": ""
+      },
+      {
+        "title": "Remplir aléatoirement",
+        "pseudocode": "Procédure REMPLIR_ALEATOIRE(@M : Mat, l, c, mini, maxi : Entier)\nDébut\n    Pour i de 0 à l - 1 Faire\n        Pour j de 0 à c - 1 Faire\n            M[i, j] ← Aléa(mini, maxi)\n        Fin Pour\n    Fin Pour\nFin",
+        "python": "from random import randint\n\ndef remplir_aleatoire(M, l, c, mini, maxi):\n    for i in range(l):\n        for j in range(c):\n            M[i, j] = randint(mini, maxi)\n    return M",
+        "note": ""
+      },
+      {
+        "title": "Afficher les cellules",
+        "pseudocode": "Procédure AFFICHER(M : Mat, l, c : Entier)\nDébut\n    Pour i de 0 à l - 1 Faire\n        Pour j de 0 à c - 1 Faire\n            Écrire(M[i, j])\n        Fin Pour\n    Fin Pour\nFin",
+        "python": "def afficher(M, l, c):\n    for i in range(l):\n        for j in range(c):\n            print(M[i, j])",
+        "note": "Le module MATRICE d'origine ne contient pas de tri : nous n'en ajoutons pas."
+      }
+    ]
+  },
+  {
+    "slug": "pgcd",
+    "name": "PGCD",
+    "title": "Plus Grand Commun Diviseur",
+    "category": "Mathématiques",
+    "level": "Bases · 3ème Info",
+    "method": "base",
+    "collection": "general",
+    "icon": "🔢",
+    "summary": "Trouver le plus grand diviseur commun de deux entiers.",
+    "principle": "On retranche le plus petit entier du plus grand jusqu'à obtenir deux valeurs égales.",
+    "example": "PGCD(48, 18) = 6",
+    "tags": [
+      "entiers",
+      "soustractions",
+      "boucle"
+    ],
+    "limits": "Deux entiers strictement positifs. La méthode par soustractions est volontairement conservée.",
+    "inputs": [
+      {
+        "name": "a",
+        "label": "Premier entier (a)",
+        "kind": "int",
+        "default": 48,
+        "min_value": 1,
+        "max_value": 10000,
+        "options": [],
+        "hint": ""
+      },
+      {
+        "name": "b",
+        "label": "Deuxième entier (b)",
+        "kind": "int",
+        "default": 18,
+        "min_value": 1,
+        "max_value": 10000,
+        "options": [],
+        "hint": ""
+      }
+    ],
+    "code_sections": [
+      {
+        "title": "Fonction PGCD par soustractions successives",
+        "pseudocode": "Fonction PGCD(a, b : Entier) : Entier\nDébut\n    Tant que a ≠ b Faire\n        Si a > b Alors\n            a ← a - b\n        Sinon\n            b ← b - a\n        Fin Si\n    Fin Tant que\n    Retourner a\nFin",
+        "python": "def pgcd(a, b):\n    while a != b:\n        if a > b:\n            a = a - b\n        else:\n            b = b - a\n    return a",
+        "note": "On utilise deux entiers strictement positifs, comme dans le programme d'origine."
+      }
+    ]
+  },
+  {
+    "slug": "ppcm",
+    "name": "PPCM",
+    "title": "Plus Petit Commun Multiple",
+    "category": "Mathématiques",
+    "level": "Bases · 3ème Info",
+    "method": "base",
+    "collection": "general",
+    "icon": "➗",
+    "summary": "Trouver le plus petit multiple commun de deux entiers.",
+    "principle": "On teste les multiples successifs du premier nombre jusqu'à trouver un multiple du second.",
+    "example": "PPCM(12, 18) = 36",
+    "tags": [
+      "multiples",
+      "boucle",
+      "mod"
+    ],
+    "limits": "Deux entiers strictement positifs ; limites d'entrée pour garder une exécution fluide.",
+    "inputs": [
+      {
+        "name": "a",
+        "label": "Premier entier (a)",
+        "kind": "int",
+        "default": 12,
+        "min_value": 1,
+        "max_value": 10000,
+        "options": [],
+        "hint": ""
+      },
+      {
+        "name": "b",
+        "label": "Deuxième entier (b)",
+        "kind": "int",
+        "default": 18,
+        "min_value": 1,
+        "max_value": 10000,
+        "options": [],
+        "hint": ""
+      }
+    ],
+    "code_sections": [
+      {
+        "title": "Fonction PPCM par additions successives",
+        "pseudocode": "Fonction PPCM(a, b : Entier) : Entier\nDébut\n    m ← a\n    Tant que m mod b ≠ 0 Faire\n        m ← m + a\n    Fin Tant que\n    Retourner m\nFin",
+        "python": "def ppcm(a, b):\n    m = a\n    while m % b != 0:\n        m = m + a\n    return m",
+        "note": "On utilise deux entiers strictement positifs."
+      }
+    ]
+  },
+  {
+    "slug": "som-ch",
+    "name": "SOM_CH",
+    "title": "Somme des chiffres",
+    "category": "Traitement",
+    "level": "Bases · 3ème Info",
+    "method": "base",
+    "collection": "general",
+    "icon": "🧮",
+    "summary": "Calculer la somme de tous les chiffres d'un entier.",
+    "principle": "Convertir le nombre en chaîne, parcourir chaque caractère et additionner sa valeur numérique.",
+    "example": "SOM_CH(4825) = 19",
+    "tags": [
+      "chaînes",
+      "parcours",
+      "addition"
+    ],
+    "limits": "Entier positif ou nul ; au plus 9 chiffres dans ce démonstrateur.",
+    "inputs": [
+      {
+        "name": "a",
+        "label": "Nombre entier (n)",
+        "kind": "int",
+        "default": 4825,
+        "min_value": 0,
+        "max_value": 999999999,
+        "options": [],
+        "hint": ""
+      }
+    ],
+    "code_sections": [
+      {
+        "title": "Somme des chiffres d'un nombre",
+        "pseudocode": "Fonction SOM_CH(a : Entier) : Entier\nDébut\n    s ← 0\n    ch ← Convch(a)\n    Pour i de 0 à Long(ch) - 1 Faire\n        s ← s + Valeur(ch[i])\n    Fin Pour\n    Retourner s\nFin",
+        "python": "def som_ch(a):\n    s = 0\n    ch = str(a)\n    for i in range(len(ch)):\n        s = s + int(ch[i])\n    return s",
+        "note": "Comme dans ton code initial : conversion en chaîne puis parcours caractère par caractère."
+      }
+    ]
+  },
+  {
+    "slug": "tableau",
+    "name": "TABLEAU",
+    "title": "Tableau et tri par sélection",
+    "category": "Structures de données",
+    "level": "Bases · 3ème Info",
+    "method": "base",
+    "collection": "general",
+    "icon": "📊",
+    "summary": "Remplir un tableau puis le trier par sélection.",
+    "principle": "À chaque passage, placer le maximum à sa position. Le tri d'origine est décroissant ; l'ordre croissant s'obtient par inversion.",
+    "example": "[8, 3, 11, 2, 5] → [2, 3, 5, 8, 11]",
+    "tags": [
+      "tableau",
+      "tri",
+      "sélection"
+    ],
+    "limits": "Maximum 40 entiers pour garder un atelier facile à lire.",
+    "inputs": [
+      {
+        "name": "tableau",
+        "label": "Éléments du tableau",
+        "kind": "int_list",
+        "default": "8, 3, 11, 2, 5",
+        "min_value": null,
+        "max_value": null,
+        "options": [],
+        "hint": "Séparer les entiers par des virgules."
+      },
+      {
+        "name": "ordre",
+        "label": "Ordre de tri",
+        "kind": "choice",
+        "default": "Croissant",
+        "min_value": null,
+        "max_value": null,
+        "options": [
+          "Croissant",
+          "Décroissant"
+        ],
+        "hint": ""
+      }
+    ],
+    "code_sections": [
+      {
+        "title": "Déclarer le tableau — TDNT et TDOG",
+        "pseudocode": "TDNT (Tableau de Déclaration des Nouveaux Types)\n    Tab = Tableau de 5 Réels\n\nTDOG (Tableau de Déclaration des Objets Globaux)\n    Objet       Type / Nature\n    T           Tab\n    n           Entier\n\nExemple : n ← 5",
+        "python": "from numpy import array\n\nn = 5\nT = array([float()] * n)",
+        "note": ""
+      },
+      {
+        "title": "Remplir manuellement",
+        "pseudocode": "Procédure REMPLIR(@T : Tab, n : Entier)\nDébut\n    Pour i de 0 à n - 1 Faire\n        Lire(T[i])\n    Fin Pour\nFin",
+        "python": "def remplir(T, n):\n    for i in range(n):\n        T[i] = float(input(\"Entrer T[\" + str(i) + \"] : \"))\n    return T",
+        "note": "T et n sont ceux déclarés dans la première étape."
+      },
+      {
+        "title": "Remplir aléatoirement",
+        "pseudocode": "Procédure REMPLIR_ALEATOIRE(@T : Tab, n, mini, maxi : Entier)\nDébut\n    Pour i de 0 à n - 1 Faire\n        T[i] ← Aléa(mini, maxi)\n    Fin Pour\nFin",
+        "python": "from random import randint\n\ndef remplir_aleatoire(T, n, mini, maxi):\n    for i in range(n):\n        T[i] = randint(mini, maxi)\n    return T",
+        "note": ""
+      },
+      {
+        "title": "Afficher les éléments",
+        "pseudocode": "Procédure AFFICHER(T : Tab, n : Entier)\nDébut\n    Pour i de 0 à n - 1 Faire\n        Écrire(T[i])\n    Fin Pour\nFin",
+        "python": "def afficher(T, n):\n    for i in range(n):\n        print(T[i])",
+        "note": ""
+      },
+      {
+        "title": "Trier le tableau (tri par sélection)",
+        "pseudocode": "Fonction TRI(T : Tab, n : Entier) : Tab\nDébut\n    Pour i de 0 à n - 2 Faire\n        p ← i\n        Pour j de i + 1 à n - 1 Faire\n            Si T[j] > T[p] Alors\n                p ← j\n            Fin Si\n        Fin Pour\n        Si p ≠ i Alors\n            a ← T[i]\n            T[i] ← T[p]\n            T[p] ← a\n        Fin Si\n    Fin Pour\n    Retourner T\nFin",
+        "python": "def tri(T, n):\n    for i in range(n - 1):\n        p = i\n        for j in range(i + 1, n):\n            if T[j] > T[p]:\n                p = j\n        if p != i:\n            a = T[i]\n            T[i] = T[p]\n            T[p] = a\n    return T",
+        "note": "C'est ton tri par sélection d'origine, en ordre décroissant. Pour afficher l'ordre croissant : changer  >  par  < ."
+      }
+    ]
+  },
+  {
+    "slug": "verif",
+    "name": "VERIF",
+    "title": "Appartenance à un intervalle",
+    "category": "Traitement",
+    "level": "Bases · 3ème Info",
+    "method": "base",
+    "collection": "general",
+    "icon": "📏",
+    "summary": "Vérifier si un nombre appartient à un intervalle fermé.",
+    "principle": "Le nombre appartient à [min, max] si et seulement si min ≤ nombre ≤ max.",
+    "example": "VERIF(7, 2, 10) = Vrai",
+    "tags": [
+      "conditions",
+      "booléen",
+      "intervalle"
+    ],
+    "limits": "Intervalle fermé : les bornes sont incluses. La borne minimale ne peut pas dépasser la maximale.",
+    "inputs": [
+      {
+        "name": "a",
+        "label": "Nombre à vérifier",
+        "kind": "float",
+        "default": 7.0,
+        "min_value": null,
+        "max_value": null,
+        "options": [],
+        "hint": ""
+      },
+      {
+        "name": "borne_min",
+        "label": "Borne minimale",
+        "kind": "float",
+        "default": 2.0,
+        "min_value": null,
+        "max_value": null,
+        "options": [],
+        "hint": ""
+      },
+      {
+        "name": "borne_max",
+        "label": "Borne maximale",
+        "kind": "float",
+        "default": 10.0,
+        "min_value": null,
+        "max_value": null,
+        "options": [],
+        "hint": ""
+      }
+    ],
+    "code_sections": [
+      {
+        "title": "Vérifier un intervalle fermé",
+        "pseudocode": "Fonction VERIF(a, mini, maxi : Réel) : Booléen\nDébut\n    Si mini ≤ a ≤ maxi Alors\n        Retourner Vrai\n    Sinon\n        Retourner Faux\n    Fin Si\nFin",
+        "python": "def VERIF(a, mini, maxi):\n    if mini <= a <= maxi:\n        return True\n    else:\n        return False",
+        "note": "La version originale renvoyait True si le test réussissait. Ici, False est écrit explicitement pour faciliter la lecture."
+      }
+    ]
+  }
+]

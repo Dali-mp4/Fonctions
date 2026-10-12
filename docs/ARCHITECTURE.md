@@ -1,0 +1,49 @@
+# Architecture and security milestones
+
+## Architecture
+
+Browser (Next.js App Router + Supabase Auth cookies)
+-> PUBLIC FastAPI: reviewed built-in algorithms only
+-> PostgreSQL (Supabase): users + draft and review objects
+-> FUTURE isolated runner: execute approved code in disposable sandboxes
+
+Source of truth for the platform = GitHub. Source of truth for future contributed implementations = database revisions. Published code is pinned to a reviewed revision rather than mutable draft text.
+
+## Roles
+
+Visitor: read and test published content.
+Student: visitor plus personal account, no write access to content.
+Contributor: write private drafts, later submit after sandbox tests.
+Reviewer: review contributions; cannot approve their own revision.
+Owner: invite/change member roles (but not promote a second owner via the browser RPC).
+
+The database, not client navigation, enforces roles. There is **no client-visible service-role key**. Direct table writes are denied and only scoped RPC calls create drafts.
+
+## API boundary
+
+`POST /api/v1/algorithms/{slug}/run` dispatches to one of seven trusted functions from the old modular project. It checks types, field names, and input lengths to bound work. It takes **values only** and rejects extra fields. Never extend it to evaluate source code supplied by users.
+
+## Secure execution milestone (required before public contributor testing)
+
+1. Decide on a managed sandbox provider and verify its isolation policies.
+2. Build a separate runner with a pinned Python image containing `numpy` and standard library `random`. The image has *no* Supabase credentials or ability to reach production services.
+3. Disable all outbound network access; cap CPU, RAM, wall-clock time, output bytes, tests per minute, and per-user budget.
+4. Provide a single declared function entry point and JSON-serializable I/O contract. For NumPy arrays, define a safe conversion to JSON lists.
+5. Validate results against declared and hidden test cases, record evidence against the exact SHA-256 hash of the submitted code and inputs. Only a trusted backend can set `test_status` to `passed`.
+6. Implement an atomic submit/approve/reject/rollback flow and protect the runner endpoint with server-side auth, quotas and audit trails.
+7. Add abuse testing, logging, privacy controls and production operational checks before inviting contributors.
+
+**Important**: A simple subprocess or Python AST whitelist is NOT a security boundary for untrusted code.
+
+## Database status
+
+The migration provides schema, RLS, owner-only role delegation, draft-creation RPC and approval prerequisites. The studio currently saves drafts only. Review/approval UI, editing, strict sandbox attestation, rollback and public DB publication integration are future work.
+
+## Release plan
+
+1. **Foundation:** polished Next.js frontend, FastAPI reviewed runner, baseline SQL and role-aware draft editor. (This slice.)
+2. **Identity and authoring:** configure live Supabase, account invitation management and draft revision editing.
+3. **Safe execution:** deploy sandbox, tests, resource and rate controls, trusted test evidence.
+4. **Review workflow:** submit, request changes, publish and restore revision; reviewer interface.
+5. **Data migration:** move original seven to durable published records, preserve authorship and educational text.
+6. **Launch:** security assessment, backup strategy, mobile/browser QA, production monitoring.

@@ -1,143 +1,76 @@
-# Algo Fi Jib — Fonctions 🧠
+# Algo Fi Jib — Fonctions 2.0
 
-**Algo Fi Jib** est le nom public du projet **Fonctions**, une bibliothèque interactive d'algorithmique pour les lycéens tunisiens.
+Collaborative algorithm-learning platform for Tunisian secondary-school students. **New application, separate from Streamlit.**
 
-Cette version est une première base éducative : **7 modules existants**, en pseudo-code, Python et exécution interactive. Elle **ne prétend pas couvrir la totalité** des programmes de 3ème ou 4ème Sciences de l'Informatique.
+## Current status: foundation / not production-ready
 
-## Démarrer
+### Implemented in this first slice
 
-Python 3.10+ recommandé.
+- Next.js / TypeScript responsive public site: home, searchable library, 3ème/4ème pathways, seven algorithm lesson pages.
+- Preserved educational **TDNT / TDOG, pseudocode and classroom Python** from the previous Fonctions codebase.
+- Python FastAPI for read-only catalog and **bounded execution of the seven pre-reviewed functions only**. No execution of contributed source.
+- Supabase Auth UI, protected role-aware contributor studio, Monaco editor, a **save draft** operation backed by a protected PostgreSQL RPC.
+- SQL migration for roles, concepts, implementations, revisions, audit events, RLS and approval primitives.
+- GitHub Actions checks for the Python API and TypeScript frontend.
+
+### Deliberately *not* implemented / enabled yet
+
+- Executing new code typed by contributors. **Never** send user Python to FastAPI `exec` or `eval`.
+- Sandboxed draft testing, test-result attestation, submission/review UI, revision editing and rollback UI.
+- Admin invitation management interface, production deployment, custom domain, rate limiting, privacy and abuse controls.
+- Live public catalog from Supabase: current seven are read from a frozen snapshot while backend also serves them from pure Python modules.
+
+These are mandatory before opening contributor submissions publicly. Approval RPC checks `test_status='passed'`, which **cannot be granted from the browser**.
+
+## Run locally
+
+Prerequisites: **Node.js 20.9+** (22 recommended), Python 3.11+.
+
+**Terminal 1 — API** (from project root):
 
 ```bash
+cd api
 python -m venv .venv
-# Linux / macOS
-source .venv/bin/activate
-# Windows PowerShell : .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-streamlit run streamlit_app.py
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+# Linux/macOS: source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
-## Ce qui est inclus
-
-- **Accueil** : présentation du projet, accès aux modules.
-- **Bibliothèque** : recherche par mot clé et filtre par catégorie.
-- **Parcours scolaires** : révisions 3ème Info et prérequis pour le Bac Info ; l'intégration progressive de nouveaux modules est prévue.
-- **Atelier** : saisie, calcul, trace pédagogique, pseudocode et **code Python scolaire rédigé indépendamment du moteur d’exécution**. Chaque atelier possède une URL partageable (`/atelier?algo=pgcd` par exemple).
-- **Modules** : PGCD, PPCM, SOM_CH, VERIF, TABLEAU, ENREGISTREMENT, MATRICE.
-
-Les algorithmes mathématiques utilisent les méthodes pédagogiques du projet original (soustractions successives pour le PGCD, additions successives pour le PPCM). Le tri est un **tri par sélection** décroissant, inversé pour obtenir l'ordre croissant.
-
-## Organisation
-
-```text
-streamlit_app.py       # navigation / lancement
-algorithms/
-  schema.py            # InputField, AlgorithmSpec, AlgorithmResult
-  registry.py          # découverte automatique des modules
-  pgcd.py ...          # code métier pur, SANS import de Streamlit
-ui/
-  pages.py             # composants et pages réutilisables
-  fields.py            # saisie et validation générique
-  style.py             # thème et CSS
-.streamlit/config.toml # couleurs
-requirements.txt
-tests/test_algorithms.py
-```
-
-## Ajouter une fonction SANS modifier Streamlit
-
-1. Créer un fichier Python dans `algorithms/` (par exemple `factorielle.py`).
-2. Écrire une fonction pure, une fonction `execute` renvoyant un `AlgorithmResult`, et une constante `SPEC : AlgorithmSpec`.
-3. Ajouter ses champs (`InputField`), ses exemples pédagogiques (`CodeSection`), son pseudo-code et sa classification (`level="3ème Info"`, `level="4ème Info"` ou `level="Transversal"`) à `SPEC`.
-4. Relancer l'app : le module sera détecté automatiquement dans la bibliothèque et dans le parcours de révision.
-
-Exemple minimal (démonstration technique **non comprise dans les 7 modules publiés**) :
-
-```python
-from .schema import AlgorithmResult, AlgorithmSpec, InputField, CodeSection
-
-
-def doubler(n: int) -> int:
-    return 2 * n
-
-
-def execute(n: int) -> AlgorithmResult:
-    return AlgorithmResult(doubler(n), (f"2 × {n} = {2*n}",))
-
-SPEC = AlgorithmSpec(
-    slug="doubler", name="DOUBLER", full_name="Doubler un entier",
-    category="Mathématiques", summary="Multiplier un nombre par 2.",
-    principle="Additionner le nombre à lui-même.",
-    pseudocode="Fonction DOUBLER(n : Entier) : Entier\nDébut\n    Retourner 2 * n\nFin",
-    inputs=(InputField("n", "Entier", "int", 4),),
-    function=doubler, execute=execute, example="DOUBLER(4) = 8",
-    code_sections=(CodeSection(
-        title="Fonction DOUBLER",
-        pseudocode="Fonction DOUBLER(n : Entier) : Entier\nDébut\n    Retourner 2 * n\nFin",
-        python="def doubler(n):\n    return 2 * n",
-    ),),
-)
-```
-
-Cet exemple explique **comment étendre la plateforme** : il n'est pas ajouté au catalogue livré.
-
-### Types d'entrées génériques disponibles
-
-`int`, `float`, `text`, `choice`, `int_list`, `matrix`, `records`.
-
-Une nouvelle fonction utilisant ces types n'exige **aucune modification à `streamlit_app.py` ou à `ui/pages.py`**. Si une nouvelle fonctionnalité exige un type d'entrée encore inexistant (graphique, fichier, etc.), on pourra étendre **une seule fois** le rendu générique `ui/fields.py`.
-
-### Pseudocode et programme scolaire
-
-Le pseudo-code est une adaptation pédagogique **à vérifier avec les conventions appliquées par l'enseignant et le référentiel scolaire à jour**. Les rubriques 3ème/4ème sont des parcours de révision proposés, **pas un syllabus officiel ou exhaustif**.
-
-Pour vérifier la nomenclature :
-- [Documentation de référence algorithmique en Tunisie](https://www.algo.tn/drive/)
-
-### Différences intentionnelles par rapport au projet d'origine
-
-- Les sept modules restent les mêmes ; aucun nouvel algorithme n'est ajouté au catalogue.
-- Le moteur Python est séparé de Streamlit. Les extraits scolaires TABLEAU et MATRICE conservent la déclaration NumPy de ton projet original.
-- Vérification explicite des entrées invalides, noms de champs uniques, limites raisonnables de taille.
-- Le module ENREGISTREMENT est une **démonstration de champs via dictionnaire Python** : un enregistrement scolaire à champs définis ne se réduit pas conceptuellement à un dictionnaire dynamique.
-- Les exemples affichés sont volontairement distincts du code interne, pour présenter un Python accessible au niveau scolaire (pas de `raise` ni de `try/except` dans les extraits). L'atelier conserve ses vérifications techniques sans les enseigner.
-
-## Tester
+**Terminal 2 — website**:
 
 ```bash
-python -m pip install -r requirements.txt -r requirements-dev.txt
-python -m pytest -q
-python -m compileall -q streamlit_app.py algorithms ui tests
+cd web
+npm install
+cp .env.example .env.local  # On Windows, use: copy .env.example .env.local
+npm run dev
 ```
 
-Le workflow GitHub Actions (`.github/workflows/ci.yml`) exécute ces vérifications sur les branches de travail et sur les pull requests vers `streamlit-v1-modular`.
+Open **http://localhost:3000**. The public library requires no Supabase credentials. To run the built-in algorithms, start the API at **http://127.0.0.1:8000**.
 
-## Contribuer et déployer sans toucher au site public
+## Enable login and private drafts
 
-Consulte le [guide de développement et de déploiement](docs/DEVELOPMENT.md) : branches `feature/`, `fix/`, `chore/`, pull requests, tests et déploiement de test. GitHub Actions **ne déploie pas** le site et ne modifie pas `main`.
+1. Create a **new** Supabase project (do not use real students' production data for experiments).
+2. Apply `supabase/migrations/001_initial_schema.sql` in Supabase SQL Editor.
+3. In `web/.env.local`, fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from your project. They are public client settings, **not** a service-role secret.
+4. Enable email/password login in Supabase Auth. New users receive `student` only.
+5. After creating your own account, bootstrap the owner **manually** in Supabase SQL Editor:
 
-Pas de comptes ni de base de données pour cette version. Le code métier reste réutilisable si un frontend sur mesure est développé plus tard.
-
-## Windows PowerShell : commande de lancement
-
-Depuis le dossier contenant `streamlit_app.py` :
-
-```powershell
-py -m pip install -r requirements.txt
-py -m streamlit run streamlit_app.py
+```sql
+-- Replace only with the ID of YOUR confirmed Auth user.
+UPDATE public.profiles SET role='owner'
+WHERE id = 'YOUR_AUTH_USER_UUID';
 ```
 
-Si une erreur `IndentationError` apparaît à la première ligne de `streamlit_app.py`, vérifie que la première ligne commence exactement par `import streamlit as st`, sans aucun espace ni tabulation devant. Il faut remplacer la copie locale du fichier puis relancer Streamlit.
+6. Invite a trusted friend to create a normal student account, then assign `contributor` using the owner-only `set_member_role` RPC (or Supabase SQL editor). A public user cannot assign themself a role.
+7. After logging in, visit `/studio`. With contributor/reviewer/owner privileges, you can write Python in Monaco and **save a private draft**. It is not executed, tested, or published yet.
 
-## Code Python à destination des élèves
+See [Architecture and roadmap](docs/ARCHITECTURE.md).
 
-Le contenu de l'onglet **Algorithme & Python** est maintenant défini explicitement dans `SPEC.code_sections` : chaque `CodeSection` contient un **titre**, un **pseudo-code** et un **extrait Python scolaire**, avec une remarque facultative. Le moteur de calcul (`function` / `execute`) reste indépendant et conserve ses contrôles de données : c'est volontaire.
+## Supported Python libraries
 
-- **PGCD, PPCM, SOM_CH, VERIF** : présentation simple des fonctions, sans gestion avancée d'exceptions dans les extraits visibles.
-- **TABLEAU** : déclaration NumPy avec TDNT/TDOG, remplissage manuel, remplissage aléatoire, affichage, puis tri par sélection (ordre décroissant, comme la version d'origine).
-- **MATRICE** : déclaration NumPy avec TDNT/TDOG, remplissage manuel, remplissage aléatoire et affichage ; pas de tri, car le projet original n'en contenait pas.
-- **ENREGISTREMENT** : exemple scolaire fixe à trois champs (déclarer / remplir / afficher), distinct de l'atelier dynamique qui permet d'ajouter des champs.
+The planned isolated execution image includes the standard library `random` and installed `numpy`. The **built-in** reviewed engine uses the existing seven modules. The contributor editor accepts imports in saved drafts, but executing them remains disabled until an isolated sandbox with a fixed dependency allowlist, blocked network, CPU/memory/time/output limits, quotas, and no secrets is ready.
 
-Les snippets Python du tableau et de la matrice utilisent `float()` comme dans tes fichiers d'origine ; **l'interface interactive utilise encore des valeurs entières**. Une évolution vers les réels partout pourra être étudiée séparément.
+## GitHub development
 
-Dans l'onglet code, ouvre chaque étape dans l'ordre. Modifier un exemple pédagogique ou en ajouter un ne nécessite pas de changement dans `ui/pages.py`.
+The original Streamlit branch `streamlit-v1-modular` and original `main` stay available. This v2 branch is an independent application. Future platform changes should be made by feature branches and PR reviews.

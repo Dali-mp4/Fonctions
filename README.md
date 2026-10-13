@@ -94,3 +94,18 @@ After completing the initial Supabase migration, run **`supabase/migrations/002_
 - **Not yet enabled:** running or submitting new Python code, marking a test as passed, publishing a contribution, and inviting users by email through the app. The reviewer queue will stay empty until an isolated sandbox issues verifiable tests for submitted revisions.
 
 **Quick verification:** Sign in as owner, create a draft, refresh `/studio`, reopen and edit it, then refresh and confirm the edit persists. Create a separate student account to verify `/studio` is denied, and use its Auth User UID in the owner team form to grant contributor rights. The new contributor should then see the editor after signing in. Do not share Supabase service-role/secret keys.
+
+## Phase 3A — Python function contracts and example cases (October 2026)
+
+After applying migrations **001** and **002**, run **`supabase/migrations/003_function_test_contract.sql` once** in the **Supabase SQL Editor**. It adds a nullable-by-default contract for older revisions, stores declared test cases, and exposes two new authenticated, audited RPCs (`create_draft_with_contract`, `update_draft_with_contract`). All existing published educational modules and drafts remain intact. Do **not** rerun migrations 001/002.
+
+In `/studio`:
+
+1. Declare an entry function, e.g. `pgcd`, choose parameters `a:int`, `b:int`, and return type `int`.
+2. Add a test named `PGCD(24,18)`, with inputs JSON `{"a":24,"b":18}` and expected JSON `6`. Arrays use `[1,2,3]`, matrices use `[[1,2],[3,4]]`.
+3. Press **Vérifier le format des tests** to check the contract and JSON type consistency **without running Python**. Only properly formatted cases can be saved, but none are certified as passed.
+4. Save, refresh, reopen the draft. Its code, function signature, parameters and examples should all persist; editing increments `edit_seq` and invalidates any earlier test evidence.
+
+**Security boundary:** This is *Phase 3A* (authoring + static validation). The platform still must not run contributed code until Phase 3B deploys a separate sandbox with networking disabled, secrets removed, pinned NumPy, time/memory/CPU/output quotas, server-verified test results tied to a code hash, and abuse tests. Merely supplying correctly formatted expected outputs does **not** mark a revision as passed or enable submission.
+
+**After Phase 5:** build **Manage Account** (`/compte`) for account details, password change/reset (email/password accounts), OAuth account details, sign-out and privacy/account deletion controls. This is planned, not implemented yet.

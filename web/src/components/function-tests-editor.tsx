@@ -1,0 +1,95 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { AlertCircle, CheckCircle2, FlaskConical, LockKeyhole, Plus, Trash2 } from "lucide-react";
+import {
+  type EditableTest, type Parameter, type ValueType, valueTypes, validateTestCases,
+} from "@/lib/test-contract";
+
+const descriptions: Record<ValueType, string> = {
+  int: "Entier", float: "Nombre", str: "Texte", bool: "Booléen",
+  "list[int]": "Tableau d'entiers", "list[list[int]]": "Matrice d'entiers",
+};
+let localId = 0;
+const newId = () => `test-${++localId}`;
+
+export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, returns, onReturns,
+  tests, onTests, code }: {
+    entry: string; onEntry: (entry: string) => void;
+    parameters: Parameter[]; onParameters: (parameters: Parameter[]) => void;
+    returns: ValueType; onReturns: (type: ValueType) => void;
+    tests: EditableTest[]; onTests: (tests: EditableTest[]) => void; code: string;
+  }) {
+  const [showReport, setShowReport] = useState(false);
+  const report = useMemo(() => validateTestCases(entry, code, { parameters, returns }, tests), [entry, code, parameters, returns, tests]);
+  const successful = report.cases.filter(c => c.ok).length;
+  function setParameter(index: number, prop: keyof Parameter, value: string) {
+    onParameters(parameters.map((p, i) => i === index ? { ...p, [prop]: value } as Parameter : p));
+    setShowReport(false);
+  }
+  function changeTest(index: number, prop: keyof EditableTest, value: string) {
+    onTests(tests.map((t, i) => i === index ? { ...t, [prop]: value } : t));
+    setShowReport(false);
+  }
+  return <section className="test-workspace" aria-labelledby="tests-title">
+    <div className="studio-panel-head">
+      <h2 id="tests-title"><FlaskConical size={21}/> Définition et cas de test</h2>
+      <span className="test-pill">PHASE 3 · PRÉPARATION</span>
+    </div>
+    <p className="studio-hint">Déclare le nom de la fonction, les paramètres et le résultat attendu. Les valeurs sont enregistrées avec ton brouillon. Cette vérification contrôle <strong>le format</strong>, pas le résultat du code Python.</p>
+
+    <div className="test-definition">
+      <div className="test-definition-head">
+        <label>Nom de la fonction Python
+          <input spellCheck={false} placeholder="pgcd" maxLength={64} value={entry} onChange={e => { onEntry(e.target.value); setShowReport(false); }}/>
+        </label>
+        <label>Type de retour
+          <select value={returns} onChange={e => { onReturns(e.target.value as ValueType); setShowReport(false); }}>
+            {valueTypes.map(t => <option key={t} value={t}>{descriptions[t]} ({t})</option>)}
+          </select>
+        </label>
+      </div>
+      <div className="test-list-title"><strong>Paramètres ({parameters.length}/8)</strong>
+        <button type="button" className="btn btn-muted" disabled={parameters.length >= 8} onClick={() => { onParameters([...parameters, { name: "", type: "int" }]); setShowReport(false); }}><Plus size={14}/> Ajouter un paramètre</button>
+      </div>
+      {parameters.length === 0 && <p className="studio-hint">Cette fonction ne reçoit aucun argument.</p>}
+      {parameters.map((p, index) => <div className="test-param-row" key={index}>
+        <span className="test-index">{index + 1}</span>
+        <input aria-label={`Nom du paramètre ${index + 1}`} maxLength={64} value={p.name} placeholder="ex. a" spellCheck={false} onChange={e => setParameter(index, "name", e.target.value)}/>
+        <select aria-label={`Type du paramètre ${index + 1}`} value={p.type} onChange={e => setParameter(index, "type", e.target.value)}>
+          {valueTypes.map(t => <option key={t} value={t}>{descriptions[t]}</option>)}
+        </select>
+        <button type="button" className="test-remove" aria-label={`Supprimer le paramètre ${index + 1}`} onClick={() => { onParameters(parameters.filter((_, i) => i !== index)); setShowReport(false); }}><Trash2 size={16}/></button>
+      </div>)}
+    </div>
+
+    <div className="test-list-title test-list-spaced"><strong>Exemples à tester ({tests.length}/20)</strong>
+      <button type="button" className="btn btn-muted" disabled={tests.length >= 20} onClick={() => {
+        onTests([...tests, { id: newId(), label: `Test ${tests.length + 1}`, inputsText: "{}", expectedText: "0" }]);
+        setShowReport(false);
+      }}><Plus size={14}/> Ajouter un test</button>
+    </div>
+    {tests.length === 0 && <p className="studio-hint">Aucun test défini. Ajoute des exemples avant de soumettre ta méthode à la vérification Python (prochaine étape).</p>}
+    <div className="test-case-grid">
+      {tests.map((tc, index) => <article className="test-case" key={tc.id}>
+        <div className="test-case-head"><span>Cas {index + 1}</span><button type="button" className="test-remove" aria-label={`Supprimer le test ${index + 1}`} onClick={() => { onTests(tests.filter((_, i) => i !== index)); setShowReport(false); }}><Trash2 size={16}/></button></div>
+        <label>Nom du test<input maxLength={100} value={tc.label} onChange={e => changeTest(index, "label", e.target.value)} placeholder="Ex. PGCD(24,18)"/></label>
+        <label>Entrées (objet JSON)<textarea rows={3} spellCheck={false} value={tc.inputsText} onChange={e => changeTest(index, "inputsText", e.target.value)} placeholder='{"a":24,"b":18}'/></label>
+        <label>Résultat attendu (JSON)<textarea rows={2} spellCheck={false} value={tc.expectedText} onChange={e => changeTest(index, "expectedText", e.target.value)} placeholder="6"/></label>
+        <p className="test-example">Tableau : <code>[1,2,3]</code> · Matrice : <code>[[1,2],[3,4]]</code></p>
+      </article>)}
+    </div>
+    <div className="test-report-action">
+      <button type="button" className="btn btn-primary" onClick={() => setShowReport(true)}><FlaskConical size={16}/> Vérifier le format des tests</button>
+      <span className="test-execution-note"><LockKeyhole size={15}/> Exécution Python bientôt disponible, dans un sandbox isolé.</span>
+    </div>
+    {showReport && <div className="preflight-report" aria-live="polite">
+      <h3>Résultat de la vérification du format</h3>
+      {report.errors.map((e, i) => <p key={`definition-${i}`} className="preflight-bad"><AlertCircle size={16}/> {e}</p>)}
+      {report.cases.map(r => <p key={r.index} className={r.ok ? "preflight-good" : "preflight-bad"}>
+        {r.ok ? <CheckCircle2 size={16}/> : <AlertCircle size={16}/>} <strong>{r.label} :</strong> {r.message}
+      </p>)}
+      <p className="preflight-summary">{successful}/{tests.length} cas au format correct. <strong>Aucun test Python n&apos;a été exécuté et aucun cas n&apos;est certifié réussi.</strong></p>
+    </div>}
+  </section>;
+}

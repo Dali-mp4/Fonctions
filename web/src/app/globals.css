@@ -78,3 +78,35 @@
 .team-role-form button{white-space:nowrap}
 @media(max-width:960px){.draft-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.team-role-form{grid-template-columns:1fr 1fr}.team-role-form button{justify-self:start}}
 @media(max-width:600px){.studio-panel-head{flex-direction:column;align-items:flex-start}.studio-actions{width:100%}.draft-grid,.review-grid,.team-role-form{grid-template-columns:minmax(0,1fr)}.team-role-form button{width:100%}}
+
+/* Phase 3A — educational function contract / test-case authoring */
+.test-workspace{margin-top:36px;border:1px solid #383f56;border-radius:18px;background:#121828;padding:25px;min-width:0}
+.test-workspace .studio-panel-head{margin:0 0 12px;flex-wrap:wrap}
+.test-pill{color:#d5c0ff;font-size:10px;font-weight:800;letter-spacing:.11em;border:1px solid #5d4b80;border-radius:50px;padding:7px 11px}
+.test-definition{background:#171f31;border:1px solid #343e55;border-radius:13px;padding:20px;margin-top:20px}
+.test-definition-head{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.test-workspace label{display:flex;flex-direction:column;gap:8px;font-size:12px;color:#cbd5e6;min-width:0}
+.test-workspace input,.test-workspace select,.test-workspace textarea{background:#101522;border:1px solid #40495d;color:#eff1fa;border-radius:8px;width:100%;padding:11px 13px;outline:none;font-size:13px;min-width:0;font-family:inherit}
+.test-workspace textarea{font-family:Consolas,'Courier New',monospace;resize:vertical;line-height:1.6}
+.test-workspace input:focus,.test-workspace textarea:focus,.test-workspace select:focus{border-color:#b69cff}
+.test-list-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 12px;flex-wrap:wrap}
+.test-list-title strong{font-size:14px}
+.test-list-title .btn{font-size:12px;padding:9px 12px}
+.test-list-spaced{margin-top:28px}
+.test-param-row{display:grid;grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) 30px;gap:10px;align-items:center;margin:10px 0}
+.test-index{font-size:12px;color:#a6acc9}
+.test-remove{background:transparent;border:0;color:#afaec4;cursor:pointer;padding:5px;display:flex;align-items:center;justify-content:center}
+.test-remove:hover{color:#ff9494}
+.test-case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.test-case{border:1px solid #343d50;background:#171e2d;padding:18px;border-radius:12px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.test-case-head{display:flex;justify-content:space-between;align-items:center;color:#c1aafa;font-size:12px;font-weight:800}
+.test-example{font-size:10px;color:#8c9cba;line-height:1.65}
+.test-example code{font-size:11px;color:#d7c9ff}
+.test-report-action{display:flex;align-items:center;gap:17px;flex-wrap:wrap;margin:25px 0 0}
+.test-execution-note{color:#9eaec5;font-size:11px;display:flex;align-items:center;gap:8px}
+.preflight-report{margin-top:17px;padding:18px;background:#111b29;border:1px solid #3d5064;border-radius:12px}
+.preflight-report h3{font-size:14px;margin:0 0 13px}
+.preflight-report p{font-size:12px;line-height:1.6;margin:9px 0;display:flex;align-items:start;gap:8px}
+.preflight-report svg{flex-shrink:0;margin-top:2px}
+.preflight-good{color:#99dfbd}.preflight-bad{color:#ffb4ad}.preflight-report .preflight-summary{display:block;color:#c7cfe0;margin:15px 0 0}
+@media(max-width:700px){.test-workspace{padding:15px}.test-definition{padding:13px}.test-definition-head,.test-case-grid{grid-template-columns:minmax(0,1fr)}.test-param-row{grid-template-columns:18px minmax(0,1fr) 32px}.test-param-row select{grid-column:2;grid-row:2}}

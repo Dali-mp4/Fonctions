@@ -37,13 +37,14 @@ The database, not client navigation, enforces roles. There is **no client-visibl
 
 ## Database status
 
-The migration provides schema, RLS, owner-only role delegation, draft-creation RPC and approval prerequisites. The studio currently saves drafts only. Review/approval UI, editing, strict sandbox attestation, rollback and public DB publication integration are future work.
+Migrations 001 + 002 provide accounts, private draft editing, role delegation and reviewer feedback. Migration 003 adds a versioned function contract and JSON example test cases, saved atomically with draft code. The editor validates JSON **format only**; it does not execute Python or record passing results. Sandboxed execution, test attestation, submission/publish buttons, rollback and public DB integration remain future work.
 
 ## Release plan
 
 1. **Foundation:** polished Next.js frontend, FastAPI reviewed runner, baseline SQL and role-aware draft editor. (This slice.)
 2. **Identity and authoring:** configure live Supabase, account invitation management and draft revision editing.
-3. **Safe execution:** deploy sandbox, tests, resource and rate controls, trusted test evidence.
+3. **Safe execution:** 3A authoring contracts and example cases (implemented); 3B isolated sandbox, resource/rate limits and trusted results (next).
 4. **Review workflow:** submit, request changes, publish and restore revision; reviewer interface.
 5. **Data migration:** move original seven to durable published records, preserve authorship and educational text.
-6. **Launch:** security assessment, backup strategy, mobile/browser QA, production monitoring.
+6. **Account settings (after Phase 5):** account details, password change/reset for email-password users, connected OAuth identity information, logout/session controls, and account deletion/privacy options.
+7. **Launch:** security assessment, backup strategy, mobile/browser QA, production monitoring.

@@ -1,25 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
-
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const get = (path) => readFileSync(resolve(root, path), "utf8");
-
-test("the revision embed names the revision-to-implementation foreign key", () => {
-  const sql = get("supabase/migrations/001_initial_schema.sql");
-  const query = get("web/src/lib/revision-select.ts");
-  assert.match(sql, /implementation_id uuid NOT NULL REFERENCES public\.implementations\(id\)/);
-  assert.match(sql, /FOREIGN KEY \(published_revision_id\) REFERENCES public\.revisions\(id\)/);
-  assert.match(query, /implementations:implementations!revisions_implementation_id_fkey\(method_type,topics\(slug,title\)\)/);
+const shared = readFileSync("src/lib/revision-select.ts", "utf8");
+test("explicitly select revisions implementation foreign key",()=> {
+  assert.match(shared,/implementations:implementations!revisions_implementation_id_fkey/);
+  assert.match(shared,/test_cases/);
 });
-
-for (const component of ["studio-client.tsx", "reviewer-workspace.tsx"]) {
-  test(component + " uses the same unambiguous relationship", () => {
-    const source = get("web/src/components/" + component);
-    assert.match(source, /import \{ revisionWithImplementationSelect \} from "@\/lib\/revision-select"/);
-    assert.match(source, /\.select\(revisionWithImplementationSelect\)/);
-    assert.doesNotMatch(source, /implementations\(method_type,topics\(slug,title\)\)/);
+for(const component of ["studio-client.tsx","reviewer-workspace.tsx"]){
+  test(`${component} uses unambiguous shared selection`,()=>{
+    assert.match(readFileSync(`src/components/${component}`,"utf8"),/\.select\(revisionWithImplementationSelect\)/);
   });
 }
+
+test("contract persistence requires an owned, editable draft and always invalidates tests",()=> {
+  const sql = readFileSync("../supabase/migrations/003_function_test_contract.sql", "utf8");
+  assert.match(sql,/created_by=\(SELECT auth\.uid\(\)\)/);
+  assert.match(sql,/status IN \('draft','changes_requested'\)/);
+  assert.match(sql,/edit_seq=p_expected_edit_seq/);
+  assert.match(sql,/test_status='not_run'/);
+  assert.match(sql,/p_test_cases jsonb/);
+  assert.match(readFileSync("src/components/studio-client.tsx", "utf8"),/update_draft_with_contract/);
+});

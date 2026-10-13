@@ -31,5 +31,6 @@ jobs:
           node-version: '22'
       - run: npm install
       - run: npm run test:queries
+      - run: npm run test:contract
       - run: npm run typecheck
       - run: npm run build

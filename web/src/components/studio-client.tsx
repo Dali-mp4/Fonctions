@@ -9,6 +9,9 @@ import {
 import { algorithms } from "@/lib/catalog";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { revisionWithImplementationSelect } from "@/lib/revision-select";
+import { FunctionTestsEditor } from "@/components/function-tests-editor";
+import { type EditableTest, type FunctionSchema, type Parameter, type ValueType,
+  testsFromDatabase, validateTestCases } from "@/lib/test-contract";
 import { ReviewerWorkspace } from "@/components/reviewer-workspace";
 import { TeamRoles } from "@/components/team-roles";
 
@@ -17,7 +20,12 @@ const Monaco = dynamic(() => import("@monaco-editor/react"), {
   loading: () => <div className="editor-loading">Chargement de l&apos;éditeur...</div>,
 });
 
-const sample = `from random import randint\nfrom numpy import array\n\ndef remplir_aleatoire(n):\n    T = array([int()] * n)\n    for i in range(n):\n        T[i] = randint(1, 100)\n    return T`;
+const sample = `def pgcd(a, b):\n    while b != 0:\n        a, b = b, a % b\n    return a`;
+const initialParameters: Parameter[] = [{ name: "a", type: "int" }, { name: "b", type: "int" }];
+const initialTests: EditableTest[] = [
+  { id: "example-1", label: "PGCD(24, 18)", inputsText: '{"a":24,"b":18}', expectedText: "6" },
+  { id: "example-2", label: "PGCD(15, 25)", inputsText: '{"a":15,"b":25}', expectedText: "5" },
+];
 
 type Topic = { slug: string; title: string };
 type Implementation = { method_type: "base" | "advanced"; topics: Topic };
@@ -27,6 +35,9 @@ export type Revision = {
   explanation: string;
   pseudocode: string;
   python_code: string;
+  entry_function: string | null;
+  input_schema: FunctionSchema | Record<string, never> | null;
+  test_cases: unknown;
   status: "draft" | "changes_requested" | "submitted" | "published" | "archived";
   test_status: "not_run" | "passed" | "failed";
   review_note: string | null;
@@ -54,6 +65,10 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [explanation, setExplanation] = useState("");
   const [pseudocode, setPseudocode] = useState("");
   const [code, setCode] = useState(sample);
+  const [entry, setEntry] = useState("pgcd");
+  const [parameters, setParameters] = useState<Parameter[]>(initialParameters);
+  const [returns, setReturns] = useState<ValueType>("int");
+  const [testCases, setTestCases] = useState<EditableTest[]>(initialTests);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
@@ -75,6 +90,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   function newDraft() {
     setEditing(null); setEditSeq(1); setTopic("pgcd"); setMethod("advanced");
     setTitle(""); setExplanation(""); setPseudocode(""); setCode(sample);
+    setEntry("pgcd"); setParameters(initialParameters.map(p => ({...p})));
+    setReturns("int"); setTestCases(initialTests.map(t => ({...t})));
     setError(""); setOk("");
   }
 
@@ -85,6 +102,12 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setMethod(draft.implementations.method_type);
     setTitle(draft.title); setExplanation(draft.explanation);
     setPseudocode(draft.pseudocode); setCode(draft.python_code);
+    setEntry(draft.entry_function ?? "");
+    const schema = draft.input_schema;
+    setParameters(schema && "parameters" in schema && Array.isArray(schema.parameters)
+      ? schema.parameters : []);
+    setReturns(schema && "returns" in schema && schema.returns ? schema.returns : "int");
+    setTestCases(testsFromDatabase(draft.test_cases));
     setError(""); setOk("");
   }
 
@@ -96,24 +119,33 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       setError("Titre (5–160), explication (15–20 000) et code Python (10–30 000 caractères) requis.");
       return;
     }
+    const schema: FunctionSchema = { parameters, returns };
+    const preflight = validateTestCases(entry, code, schema, testCases);
+    const badCases = preflight.cases.filter(t => !t.ok);
+    if (preflight.errors.length || badCases.length) {
+      setError([...preflight.errors, ...badCases.map(t => `${t.label} : ${t.message}`)].join(" "));
+      return;
+    }
     const sb = browserSupabase();
     if (!sb) { setError("Supabase n'est pas configuré."); return; }
     setBusy(true);
     try {
       if (editing) {
-        const { data, error: saveError } = await sb.rpc("update_draft", {
+        const { data, error: saveError } = await sb.rpc("update_draft_with_contract", {
           p_revision: editing, p_expected_edit_seq: editSeq,
           p_title: title.trim(), p_explanation: explanation.trim(),
           p_pseudocode: pseudocode, p_python_code: code,
+          p_entry_function: entry, p_input_schema: schema, p_test_cases: preflight.testCases,
         });
         if (saveError) throw saveError;
         setEditSeq(Number(data));
         setOk("Brouillon mis à jour. Les éventuels anciens tests ont été annulés.");
       } else {
-        const { data, error: saveError } = await sb.rpc("create_draft", {
+        const { data, error: saveError } = await sb.rpc("create_draft_with_contract", {
           p_topic_slug: topic, p_method_type: method,
           p_title: title.trim(), p_explanation: explanation.trim(),
           p_pseudocode: pseudocode, p_python_code: code,
+          p_entry_function: entry, p_input_schema: schema, p_test_cases: preflight.testCases,
         });
         if (saveError) throw saveError;
         setEditing(String(data)); setEditSeq(1);
@@ -176,6 +208,9 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         </p></div>
       </div>
     </div>
+    <FunctionTestsEditor entry={entry} onEntry={setEntry}
+      parameters={parameters} onParameters={setParameters} returns={returns} onReturns={setReturns}
+      tests={testCases} onTests={setTestCases} code={code}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
     {role === "owner" && <TeamRoles/>}
   </div>;

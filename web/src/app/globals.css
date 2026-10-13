@@ -110,3 +110,14 @@
 .preflight-report svg{flex-shrink:0;margin-top:2px}
 .preflight-good{color:#99dfbd}.preflight-bad{color:#ffb4ad}.preflight-report .preflight-summary{display:block;color:#c7cfe0;margin:15px 0 0}
 @media(max-width:700px){.test-workspace{padding:15px}.test-definition{padding:13px}.test-definition-head,.test-case-grid{grid-template-columns:minmax(0,1fr)}.test-param-row{grid-template-columns:18px minmax(0,1fr) 32px}.test-param-row select{grid-column:2;grid-row:2}}
+
+/* Phase 3B — real sandbox results (not the JSON-only preflight) */
+.python-test-results{margin-top:19px;padding:20px;border:1px solid #52745b;border-radius:12px;background:#111f23}
+.python-test-results h3{font-size:16px;margin:0 0 12px}
+.python-test-row{display:flex;align-items:flex-start;gap:11px;border-top:1px solid #344a4a;padding:12px 0;font-size:12px}
+.python-test-row>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.python-test-row strong{font-size:13px}
+.python-test-row small{color:#b6c3ca;overflow-wrap:anywhere;line-height:1.6}
+.python-test-ok{color:#a4e8bd;flex-shrink:0}.python-test-fail{color:#ffa99b;flex-shrink:0}
+
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}

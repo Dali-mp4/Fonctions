@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, FlaskConical, LockKeyhole, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, FlaskConical, LockKeyhole, Plus, Trash2, PlayCircle } from "lucide-react";
+import type { DraftRunResult } from "@/lib/draft-runner";
 import {
   type EditableTest, type Parameter, type ValueType, valueTypes, validateTestCases,
 } from "@/lib/test-contract";
@@ -14,11 +15,13 @@ let localId = 0;
 const newId = () => `test-${++localId}`;
 
 export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, returns, onReturns,
-  tests, onTests, code }: {
+  tests, onTests, code, canRun, onRun, running, runResult, runError, runHint }: {
     entry: string; onEntry: (entry: string) => void;
     parameters: Parameter[]; onParameters: (parameters: Parameter[]) => void;
     returns: ValueType; onReturns: (type: ValueType) => void;
     tests: EditableTest[]; onTests: (tests: EditableTest[]) => void; code: string;
+    canRun: boolean; onRun: () => void; running: boolean;
+    runResult: DraftRunResult | null; runError: string; runHint: string;
   }) {
   const [showReport, setShowReport] = useState(false);
   const report = useMemo(() => validateTestCases(entry, code, { parameters, returns }, tests), [entry, code, parameters, returns, tests]);
@@ -34,7 +37,7 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
   return <section className="test-workspace" aria-labelledby="tests-title">
     <div className="studio-panel-head">
       <h2 id="tests-title"><FlaskConical size={21}/> Définition et cas de test</h2>
-      <span className="test-pill">PHASE 3 · PRÉPARATION</span>
+      <span className="test-pill">PHASE 3 · TESTS ISOLÉS</span>
     </div>
     <p className="studio-hint">Déclare le nom de la fonction, les paramètres et le résultat attendu. Les valeurs sont enregistrées avec ton brouillon. Cette vérification contrôle <strong>le format</strong>, pas le résultat du code Python.</p>
 
@@ -81,8 +84,24 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
     </div>
     <div className="test-report-action">
       <button type="button" className="btn btn-primary" onClick={() => setShowReport(true)}><FlaskConical size={16}/> Vérifier le format des tests</button>
-      <span className="test-execution-note"><LockKeyhole size={15}/> Exécution Python bientôt disponible, dans un sandbox isolé.</span>
+      <button type="button" className="btn btn-muted" onClick={onRun} disabled={!canRun}>
+        {running ? <FlaskConical size={16}/> : <PlayCircle size={16}/>}
+        {running ? "Exécution isolée en cours…" : "Exécuter les tests Python"}
+      </button>
+      <span className="test-execution-note"><LockKeyhole size={15}/> {runHint}</span>
     </div>
+    {runError && <div className="run-error" role="alert">{runError}</div>}
+    {runResult && <section className="python-test-results" aria-live="polite">
+      <h3>Résultats réels du sandbox {runResult.status === "passed" ? "— Tous les tests réussis" :
+        runResult.status === "failed" ? "— Certains tests ont échoué" : "— Erreur d'exécution"}</h3>
+      {runResult.error && <p className="preflight-bad">{runResult.error}</p>}
+      <p className="studio-hint">{runResult.results.filter(r => r.passed).length}/{runResult.case_count} tests réussis. Résultats liés au brouillon enregistré, pas aux modifications non sauvegardées.</p>
+      {runResult.results.map((item, i) => <div key={`${i}-${item.label}`} className="python-test-row">
+        {item.passed ? <CheckCircle2 size={17} className="python-test-ok"/> : <AlertCircle size={17} className="python-test-fail"/>}
+        <div><strong>{item.label}</strong><small>{item.error ? item.error :
+          `Attendu : ${JSON.stringify(item.expected)} · Obtenu : ${JSON.stringify(item.actual)}`}</small></div>
+      </div>)}
+    </section>}
     {showReport && <div className="preflight-report" aria-live="polite">
       <h3>Résultat de la vérification du format</h3>
       {report.errors.map((e, i) => <p key={`definition-${i}`} className="preflight-bad"><AlertCircle size={16}/> {e}</p>)}

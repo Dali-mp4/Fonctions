@@ -109,3 +109,66 @@ In `/studio`:
 **Security boundary:** This is *Phase 3A* (authoring + static validation). The platform still must not run contributed code until Phase 3B deploys a separate sandbox with networking disabled, secrets removed, pinned NumPy, time/memory/CPU/output quotas, server-verified test results tied to a code hash, and abuse tests. Merely supplying correctly formatted expected outputs does **not** mark a revision as passed or enable submission.
 
 **After Phase 5:** build **Manage Account** (`/compte`) for account details, password change/reset (email/password accounts), OAuth account details, sign-out and privacy/account deletion controls. This is planned, not implemented yet.
+
+## Phase 3B — isolated Python tests (optional until configured)
+
+The contributor studio now includes **Exécuter les tests Python**, separate from
+**Vérifier le format des tests**. The test button requires an already-saved draft:
+unsaved changes must be saved before running. Results and saved Supabase test status
+belong to the exact draft edit sequence; edits invalidate previous evidence.
+
+**Provider:** [Modal Sandboxes](https://modal.com/docs/guide/sandboxes) (a separate
+account and possible usage costs are required). A fresh disposable, network-blocked
+sandbox runs the contributor code. Each run uses an image pinned to Python 3.12
+and `numpy==2.3.3` (`random` is built into Python). Resource bounds: sandbox
+lifetime 15 s, execution timeout 10 s, CPU cap 0.5 core, RAM cap 512 MiB,
+result-size cap 64 KiB, no secrets or mounted volumes. Database quota:
+**4 executions/minute and 30/day per contributor**. Do not remove these limits.
+
+### One-time local setup (Windows PowerShell)
+
+1. In Supabase **SQL Editor**, run
+   [`supabase/migrations/004_verified_sandbox_testing.sql`](supabase/migrations/004_verified_sandbox_testing.sql)
+   **once** after migration 003. It creates quotas, audit records and a
+   `service_role`-only result-writing RPC. Older drafts and accounts are kept.
+2. Sign up for [Modal](https://modal.com/), review pricing and usage limits.
+   In the **API** terminal run:
+
+   ```powershell
+   py -m pip install -r requirements-runner.txt
+   modal token new
+   Copy-Item .env.example .env
+   notepad .env
+   ```
+
+3. Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and
+   `SUPABASE_SERVICE_ROLE_KEY` (the **legacy server-side JWT** from Supabase)
+   **only in `api/.env`**. Never add it to `web/.env.local`, any `NEXT_PUBLIC_`
+   variable, a message, or GitHub. Set `ENABLE_DRAFT_RUNNER=true` only after
+   Modal authorization and SQL are ready. The `.env` file is Git-ignored.
+4. Restart FastAPI from the `api` folder:
+
+   ```powershell
+   py -m uvicorn app.main:app --reload --port 8000
+   ```
+
+   Keep the Next.js frontend running (`npm.cmd run dev` from `web`).
+5. Open `/studio`, save a PGCD draft with the two sample tests and press
+   **Exécuter les tests Python**. If Modal/Supabase is unavailable, an explicit
+   error appears and no passing result is granted. The provider service is
+   **not** enabled just by pulling this GitHub branch.
+
+**Architecture & trust:** Browser sends only the draft UUID and edit sequence.
+FastAPI verifies the user session with Supabase Auth and reads the saved draft
+under row-level security. A user-authorized SQL RPC atomically checks ownership
+and quota. The API sends source + input values (not expected answers) to Modal.
+The API compares sandbox results against the DB test cases and calls a
+server-only `service_role` SQL RPC to save the result. This credential is
+never injected into Modal. Reviewers must still judge correctness and test
+quality: author-supplied examples alone do not prove a method is correct.
+
+**Release limits:** Not yet approved for public launch. We still need hosted
+API secrets, monitoring, additional negative/abuse tests, provider billing
+limits, private hidden regression cases, production-ready CORS and the Phase 4
+review/publish UI. Account settings (password changes etc.) remain scheduled
+for after Phase 5.

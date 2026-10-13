@@ -48,3 +48,14 @@ Migrations 001 + 002 provide accounts, private draft editing, role delegation an
 5. **Data migration:** move original seven to durable published records, preserve authorship and educational text.
 6. **Account settings (after Phase 5):** account details, password change/reset for email-password users, connected OAuth identity information, logout/session controls, and account deletion/privacy options.
 7. **Launch:** security assessment, backup strategy, mobile/browser QA, production monitoring.
+
+### Phase 3B implementation (opt-in)
+
+An authenticated FastAPI draft testing route runs saved, immutable-by-edit-sequence
+revisions in Modal disposable sandboxes. The database owns per-user quotas and
+test-state transitions; API service credentials never enter the sandbox.
+The browser cannot provide replacement source or directly mark tests passed.
+Modal must be enabled/configured separately, and the new SQL migration 004
+applied to the user's project. Full production security testing and hidden
+reviewer cases are still pending. Do not deploy contributor test endpoints
+without strict CORS, secret storage, rate/budget monitoring and abuse checks.

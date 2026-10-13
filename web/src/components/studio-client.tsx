@@ -13,6 +13,7 @@ import { FunctionTestsEditor } from "@/components/function-tests-editor";
 import { type EditableTest, type FunctionSchema, type Parameter, type ValueType,
   testsFromDatabase, validateTestCases } from "@/lib/test-contract";
 import { ReviewerWorkspace } from "@/components/reviewer-workspace";
+import type { DraftRunResult } from "@/lib/draft-runner";
 import { TeamRoles } from "@/components/team-roles";
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), {
@@ -40,6 +41,7 @@ export type Revision = {
   test_cases: unknown;
   status: "draft" | "changes_requested" | "submitted" | "published" | "archived";
   test_status: "not_run" | "passed" | "failed";
+  test_evidence: unknown;
   review_note: string | null;
   edit_seq: number;
   updated_at: string;
@@ -72,6 +74,23 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
+  const [savedSignature, setSavedSignature] = useState<string | null>(null);
+  const [runResult, setRunResult] = useState<DraftRunResult | null>(null);
+  const [runError, setRunError] = useState("");
+  const [running, setRunning] = useState(false);
+
+  function contentSignature(values: {
+    title: string; explanation: string; pseudocode: string; code: string;
+    entry: string; parameters: Parameter[]; returns: ValueType; tests: EditableTest[];
+  }) {
+    const check = validateTestCases(values.entry, values.code,
+      { parameters: values.parameters, returns: values.returns }, values.tests);
+    return JSON.stringify({ title: values.title.trim(), explanation: values.explanation.trim(),
+      pseudocode: values.pseudocode, code: values.code, entry: values.entry,
+      parameters: values.parameters, returns: values.returns, cases: check.testCases });
+  }
+  const signature = contentSignature({ title, explanation, pseudocode, code, entry, parameters, returns, tests: testCases });
+  const pristine = Boolean(editing && savedSignature === signature);
 
   const refresh = useCallback(async () => {
     const sb = browserSupabase();
@@ -92,7 +111,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setTitle(""); setExplanation(""); setPseudocode(""); setCode(sample);
     setEntry("pgcd"); setParameters(initialParameters.map(p => ({...p})));
     setReturns("int"); setTestCases(initialTests.map(t => ({...t})));
-    setError(""); setOk("");
+    setError(""); setOk(""); setSavedSignature(null); setRunResult(null); setRunError("");
   }
 
   function openDraft(draft: Revision) {
@@ -107,7 +126,21 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setParameters(schema && "parameters" in schema && Array.isArray(schema.parameters)
       ? schema.parameters : []);
     setReturns(schema && "returns" in schema && schema.returns ? schema.returns : "int");
-    setTestCases(testsFromDatabase(draft.test_cases));
+    const restoredTests = testsFromDatabase(draft.test_cases);
+    setTestCases(restoredTests);
+    setSavedSignature(contentSignature({ title: draft.title, explanation: draft.explanation,
+      pseudocode: draft.pseudocode, code: draft.python_code,
+      entry: draft.entry_function ?? "", parameters: schema && "parameters" in schema && Array.isArray(schema.parameters)
+        ? schema.parameters : [], returns: schema && "returns" in schema && schema.returns ? schema.returns : "int",
+      tests: restoredTests }));
+    const saved = draft.test_evidence as Partial<DraftRunResult> | null;
+    setRunResult(saved?.results && Array.isArray(saved.results) && saved.run_id ? {
+      run_id: saved.run_id, status: draft.test_status === "passed" ? "passed" :
+        draft.test_status === "failed" ? "failed" : "error",
+      case_count: saved.results.length, results: saved.results,
+      error: saved.error,
+    } : null);
+    setRunError("");
     setError(""); setOk("");
   }
 
@@ -151,10 +184,38 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         setEditing(String(data)); setEditSeq(1);
         setOk("Brouillon privé créé. Aucun code n'a été exécuté ni publié.");
       }
+      setSavedSignature(signature); setRunResult(null); setRunError("");
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible d'enregistrer le brouillon.");
     } finally { setBusy(false); }
+  }
+
+  async function runTests() {
+    setRunError(""); setRunResult(null);
+    if (!editing || !pristine || testCases.length < 1) {
+      setRunError("Enregistre d'abord ce brouillon et tous ses tests avant l'exécution.");
+      return;
+    }
+    const sb = browserSupabase();
+    if (!sb) { setRunError("Authentification non configurée."); return; }
+    setRunning(true);
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session?.access_token) throw new Error("Reconnecte-toi avant de tester.");
+      const base = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+      const response = await fetch(`${base}/api/v1/drafts/${editing}/test`, {
+        method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ edit_seq: editSeq }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : `Erreur HTTP ${response.status}`);
+      const report = data as DraftRunResult;
+      setRunResult(report);
+      await refresh();
+    } catch (err) {
+      setRunError(err instanceof Error ? err.message : "Impossible de contacter le sandbox.");
+    } finally { setRunning(false); }
   }
 
   return <div className="studio-workspace">
@@ -176,7 +237,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         <div key={d.id} className={`draft-card${editing === d.id ? " selected" : ""}`}>
           <span className="draft-meta">{d.implementations?.topics?.title ?? "Concept"} · {d.implementations?.method_type === "base" ? "Base" : "Advanced"}</span>
           <strong>{d.title}</strong>
-          <small>{statusName[d.status]} · version {d.edit_seq}</small>
+          <small>{statusName[d.status]} · version {d.edit_seq} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
           {d.review_note && <p className="review-message">Retour : {d.review_note}</p>}
           {editable(d) ? <button type="button" onClick={() => openDraft(d)}>Ouvrir et modifier →</button>
             : <span className="studio-muted">Lecture seule · enregistrement verrouillé</span>}
@@ -210,7 +271,12 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     </div>
     <FunctionTestsEditor entry={entry} onEntry={setEntry}
       parameters={parameters} onParameters={setParameters} returns={returns} onReturns={setReturns}
-      tests={testCases} onTests={setTestCases} code={code}/>
+      tests={testCases} onTests={setTestCases} code={code}
+      canRun={pristine && !busy && !running && testCases.length > 0}
+      onRun={() => void runTests()} running={running}
+      runResult={pristine ? runResult : null} runError={runError}
+      runHint={!editing ? "Crée et enregistre un brouillon pour tester Python." :
+        !pristine ? "Enregistre les modifications avant de relancer les tests." : "Exécution isolée · NumPy et random disponibles"}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
     {role === "owner" && <TeamRoles/>}
   </div>;

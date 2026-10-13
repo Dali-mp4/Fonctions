@@ -4,6 +4,16 @@ SECURITY: User-submitted Python source must never be evaluated here. A separate,
 resource-limited sandbox will be required before draft testing is enabled.
 """
 from typing import Any
+from pathlib import Path
+
+# Load api/.env locally; real deployments should inject server secrets.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+except ImportError:
+    pass
+
+from .draft_tests import router as contributor_runner_router
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,14 +22,15 @@ from pydantic import BaseModel, ConfigDict, Field
 from .catalog import get_specs, public_catalog, serialize_spec
 from .algorithms.schema import AlgorithmInputError
 
-app = FastAPI(title="Algo Fi Jib API", version="0.1.0")
+app = FastAPI(title="Algo Fi Jib API", version="0.2.0")
+app.include_router(contributor_runner_router)
 # For local development only; set real production CORS via a gateway or strict origins.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=False,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
@@ -98,7 +109,7 @@ def validate_inputs(slug: str, data: dict[str, Any]) -> dict[str, Any]:
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "runner": "reviewed-builtins-only"}
+    return {"status": "ok", "runner": "reviewed-builtins-and-opt-in-modal-drafts"}
 
 
 @app.get("/api/v1/algorithms")

@@ -193,3 +193,47 @@ servers; existing Modal setup and migration 004 must already work.
 
 Run the **same saved PGCD draft twice** (within 4/min quota) and compare
 "Durée serveur", "Sandbox", "Démarrage Modal" and "Python".
+
+
+## Phase 4 — Contributor submission, independent review and publication (October 2026)
+
+Run **supabase/migrations/005_review_publication_workflow.sql** once in the
+Supabase SQL Editor, **after migrations 001–004**. It strengthens approval
+and audit rules; it does not remove users or drafts. No new Modal configuration
+or API credentials are required.
+
+- Contributors save a draft, run real Python tests and click **Soumettre à la
+  relecture**. Submission requires a passing, trusted, finalized run linked to
+  the exact saved edit sequence. The submitted code is locked against editing.
+- Reviewers see a queue in **File de relecture** with Python source, pseudo-code,
+  educational explanation, declared inputs/return type, examples and real
+  result evidence. They may request changes (10–2000 character note), which
+  invalidates previous test certification and requires fresh tests before
+  resubmission, or manually confirm and **Approuver et publier**.
+- **No self-approval:** even the project owner cannot approve their own
+  revision. Create another account and assign the **reviewer** role via the
+  owner's existing team panel to test end to end.
+- Every decision is audited. Authors and reviewers can read a limited
+  **Historique des décisions** for an accessible revision.
+- Owner-only **Publications** controls withdraw a published revision (without
+  deleting it) and restore a previously approved, still-tested archived
+  revision. Neither action mutates published source code.
+
+**Important distinction:** "Publié" means the *Supabase database revision
+pointer* is set. The student-facing catalog still serves the original seven
+reviewed built-ins. Phase **5** will integrate approved database revisions
+into the public learning experience. Author-provided tests are not sufficient
+to establish full algorithmic correctness; independent reviewers must inspect
+coverage and edge cases.
+
+### Recommended two-account verification
+
+1. Sign in as **owner**. Open the saved passing PGCD draft and submit it.
+2. Confirm the owner sees its own submitted card but **cannot approve it**.
+3. Create/sign in as a second account; assign it **reviewer** using the owner's
+   team panel. Open /studio and use **File de relecture**.
+4. Either request changes (verify feedback appears and previous pass is
+   invalidated), or review the tests/code, tick the confirmation box and approve.
+5. Back on the owner account, verify the approved item appears in
+   **Publications**; try withdrawal/restore and inspect audit history.
+6. Existing Streamlit and main GitHub branches remain untouched.

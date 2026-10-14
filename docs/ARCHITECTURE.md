@@ -67,3 +67,22 @@ cached locally, but **sandbox instances and contributor code are never pooled**.
 Resource isolation, blocked networking and quotas stay unchanged. The API
 reports real monotonic timing breakdowns for diagnosis, not estimates or
 performance guarantees; warm images require live measurement.
+
+
+### Phase 4 — immutable submissions and moderated publication
+
+Migration 005 replaces the legacy one-argument submit/approve RPCs with
+optimistically locked actions and a **DB-verified association** between the
+revision's passed evidence and a finalized \`draft_test_runs\` reservation.
+Contributors can submit only their own, unchanged and passing draft.
+Reviewers/owners cannot review their own submissions. Feedback invalidates
+test status and remains in the audit log; author must test again.
+Approval pins a revision to the corresponding \`implementations.published_revision_id\`
+and locks submitted content. Owner-only withdraw/restore transactions operate
+on published revision pointers and retain all audit records and source history;
+restoration requires prior independent review and intact trusted evidence.
+A scoped \`get_revision_history\` RPC avoids opening audit_events to all users.
+
+The original classroom-facing seven remain in the frozen reviewed catalog
+until Phase 5 consumes approved DB revisions. The Manage Account page remains
+scheduled **after Phase 5** and before launch.

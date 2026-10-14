@@ -129,3 +129,33 @@ review attestations and audit trails before individually processing any final
 deletion through an approved administrative procedure. Published content is
 never removed as a side-effect of a profile request. Future automation needs
 separate reviewed anonymization/retention policy and robust FK handling.
+
+### Google OAuth and autonomous account removal
+
+Google sign-in uses Supabase Auth (Google's OAuth client ID and secret live
+only in Google/Supabase provider dashboards). The browser initiates OAuth with
+a first-party PKCE callback; Next.js exchanges the code for a cookie-backed
+session and only redirects to fixed /compte or fixed /connexion error paths.
+An existing email/password sign-in remains available. Supabase can automatically
+link verified matching email identities.
+
+Migration 010 implements an authenticated, self-contained account deletion
+transaction. It checks exact email and recent sign-in, rejects owner deletion
+and Storage object ownership, moves references (implementations, revisions,
+reviewer_id, topic creator, draft tests, paid public runs and audit actors)
+to a UNIQUE non-login, is_deleted=true profile, then deletes the original
+profile and auth.users record. Durable distinct author/reviewer IDs, audit
+events, approval pointers and verified test-run relationships survive unchanged
+apart from their now-pseudonymous actor references.
+
+The profiles → auth.users FK is dropped intentionally because pseudonymous
+actor profiles have no Auth login. Do NOT bypass this procedure by directly
+deleting Auth users in the dashboard; this could strand their original profiles.
+Ordinary requests have no privilege to create or change profile records, and
+deleted actor profiles cannot be assigned roles or sign in. Existing JWTs
+may survive until normal expiration but can no longer access the old profile.
+
+This is a retention and pseudonymization policy, not an assertion that
+user-generated code, previous storage exports, provider logs or backups are
+necessarily free from identifying information. Separate editorial redaction
+and data-retention rules may still be necessary.

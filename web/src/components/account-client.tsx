@@ -31,7 +31,6 @@ export function AccountClient(props: AccountProps) {
   const [busy,setBusy] = useState("");
   const [notice,setNotice] = useState("");
   const [error,setError] = useState("");
-  const [deletionStatus,setDeletionStatus] = useState(props.deletionStatus);
   const [deletionConfirmed,setDeletionConfirmed] = useState(false);
   const [deletionEmail,setDeletionEmail] = useState("");
   const [pendingRequests,setPendingRequests] = useState<PendingRequest[]>([]);
@@ -82,27 +81,22 @@ export function AccountClient(props: AccountProps) {
     if(scope==="others"){setNotice("Les autres sessions ont été révoquées. Les jetons déjà émis peuvent rester valides jusqu'à expiration.");setBusy("");return;}
     router.replace("/connexion");router.refresh();
   }
-  async function requestDeletion() {
+  async function deleteMyAccount() {
     resetMessages();
-    if(!deletionConfirmed || deletionEmail.trim()!==props.email){
-      setError("Coche la confirmation et recopie ton adresse e-mail exacte.");return;
+    if (!deletionConfirmed || deletionEmail.trim() !== props.email) {
+      setError("Confirme les conséquences et recopie ton adresse e-mail exacte.");
+      return;
     }
-    if(!window.confirm("Envoyer une demande de suppression ? Aucun compte ne sera supprimé automatiquement."))return;
-    const sb=browserSupabase();if(!sb)return;
+    if (!window.confirm("Supprimer définitivement ton compte ? Les méthodes approuvées et les décisions de relecture restent conservées avec un auteur pseudonyme. Cette action est irréversible.")) return;
+    const sb = browserSupabase();
+    if (!sb) {setError("Supabase non configuré.");return;}
     setBusy("delete");
-    const {error:e}=await sb.rpc("request_my_account_deletion");
-    if(e)setError(e.message);
-    else {setDeletionStatus("pending");setDeletionConfirmed(false);setDeletionEmail("");
-      setNotice("Demande enregistrée. Elle nécessite une vérification humaine et n'efface pas ton compte maintenant.");}
-    setBusy("");
-  }
-  async function cancelDeletion() {
-    resetMessages();const sb=browserSupabase();if(!sb)return;
-    setBusy("delete");
-    const {error:e}=await sb.rpc("cancel_my_account_deletion");
-    if(e)setError(e.message);
-    else {setDeletionStatus("cancelled");setNotice("Demande de suppression annulée.");}
-    setBusy("");
+    const {error:e} = await sb.rpc("delete_my_account",{p_confirm_email:props.email});
+    if (e) {setError(e.message);setBusy("");return;}
+    // Authentication record is deleted. Best effort local session cleanup.
+    await sb.auth.signOut({scope:"local"});
+    router.replace("/connexion?deleted=1");
+    router.refresh();
   }
 
   useEffect(()=>{

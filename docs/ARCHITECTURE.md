@@ -110,3 +110,22 @@ Approval of an independently reviewed tested method promotes the chapter;
 withdrawal hides its only public method without removing original records.
 TABLEAU's original display method and selection-sort Base variant use distinct
 trusted classroom UI and bounded execution inputs, never a forged approval.
+
+
+### Account management / deletion governance — migration 009
+
+Account page: SSR getUser; no privileged key ever reaches Next.js. Name edits
+use an authenticated SECURITY DEFINER RPC with validation; roles cannot be
+edited by users. Email/password are changed via Supabase Auth updateUser,
+which may require confirmation or recent authentication. Supabase Auth session
+scopes provide local/other/global revocation; existing JWTs expire at their
+normal expiration timestamp.
+
+Deletion requests are RLS-isolated to the requesting user and the owner.
+They do not delete data automatically, do not log personal details into audit
+JSON, and can be cancelled. The first-owner profile is explicitly excluded.
+Owners must review contribution ownership, outstanding drafts, test quotas,
+review attestations and audit trails before individually processing any final
+deletion through an approved administrative procedure. Published content is
+never removed as a side-effect of a profile request. Future automation needs
+separate reviewed anonymization/retention policy and robust FK handling.

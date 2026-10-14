@@ -6,7 +6,7 @@ import { useState } from "react";
 
 const nav = [
   { label: "Accueil", href: "/" },
-  { label: "Bibliothèque", href: "/bibliotheque" },
+  { label: "El biblioteque.", href: "/bibliotheque" },
   { label: "Parcours", href: "/parcours" },
 ];
 export function Header() {
@@ -21,9 +21,9 @@ export function Header() {
         </Link>
         <nav className={open ? "main-nav open" : "main-nav"} aria-label="Navigation principale">
           {nav.map((item) => <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className={pathname === item.href ? "active" : ""}>{item.label}</Link>)}
-          <Link href="/studio" onClick={() => setOpen(false)} className={pathname === "/studio" ? "active" : ""}>Espace contributeur</Link>
+          <Link href="/studio" onClick={() => setOpen(false)} className={pathname === "/studio" ? "active" : ""}>El studio.</Link>
         </nav>
-        <Link href="/connexion" className="header-login">Mon compte <ArrowUpRight size={16}/></Link>
+        <Link href="/compte" className="header-login">Mon compte <ArrowUpRight size={16}/></Link>
         <button className="mobile-menu" type="button" aria-label="Afficher la navigation" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>
       </div>
     </header>

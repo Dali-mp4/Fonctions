@@ -203,3 +203,39 @@
 .review-lesson-preview h4{margin:5px 0 10px}
 .review-lesson-preview p{white-space:pre-wrap;font-size:12px;line-height:1.7}
 @media(max-width:600px){.method-switcher a{min-width:100%;max-width:100%}.studio-lesson-fields{padding:14px}}
+
+
+/* Member account dashboard — same design system as El studio. */
+.account-layout{display:grid;grid-template-columns:minmax(230px,295px) minmax(0,1fr);gap:24px;align-items:start;margin:30px 0 80px}
+.account-overview,.account-panel{background:#131827;border:1px solid #333b55;border-radius:17px;padding:27px}
+.account-overview{position:sticky;top:106px;display:flex;flex-direction:column;gap:10px}
+.account-avatar{height:66px;width:66px;display:grid;place-items:center;border-radius:16px;background:#aa90ff20;border:1px solid #aa90ff55;color:#c7b7ff}
+.account-overview>div:nth-child(2){display:flex;flex-direction:column;gap:6px;margin-top:5px;overflow-wrap:anywhere}
+.account-overview>div:nth-child(2)>strong{font-size:19px}
+.account-overview>div:nth-child(2)>span,.account-facts>div>span{font-size:12px;color:#acb5c8}
+.account-role{display:flex;align-items:center;gap:7px;width:fit-content;background:#a18bff1a;color:#dbcfff;border:1px solid #a18bff40;border-radius:99px;padding:8px 12px;font-size:12px;font-weight:700;margin:5px 0}
+.account-facts{border-top:1px solid #344058;margin-top:11px;padding-top:13px;display:grid;gap:15px}
+.account-facts>div{display:flex;flex-direction:column;gap:5px}
+.account-facts>div>strong{font-size:12px;color:#e9eaff;font-weight:600}
+.account-studio-link{margin-top:14px}
+.account-main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.account-panel h2{display:flex;align-items:center;gap:11px;font-size:21px;margin:0 0 10px}
+.account-panel h2 svg{color:#beaaff}
+.account-panel>p{color:#aeb8cb;font-size:13px;line-height:1.75}
+.account-panel p.account-hint{font-size:12px;color:#8998b2}
+.account-form{display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-top:19px}
+.account-form label,.account-danger>label:not(.review-approval-check){display:flex;flex-direction:column;gap:7px;width:100%;font-size:12px;font-weight:700;color:#cdd4e6}
+.account-form input,.account-danger input[type=email]{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #49516c;background:#0c1120;color:#f5f5ff}
+.account-form input:focus,.account-danger input[type=email]:focus{outline:2px solid #987ad9;outline-offset:1px}
+.account-buttons{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}
+.account-danger{border-color:#80545f}
+.account-danger h2 svg{color:#f8aaab}
+.account-danger .review-approval-check{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#e3cdd1;margin:18px 0}
+.account-danger input[type=checkbox]{margin-top:3px}
+.account-danger input[type=email]{margin:9px 0 14px}
+.account-request-delete{border-color:#9c525d;color:#ffd5d7}
+.account-requests{display:grid;gap:10px}
+.account-requests>div{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:13px;border:1px solid #363d55;border-radius:10px}
+.account-requests code{font-size:11px;overflow-wrap:anywhere}
+.account-requests span{color:#afb9cd;font-size:11px}
+@media(max-width:830px){.account-layout{grid-template-columns:minmax(0,1fr)}.account-overview{position:static}}

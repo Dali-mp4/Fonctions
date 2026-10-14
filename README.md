@@ -306,3 +306,31 @@ run; verify quotas and failure messages. As contributor, propose a new chapter,
 run tests, submit, then approve with another reviewer account. Check no public
 chapter is visible before approval. Visit TABLEAU to switch between its two
 independent Base variants.
+
+
+## Manage Account (/compte) and Tunisian navigation labels — October 2026
+
+**Migration 009** (\`supabase/migrations/009_account_management.sql\`) adds
+audited, account-scoped display-name updates and a non-destructive deletion
+request queue. Run it **once after migration 008**, then pull the latest V2
+branch and restart Next.js. No new API keys are required.
+
+The account page is SSR-protected with Supabase getUser. Members can update
+their display name with a secure RPC, request a verified email change, change
+their password, see their email/Google login identities and manage sessions
+locally, on other devices, or globally. New sign-ins navigate to /compte.
+The account's role is only read from its protected database profile.
+
+**Deletion is a human-reviewed request**, not an automatic or completed delete:
+the SQL schema references authors, reviewers, tests and audit events.
+A member can submit/cancel their request, and the owner can inspect pending
+requests (UUID and timestamp) from /compte. The owner is not allowed to delete
+their own account through this UI. Deleting a published contributor or an
+active reviewer without a preservation/anonymization plan would break FK
+integrity or the independent-review attestation, so no destructive RPC is
+exposed. This is intentionally a deletion **request** workflow rather than
+pretending automated account erasure is safe. Requests do not automatically
+notify the owner; they are visible when the owner opens /compte.
+
+Navigation headings and menu/footer labels use **El studio.** and
+**El biblioteque.**, while routes remain /studio and /bibliotheque.

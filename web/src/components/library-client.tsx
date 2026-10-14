@@ -5,7 +5,7 @@ import type { Algorithm } from "@/lib/catalog";
 import type { MethodRecord } from "@/lib/public-catalog-model";
 import { AlgorithmCard } from "@/components/algorithm-card";
 
-/** One card per school topic. Contributions are alternative methods WITHIN it. */
+/** Each approved topic has the same card and place in the library. */
 export function LibraryClient({ lessons, methods, connected }: {
   lessons: Algorithm[]; methods: MethodRecord[]; connected: boolean;
 }) {
@@ -20,15 +20,15 @@ export function LibraryClient({ lessons, methods, connected }: {
   const filtered=lessons.filter(a=>
     (category==="Toutes"||a.category===category) &&
     (collection!=="Avec variantes" || Boolean(counts[a.slug])) &&
-    `${a.name} ${a.title} ${a.summary} ${a.tags.join(" ")} ${methods.filter(m=>m.topic_slug===a.slug).map(m=>m.title).join(" ")}`.toLowerCase().includes(text));
+    `${a.name} ${a.title} ${a.summary} ${a.tags.join(" ")} ${methods.filter(m=>m.topic_slug===a.slug).map(m=>m.title).join(" ")}`.toLowerCase().includes(text)).sort((a,b)=>a.name.localeCompare(b.name,"fr"));
   return <>
-    {!connected && <p className="catalog-offline" role="status">Catalogue collaboratif temporairement indisponible. Les sept modules scolaires restent accessibles.</p>}
+    {!connected && <p className="catalog-offline" role="status">La bibliothèque est momentanément indisponible en partie. Certains modules peuvent manquer ; réessaie plus tard.</p>}
     <div className="library-tools">
       <label className="search-field"><Search size={19}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Rechercher PGCD, tableau, matrice..." aria-label="Rechercher un algorithme"/></label>
       <label className="filter-field"><SlidersHorizontal size={17}/><select aria-label="Filtrer par catégorie" value={category} onChange={e=>setCategory(e.target.value)}><option>Toutes</option>{categories.map(c=><option key={c}>{c}</option>)}</select></label>
       <label className="filter-field"><select aria-label="Filtrer par méthode" value={collection} onChange={e=>setCollection(e.target.value)}><option>Toutes</option><option>Avec variantes</option></select></label>
     </div>
-    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>7 modules fondateurs · {Math.max(0,lessons.length-7)} chapitres approuvés · {methods.length} méthodes de la communauté</span></div>
-    {filtered.length?<div className="algorithm-grid">{filtered.map(a=><AlgorithmCard algorithm={a} methodCount={counts[a.slug]??0} key={a.slug}/>)}</div>:<div className="empty-state">Aucun résultat pour cette recherche.</div>}
+    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>{lessons.length} modules publiés · Toutes les méthodes réunies dans El biblioteque.</span></div>
+    {filtered.length?<div className="algorithm-grid">{filtered.map(a=><AlgorithmCard algorithm={a} key={a.slug}/>)}</div>:<div className="empty-state">Aucun résultat pour cette recherche.</div>}
   </>;
 }

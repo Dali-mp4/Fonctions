@@ -78,3 +78,23 @@ test("tableau tri is its own Base variant and original classroom exercise has no
   assert.match(read("src/lib/tableau-tri.ts"),/Tri par sélection/);
   assert.match(read("../api/app/main.py"),/tableau-tri/);
 });
+
+
+test("published modules have equal visible status regardless of who created them",()=>{
+  const home=read("src/app/page.tsx");
+  const library=read("src/components/library-client.tsx");
+  const heading=read("src/app/algorithme/[slug]/page.tsx");
+  const card=read("src/components/algorithm-card.tsx");
+  const catalog=read("src/lib/public-catalog-model.ts");
+  const libraryPage=read("src/app/bibliotheque/page.tsx");
+  assert.match(home,/String\(lessons.length\)/);
+  assert.match(home,/sort\(\(a,b\)=>a.name.localeCompare\(b.name,"fr"\)\)/);
+  assert.match(library,/sort\(\(a,b\)=>a.name.localeCompare\(b.name,"fr"\)\)/);
+  assert.match(card,/MODULE/);
+  assert.doesNotMatch(card,/NOUVEAU CHAPITRE|item.collection/);
+  assert.doesNotMatch(library,/modules fondateurs|méthodes de la communauté/);
+  assert.doesNotMatch(heading,/Chapitre de la communauté|Méthode scolaire originale|Fonctions V1 original/);
+  assert.match(heading,/totalMethods/);
+  assert.match(libraryPage,/sans distinction d&apos;origine/);
+  assert.match(catalog,/collection: "general", icon: "📚"/);
+});

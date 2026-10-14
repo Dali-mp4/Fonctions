@@ -360,13 +360,13 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
             onChange={e=>setChapterSummary(e.target.value)} placeholder="Explique le chapitre en au moins 20 caractères."/></label>
         </section>}
         <label>Type<select value={method} disabled={Boolean(editing) || busy || creatingChapter} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
-          <option value="base">Base — méthode scolaire</option><option value="advanced">Advanced — autre méthode</option>
+          <option value="base">Base — méthode progressive</option><option value="advanced">Advanced — autre méthode</option>
         </select></label>
         <label>Titre<input maxLength={160} placeholder="Ex. PGCD avec Euclide" value={title} onChange={e => setTitle(e.target.value)}/></label>
         <label>Explication<textarea rows={5} maxLength={20000} placeholder="Explique la méthode aux élèves…" value={explanation} onChange={e => setExplanation(e.target.value)}/></label>
         <section className="studio-lesson-fields" aria-label="Présentation pédagogique">
           <h3>Présentation de la méthode</h3>
-          <p>Comme dans les modules Base : principe, exemple, limites et sections de pseudo-code / Python.</p>
+          <p>Toutes les méthodes utilisent la même présentation : principe, exemple, limites et sections de pseudo-code / Python.</p>
           <label>Le principe<textarea rows={4} maxLength={5000} value={principle} onChange={e=>setPrinciple(e.target.value)} placeholder="Explique les étapes et l'idée de cette méthode…"/></label>
           <label>Exemple expliqué<input maxLength={1000} value={example} onChange={e=>setExample(e.target.value)} placeholder="Ex. PGCD(24,18) = 6"/></label>
           <label>À retenir / limites<textarea rows={3} maxLength={2000} value={limits} onChange={e=>setLimits(e.target.value)} placeholder="Cas limites, préconditions, complexité…"/></label>

@@ -37,7 +37,7 @@ export function PublicationManagement(){
     <div className="studio-panel-head"><h2 id="publication-heading"><BookCheck size={21}/> Publications · Propriétaire</h2>
       <button className="btn btn-muted" onClick={()=>void refresh()} disabled={loading||busy!==null}><RefreshCw size={15}/> Actualiser</button>
     </div>
-    <p className="studio-hint">Gestion des versions approuvées en base. Le catalogue public conservera ses sept modules d'origine jusqu'à la Phase 5. Retirer ne supprime pas l'historique.</p>
+    <p className="studio-hint">Les méthodes approuvées rejoignent immédiatement la bibliothèque. Retirer une publication la rend indisponible sans effacer son historique.</p>
     {error&&<p className="run-error" role="alert">{error}</p>}
     {notice&&<p className="success-strip" role="status">{notice}</p>}
     {loading?<p className="studio-hint">Chargement…</p>:versions.length===0?

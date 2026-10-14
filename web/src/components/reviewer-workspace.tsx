@@ -81,6 +81,18 @@ export function ReviewerWorkspace({userId}:{userId:string}) {
             </div>
             <small>Version testée : {evidence?.edit_seq??"?"} · SHA-256 : {evidence?.code_sha256??"indisponible"}</small>
           </details>
+          <section className="review-lesson-preview">
+            <h4>Fiche pédagogique présentée aux élèves</h4>
+            <strong>Le principe</strong><p>{r.lesson_content?.principle || r.explanation}</p>
+            <strong>Exemple</strong><p>{r.lesson_content?.example || "Non renseigné"}</p>
+            <strong>Limites</strong><p>{r.lesson_content?.limits || "Non précisées"}</p>
+            <strong>Sections d&apos;apprentissage</strong>
+            {(r.lesson_content?.sections || []).map((sec,i)=><details key={i}><summary>{i+1}. {sec.title}</summary>
+              <h4>Pseudo-code</h4><pre>{sec.pseudocode || "Non fourni"}</pre>
+              <h4>Python</h4><pre>{sec.python || "Non fourni"}</pre>
+              {sec.note && <p>{sec.note}</p>}
+            </details>)}
+          </section>
           <RevisionHistory revisionId={r.id}/>
           {own?<p className="studio-hint">Cette soumission t'appartient. Demande à un autre relecteur de la valider.</p>:<>
             <label>Demander des modifications<textarea maxLength={2000} rows={3}

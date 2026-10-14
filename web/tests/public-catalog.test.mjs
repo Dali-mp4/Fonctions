@@ -37,7 +37,7 @@ test("public route never runs contributed Python and withdrawn methods 404",()=>
   const detail=read("src/app/methode/[id]/page.tsx");
   const server=read("src/lib/public-catalog-server.ts");
   const algo=read("src/app/algorithme/[slug]/page.tsx");
-  assert.match(detail,/if \(!m\) notFound\(\)/);
+  assert.match(detail,/if\(!method\) notFound\(\)/);
   assert.doesNotMatch(detail,/\/api\/v1\/algorithms\/.*\/run/);
   assert.match(server,/published_methods/);
   assert.match(server,/persistSession: false/);

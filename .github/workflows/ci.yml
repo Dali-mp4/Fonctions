@@ -35,5 +35,6 @@ jobs:
       - run: npm run test:runner
       - run: npm run test:review
       - run: npm run test:catalog
+      - run: npm run test:unified
       - run: npm run typecheck
       - run: npm run build

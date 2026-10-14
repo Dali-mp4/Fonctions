@@ -15,6 +15,7 @@ export type MethodRecord = {
   input_schema: unknown;
   test_cases: unknown;
   reviewed_at: string;
+  lesson_content: { principle: string; example: string; limits: string; sections: {title:string;pseudocode:string;python:string;note:string}[] } | null;
 };
 
 export type LegacyRow<T> = { slug: string; payload: T; source_credit: string };

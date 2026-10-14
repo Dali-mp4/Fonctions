@@ -89,12 +89,12 @@ test("published modules have equal visible status regardless of who created them
   const libraryPage=read("src/app/bibliotheque/page.tsx");
   assert.match(home,/String\(lessons.length\)/);
   assert.match(home,/sort\(\(a,b\)=>a.name.localeCompare\(b.name,"fr"\)\)/);
-  assert.match(library,/sort\(\(a,b\)=>localizeLesson\(a,locale\)\.name.localeCompare/);
+  assert.match(library,/sort\(\(a,b\)=>a.name.localeCompare\(b.name,"fr"\)\)/);
   assert.match(card,/MODULE/);
   assert.doesNotMatch(card,/NOUVEAU CHAPITRE|item.collection/);
   assert.doesNotMatch(library,/modules fondateurs|méthodes de la communauté/);
   assert.doesNotMatch(heading,/Chapitre de la communauté|Méthode scolaire originale|Fonctions V1 original/);
   assert.match(heading,/totalMethods/);
-  assert.match(libraryPage,/sans distinction d'origine/);
+  assert.match(libraryPage,/sans distinction d&apos;origine/);
   assert.match(catalog,/collection: "general", icon: "📚"/);
 });

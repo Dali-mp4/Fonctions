@@ -1,6 +1,4 @@
 import "server-only";
-import type { Locale } from "@/lib/translations";
-import { localizePublishedMethods, type ApprovedTranslation } from "@/lib/revision-translation";
 import { createClient } from "@supabase/supabase-js";
 import { algorithms, type Algorithm } from "@/lib/catalog";
 import { mergeOriginalLessons, selectPublishedMethods, withApprovedChapters, type MethodRecord } from "@/lib/public-catalog-model";
@@ -12,7 +10,7 @@ export type PublicCatalog = {
 };
 
 /** Anonymous on purpose: logged-in reviewers must never leak their private rows into SSR. */
-export async function getPublicCatalog(locale:Locale="fr"): Promise<PublicCatalog> {
+export async function getPublicCatalog(): Promise<PublicCatalog> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return { lessons: algorithms, methods: [], connected: false };
@@ -29,16 +27,7 @@ export async function getPublicCatalog(locale:Locale="fr"): Promise<PublicCatalo
       // No fallback to privileged cookies, browser RPCs, or draft tables.
       return { lessons: algorithms, methods: [], connected: false };
     }
-    const originalMethods = selectPublishedMethods(approved.data);
-    let methods = originalMethods;
-    if(locale!=="fr"&&originalMethods.length){
-      const {data:translated,error:translationError}=await sb.from("revision_translations")
-        .select("revision_id,locale,status,content").eq("locale",locale)
-        .in("revision_id",originalMethods.map(m=>m.id)).eq("status","approved");
-      if(!translationError&&translated){
-        methods=localizePublishedMethods(originalMethods,translated as ApprovedTranslation[],locale);
-      }
-    }
+    const methods = selectPublishedMethods(approved.data);
     return {
       lessons: withApprovedChapters(mergeOriginalLessons(algorithms, legacy.data) as Algorithm[], methods),
       methods,

@@ -8,7 +8,6 @@ export type MethodRecord = {
   category: string;
   school_level: string;
   topic_summary?: string;
-  translation_locale?: "en" | "ar";
   method_type: "base" | "advanced";
   title: string;
   explanation: string;

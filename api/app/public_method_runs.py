@@ -49,7 +49,7 @@ async def run_published_method(revision_id: UUID, request: RunMethodRequest,
     if (os.getenv("ENABLE_PUBLIC_METHOD_RUNNER", "false").lower() != "true" or
         os.getenv("ENABLE_DRAFT_RUNNER", "false").lower() != "true" or
         not all(os.getenv(x) for x in ("SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY"))):
-        raise HTTPException(503, "Atelier communautaire temporairement indisponible")
+        raise HTTPException(503, "Exécution de la méthode temporairement indisponible")
     if not authorization.startswith("Bearer ") or not 10 < len(authorization) < 4500:
         raise HTTPException(401, "Connecte-toi pour essayer cette méthode")
     token = authorization[7:].strip()

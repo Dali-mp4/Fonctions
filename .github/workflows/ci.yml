@@ -38,5 +38,6 @@ jobs:
       - run: npm run test:unified
       - run: npm run test:account
       - run: npm run test:google
+      - run: npm run test:public
       - run: npm run typecheck
       - run: npm run build

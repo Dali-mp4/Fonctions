@@ -67,7 +67,7 @@ async def get_json(client, method, endpoint, headers, *, params=None, payload=No
 @router.post("/{revision_id}/test")
 async def run_draft_tests(revision_id: UUID, request: TestDraftRequest, authorization: str = Header(default="")):
     if not configured():
-        raise HTTPException(503, "Sandbox non configuré sur le serveur API (Phase 3B)")
+        raise HTTPException(503, "Sandbox Python indisponible sur ce serveur.")
     if not authorization.startswith("Bearer ") or len(authorization) > 4500:
         raise HTTPException(401, "Connexion requise")
     token = authorization.removeprefix("Bearer ").strip()

@@ -248,3 +248,8 @@
 .google-auth-mark{font-family:Arial,sans-serif;font-size:19px;font-weight:800;color:#4285f4}
 .auth-divider{display:flex;align-items:center;gap:13px;color:#8d99b0;text-align:center;margin:13px 0 20px;font-size:12px}
 .auth-divider:before,.auth-divider:after{content:"";height:1px;flex:1;background:#343b52}
+
+/* Real school paths show only approved modules available for each level. */
+.path-modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin:18px 0 23px}
+.path-modules>a{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:10px 12px;border:1px solid #343c56;border-radius:10px;background:#151b2b;color:#e5e8f6;text-decoration:none;font-size:13px;font-weight:600}
+.path-modules>a:hover,.path-modules>a:focus-visible{border-color:#ae92ff;color:#fff}

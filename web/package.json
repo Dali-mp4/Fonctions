@@ -15,7 +15,8 @@
     "test:catalog": "node --experimental-strip-types --test tests/public-catalog.test.mjs",
     "test:unified": "node --experimental-strip-types --test tests/unified-lessons.test.mjs",
     "test:account": "node --test tests/account-management.test.mjs",
-    "test:google": "node --test tests/google-oauth.test.mjs"
+    "test:google": "node --test tests/google-oauth.test.mjs",
+    "test:public": "node --experimental-strip-types --test tests/public-presentation.test.mjs"
   },
   "dependencies": {
     "next": "^16.0.0",

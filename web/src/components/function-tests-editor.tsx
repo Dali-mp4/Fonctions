@@ -47,7 +47,7 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
   return <section className="test-workspace" aria-labelledby="tests-title">
     <div className="studio-panel-head">
       <h2 id="tests-title"><FlaskConical size={21}/> Définition et cas de test</h2>
-      <span className="test-pill">PHASE 3 · TESTS ISOLÉS</span>
+      <span className="test-pill">TESTS PYTHON ISOLÉS</span>
     </div>
     <p className="studio-hint">Déclare le nom de la fonction, les paramètres et le résultat attendu. Les valeurs sont enregistrées avec ton brouillon. Cette vérification contrôle <strong>le format</strong>, pas le résultat du code Python.</p>
 

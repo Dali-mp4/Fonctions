@@ -31,3 +31,19 @@ test("Account page surfaces linked providers without private OAuth data",()=>{
  assert.match(page,/user\.identities/);
  assert.match(page,/providers/);
 });
+
+
+test("OAuth callback provides fixed, safe diagnostic categories without leaking codes",()=>{
+ const callback=read("src/app/auth/callback/route.ts");
+ const login=read("src/components/login-form.tsx");
+ assert.match(callback,/oauth_reason/);
+ assert.match(callback,/provider_denied/);
+ assert.match(callback,/pkce_missing/);
+ assert.match(callback,/exchange_failed/);
+ assert.match(callback,/Cache-Control/);
+ assert.match(callback,/error\.code/);
+ assert.doesNotMatch(callback,/searchParams\.get\("error_description"\)/);
+ assert.doesNotMatch(callback,/console\.(?:log|warn|error)\(.*\bcode\b\)/);
+ assert.match(login,/param[s]?\.get\("oauth_reason"\)/);
+ assert.match(login,/http:\/\/localhost:3000/);
+});

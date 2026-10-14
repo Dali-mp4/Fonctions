@@ -12,7 +12,7 @@ export default async function Home() {
       <div className="hero-glow" />
       <div className="hero-copy">
         <div className="eyebrow"><span className="live-dot"/> CONÇU POUR LES LYCÉENS TUNISIENS</div>
-        <h1>L&apos;algorithmique,<br/><em>à ta portée.</em></h1>
+        <h1>L&apos;algorithmique,<br/><em>dans ta poche.</em></h1>
         <p>Tous les modules publiés réunis au même endroit. Des explications claires, plusieurs méthodes et du Python à tester.</p>
         <div className="hero-actions"><Link className="btn btn-primary" href="/bibliotheque">Explorer les fonctions <ArrowRight size={18}/></Link><Link className="btn btn-muted" href="/parcours">Choisir mon parcours <ChevronRight size={17}/></Link></div>
         <div className="hero-metrics"><div><strong>{String(lessons.length).padStart(2,"0")}</strong><span>modules disponibles</span></div><div><strong>02</strong><span>approches Base et Advanced</span></div><div><strong>∞</strong><span>idées à partager</span></div></div>

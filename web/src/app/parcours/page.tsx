@@ -6,6 +6,7 @@ import { getSchoolPaths } from "@/lib/school-paths";
 
 import { getServerLocale } from "@/lib/server-locale";
 import { tr } from "@/lib/translations";
+import { localizeLesson } from "@/lib/lesson-translations";
 export const metadata: Metadata = { title: "Parcours scolaires" };
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ export default async function Parcours() {
         <p>{tr(locale,"Explore les notions disponibles à ton niveau et découvre les méthodes de chaque module.")}</p>
         <div className="path-modules" aria-label={`Modules de ${path.year}ème`}>
           {path.modules.map(module => <Link key={module.slug} href={`/algorithme/${module.slug}`}>
-            {module.name}<ArrowRight size={14}/>
+            {localizeLesson(module,locale).name}<ArrowRight size={14}/>
           </Link>)}
         </div>
         <Link href="/bibliotheque">{tr(locale,"Explorer la bibliothèque")} <ArrowRight size={17}/></Link>

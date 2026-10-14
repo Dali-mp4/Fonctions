@@ -1115,6 +1115,7 @@ Object.assign(extra,{
     "عرض حالات الاختبار"
   ]
 });
+Object.assign(extra,{"Croissant":["Ascending","تصاعدي"],"Décroissant":["Descending","تنازلي"],"L'ordre du tri":["Sort order","اتجاه الترتيب"]});
 export function tr(locale:Locale, french:string):string {
  if(locale==="fr")return french;
  if(extra[french])return extra[french][locale==="en"?0:1];

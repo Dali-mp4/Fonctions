@@ -402,6 +402,23 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
 };
 export function localizeLesson(item:Algorithm,locale:Locale):Algorithm {
  if(locale==="fr")return item;
+ if(item.slug==="tableau-tri"){
+   return {...item,
+     name:locale==="en"?"ARRAY · SORT":"جدول · ترتيب",
+     title:locale==="en"?"Selection sort":"الترتيب بالاختيار",
+     summary:locale==="en"?"Sort an array using selection sort in ascending or descending order.":"رتّب جدولًا بالاختيار تصاعديًا أو تنازليًا.",
+     principle:locale==="en"?"On each pass, find the greatest remaining item and swap it into position. Reverse the result for ascending order.":"في كل دورة نجد أكبر عنصر متبقٍ ونبدّله مع العنصر الحالي، ثم نعكس النتيجة للترتيب التصاعدي.",
+     limits:locale==="en"?"At most 40 integers. Selection sort takes quadratic time.":"حتى 40 عددًا صحيحًا. تتطلب طريقة الترتيب زمنًا تربيعيًا.",
+     inputs:item.inputs.map((field,i)=>({...field,
+       label:i===0?(locale==="en"?"Array elements":"عناصر الجدول"):(locale==="en"?"Sort order":"اتجاه الترتيب"),
+       hint:i===0?(locale==="en"?"Separate integers using commas.":"افصل الأعداد بفواصل."):(locale==="en"?"Choose the sort direction.":"اختر اتجاه الترتيب.")
+     })),
+     code_sections:item.code_sections.map(sec=>({...sec,
+       title:locale==="en"?"Selection sort — Base method":"الترتيب بالاختيار — طريقة Base",
+       note:locale==="en"?"This method sorts from greatest to smallest. To sort directly in ascending order, replace > with < in the code.":"ترتب هذه الطريقة من الأكبر إلى الأصغر. للترتيب التصاعدي مباشرة، استبدل > بـ < في الكود."
+     }))
+   };
+ }
  const x=translations[locale][item.slug];
  if(!x)return item;
  return {...item,name:x.name,title:x.title,category:x.category,summary:x.summary,
@@ -410,5 +427,5 @@ export function localizeLesson(item:Algorithm,locale:Locale):Algorithm {
   inputs:item.inputs.map((f,i)=>({...f,label:x.inputs[i]?.[0]??f.label,hint:x.inputs[i]?.[1]??f.hint}))};
 }
 export function isTranslatedLesson(item:Algorithm,locale:Locale):boolean {
- return locale==="fr" || Boolean(translations[locale][item.slug]);
+ return locale==="fr" || item.slug==="tableau-tri" || Boolean(translations[locale][item.slug]);
 }

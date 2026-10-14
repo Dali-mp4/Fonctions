@@ -69,6 +69,13 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [editing, setEditing] = useState<string | null>(null);
   const [editSeq, setEditSeq] = useState(1);
   const [topic, setTopic] = useState("pgcd");
+  const [allTopics, setAllTopics] = useState<{slug:string;title:string;state:string}[]>(algorithms.map(a=>({slug:a.slug,title:a.name,state:"published"})));
+  const [creatingChapter,setCreatingChapter] = useState(false);
+  const [chapterSlug,setChapterSlug] = useState("");
+  const [chapterTitle,setChapterTitle] = useState("");
+  const [chapterCategory,setChapterCategory] = useState("Algorithmique");
+  const [chapterLevel,setChapterLevel] = useState("3ème Info");
+  const [chapterSummary,setChapterSummary] = useState("");
   const [method, setMethod] = useState<"base" | "advanced">("advanced");
   const [title, setTitle] = useState("");
   const [explanation, setExplanation] = useState("");
@@ -112,6 +119,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     const sb = browserSupabase();
     if (!sb) { setListError("Supabase n'est pas configuré."); setLoading(false); return; }
     setLoading(true);
+    const {data:rows,error:te}=await sb.from("topics").select("slug,title,state").order("title").limit(200);
+    if(!te && rows) setAllTopics(rows);
     const { data, error: queryError } = await sb.from("revisions")
       .select(revisionWithImplementationSelect)
       .eq("created_by", userId).order("updated_at", { ascending: false }).limit(100);
@@ -124,6 +133,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
 
   function newDraft() {
     setEditing(null); setEditSeq(1); setTopic("pgcd"); setMethod("advanced");
+    setCreatingChapter(false);setChapterSlug("");setChapterTitle("");setChapterSummary("");
     setTitle(""); setExplanation(""); setPseudocode(""); setCode(sample);
     setPrinciple(""); setExample(""); setLimits("");
     setSectionTitle("Fonction principale"); setExtraSections([]);
@@ -135,7 +145,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   function openDraft(draft: Revision) {
     if (!editable(draft)) return;
     setEditing(draft.id); setEditSeq(draft.edit_seq);
-    setTopic(draft.implementations.topics.slug);
+    setTopic(draft.implementations.topics.slug);setCreatingChapter(false);
     setMethod(draft.implementations.method_type);
     setTitle(draft.title); setExplanation(draft.explanation);
     setPseudocode(draft.pseudocode); setCode(draft.python_code);
@@ -189,6 +199,13 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       setError([...preflight.errors, ...badCases.map(t => `${t.label} : ${t.message}`)].join(" "));
       return;
     }
+    if (!editing && creatingChapter &&
+      (!/^[a-z][a-z0-9-]{2,39}$/.test(chapterSlug) ||
+       chapterTitle.trim().length < 4 || chapterCategory.trim().length < 3 ||
+       chapterLevel.trim().length < 3 || chapterSummary.trim().length < 20)) {
+      setError("Complète les champs du nouveau chapitre : identifiant, nom, catégorie, niveau et résumé (20 caractères minimum).");
+      return;
+    }
     const sb = browserSupabase();
     if (!sb) { setError("Supabase n'est pas configuré."); return; }
     setBusy(true);
@@ -203,6 +220,19 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         if (saveError) throw saveError;
         setEditSeq(Number(data));
         setOk("Brouillon mis à jour. Les éventuels anciens tests ont été annulés.");
+      } else if (creatingChapter) {
+        const {data,error:saveError}=await sb.rpc("create_chapter_lesson",{
+          p_slug:chapterSlug.trim(),p_chapter_title:chapterTitle.trim(),
+          p_category:chapterCategory.trim(),p_school_level:chapterLevel.trim(),
+          p_summary:chapterSummary.trim(),
+          p_title:title.trim(),p_explanation:explanation.trim(),
+          p_pseudocode:pseudocode,p_python_code:code,p_entry_function:entry,
+          p_input_schema:schema,p_test_cases:preflight.testCases,p_lesson_content:lesson,
+        });
+        if(saveError) throw saveError;
+        setEditing(String(data));setEditSeq(1);setTopic(chapterSlug.trim());
+        setMethod("base");setCreatingChapter(false);
+        setOk("Chapitre proposé avec son premier brouillon. Relecture nécessaire avant publication.");
       } else {
         const { data, error: saveError } = await sb.rpc("create_draft_lesson_with_contract", {
           p_topic_slug: topic, p_method_type: method,
@@ -309,10 +339,27 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       <div className="studio-form">
         <h2><FileCode2 size={22}/>{editing ? "Modifier le brouillon" : "Nouvelle implémentation"}</h2>
         <p className="studio-hint">{editing ? "Tu peux enregistrer plusieurs fois, sans créer de doublon." : "Choisis un concept et rédige ta méthode."}</p>
-        <label>Concept<select value={topic} disabled={Boolean(editing) || busy} onChange={e => setTopic(e.target.value)}>
-          {algorithms.map(a => <option key={a.slug} value={a.slug}>{a.name} — {a.title}</option>)}
+        <label>Concept<select value={topic} disabled={Boolean(editing) || busy || creatingChapter} onChange={e=>setTopic(e.target.value)}>
+          {allTopics.map(t=><option key={t.slug} value={t.slug}>{t.title}{t.state==="pending"?" · En attente de validation":""}</option>)}
         </select></label>
-        <label>Type<select value={method} disabled={Boolean(editing) || busy} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
+        {!editing && <label className="review-approval-check">
+          <input type="checkbox" checked={creatingChapter} disabled={busy}
+            onChange={e=>{setCreatingChapter(e.target.checked);if(e.target.checked)setMethod("base");}}/>
+          Proposer un nouveau concept / chapitre
+        </label>}
+        {!editing && creatingChapter && <section className="studio-lesson-fields" aria-label="Nouveau chapitre">
+          <h3>Nouveau chapitre</h3>
+          <p>Ce chapitre reste privé jusqu'à l'approbation de sa première méthode par un autre relecteur.</p>
+          <label>Identifiant URL<input maxLength={40} value={chapterSlug}
+            onChange={e=>setChapterSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,""))}
+            placeholder="ex. recherche-dichotomique"/></label>
+          <label>Nom<input maxLength={100} value={chapterTitle} onChange={e=>setChapterTitle(e.target.value)}/></label>
+          <label>Catégorie<input maxLength={80} value={chapterCategory} onChange={e=>setChapterCategory(e.target.value)}/></label>
+          <label>Niveau scolaire<input maxLength={80} value={chapterLevel} onChange={e=>setChapterLevel(e.target.value)}/></label>
+          <label>Présentation<textarea rows={3} maxLength={500} value={chapterSummary}
+            onChange={e=>setChapterSummary(e.target.value)} placeholder="Explique le chapitre en au moins 20 caractères."/></label>
+        </section>}
+        <label>Type<select value={method} disabled={Boolean(editing) || busy || creatingChapter} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
           <option value="base">Base — méthode scolaire</option><option value="advanced">Advanced — autre méthode</option>
         </select></label>
         <label>Titre<input maxLength={160} placeholder="Ex. PGCD avec Euclide" value={title} onChange={e => setTitle(e.target.value)}/></label>

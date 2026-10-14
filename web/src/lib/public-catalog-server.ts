@@ -1,7 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { algorithms, type Algorithm } from "@/lib/catalog";
-import { mergeOriginalLessons, selectPublishedMethods, type MethodRecord } from "@/lib/public-catalog-model";
+import { mergeOriginalLessons, selectPublishedMethods, withApprovedChapters, type MethodRecord } from "@/lib/public-catalog-model";
 
 export type PublicCatalog = {
   lessons: Algorithm[];
@@ -27,9 +27,10 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
       // No fallback to privileged cookies, browser RPCs, or draft tables.
       return { lessons: algorithms, methods: [], connected: false };
     }
+    const methods = selectPublishedMethods(approved.data);
     return {
-      lessons: mergeOriginalLessons(algorithms, legacy.data) as Algorithm[],
-      methods: selectPublishedMethods(approved.data),
+      lessons: withApprovedChapters(mergeOriginalLessons(algorithms, legacy.data) as Algorithm[], methods),
+      methods,
       connected: true,
     };
   } catch {

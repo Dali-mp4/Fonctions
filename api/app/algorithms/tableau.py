@@ -69,8 +69,8 @@ def execute(tableau: list[int], ordre: str = "Aucun") -> AlgorithmResult:
 SPEC = AlgorithmSpec(
     slug="tableau", name="TABLEAU", full_name="Déclarer, remplir et afficher un tableau",
     category="Structures de données", icon="📊",
-    summary="Comprendre la déclaration, le remplissage et l’affichage d’un tableau. Tri facultatif.",
-    principle="Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre. Un tri peut être étudié en exercice facultatif.",
+    summary="Comprendre la déclaration, le remplissage et l’affichage d’un tableau.",
+    principle="Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre. ",
     pseudocode="""Procédure REMPLIR(@T : Tab, n : Entier)
 Début
     Pour i de 0 à n - 1 Faire
@@ -86,11 +86,9 @@ Début
 Fin""",
     inputs=(InputField("tableau", "Éléments du tableau", "int_list", "8, 3, 11, 2, 5",
                         hint="Séparer les entiers par des virgules."),
-            InputField("ordre", "Tri (facultatif)", "choice", "Aucun",
-                       options=("Aucun", "Croissant", "Décroissant"),
-                       hint="Aucun : afficher simplement le tableau. Choisis un ordre pour essayer le tri.")),
+),
     function=afficher_tableau, execute=execute, example="T = [8, 3, 11, 2, 5] ; T[0] = 8 ; n = 5",
-    tags=("tableau", "déclaration", "remplissage", "affichage", "tri", "sélection"),
+    tags=("tableau", "déclaration", "remplissage", "affichage"),
     code_sections=(
         CodeSection(
             title="Déclarer le tableau — TDNT et TDOG",
@@ -148,38 +146,6 @@ Fin""",
             python="""def afficher(T, n):
     for i in range(n):
         print(T[i])""",
-        ),
-        CodeSection(
-            title="Exercice facultatif — trier le tableau (tri par sélection)",
-            pseudocode="""Fonction TRI(T : Tab, n : Entier) : Tab
-Début
-    Pour i de 0 à n - 2 Faire
-        p ← i
-        Pour j de i + 1 à n - 1 Faire
-            Si T[j] > T[p] Alors
-                p ← j
-            Fin Si
-        Fin Pour
-        Si p ≠ i Alors
-            a ← T[i]
-            T[i] ← T[p]
-            T[p] ← a
-        Fin Si
-    Fin Pour
-    Retourner T
-Fin""",
-            python="""def tri(T, n):
-    for i in range(n - 1):
-        p = i
-        for j in range(i + 1, n):
-            if T[j] > T[p]:
-                p = j
-        if p != i:
-            a = T[i]
-            T[i] = T[p]
-            T[p] = a
-    return T""",
-            note="Exercice facultatif : le tri d’origine classe dans l’ordre décroissant. Pour trier directement en croissant, remplacer > par < dans ce code ; dans l’atelier, le tri croissant inverse le résultat décroissant.",
         ),
     ),
     limits="Maximum 40 entiers pour garder un atelier facile à lire.",

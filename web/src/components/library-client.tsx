@@ -28,7 +28,7 @@ export function LibraryClient({ lessons, methods, connected }: {
       <label className="filter-field"><SlidersHorizontal size={17}/><select aria-label="Filtrer par catégorie" value={category} onChange={e=>setCategory(e.target.value)}><option>Toutes</option>{categories.map(c=><option key={c}>{c}</option>)}</select></label>
       <label className="filter-field"><select aria-label="Filtrer par méthode" value={collection} onChange={e=>setCollection(e.target.value)}><option>Toutes</option><option>Avec variantes</option></select></label>
     </div>
-    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>{lessons.length} notions scolaires · {methods.length} méthodes approuvées intégrées</span></div>
+    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>7 modules fondateurs · {Math.max(0,lessons.length-7)} chapitres approuvés · {methods.length} méthodes de la communauté</span></div>
     {filtered.length?<div className="algorithm-grid">{filtered.map(a=><AlgorithmCard algorithm={a} methodCount={counts[a.slug]??0} key={a.slug}/>)}</div>:<div className="empty-state">Aucun résultat pour cette recherche.</div>}
   </>;
 }

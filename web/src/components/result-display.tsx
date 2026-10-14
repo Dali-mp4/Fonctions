@@ -60,7 +60,7 @@ function NumericGrid({ rows, name, oneDimensional, sorted = false }: {
 }
 
 export function ResultDisplay({ slug, value, sorted = false }: Props) {
-  if (slug === "tableau" && isNumberList(value)) {
+  if ((slug === "tableau" || slug === "tableau-tri") && isNumberList(value)) {
     return <NumericGrid rows={[value]} name="T" oneDimensional sorted={sorted} />;
   }
   if (slug === "matrice" && isNumberMatrix(value)) {

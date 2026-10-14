@@ -268,3 +268,41 @@ Contributor editors now author an explanation of the principle, worked example, 
 **Security/feature boundary:** The base lesson's interactive **Essayer** remains backed by its seven reviewed FastAPI functions. For community methods, **Essayer** presents selected author-submitted, reviewer-checked example inputs and expected outputs; it is explicitly **not** an execution with custom values. Enabling public custom-input execution of arbitrary approved code requires a separately budgeted, authenticated and rate-limited sandbox endpoint. Neither browser JavaScript nor the public built-in FastAPI route may execute contributor source.
 
 Existing `/methode/[id]` bookmarks redirect to the matching original topic with the approved method selected. Withdrawn method links 404.
+
+## Extension Phase 5 — interactive community methods, new chapters, TABLEAU split
+
+Run `supabase/migrations/008_public_execution_chapters_tableau.sql` **once**
+after migration 007. It was validated with a rolled-back SQL transaction.
+
+- Contributors may propose a **new concept/chapter** and its first `Base`
+  draft in one audited operation. Its database topic state stays **pending**
+  until a different reviewer approves the first tested method. New approved
+  chapters are displayed as regular modules in `/bibliotheque`, not disconnected
+  community articles. Existing original seven are preserved.
+- Students can enter custom values in a contributed method's **Essayer**
+  tab. The browser never submits source code: signed-in students send
+  JSON inputs for the pinned, independently reviewed revision to FastAPI;
+  the API verifies their Supabase token, validates input types and limits,
+  obtains an atomic DB reservation and executes in a fresh network-blocked
+  Modal sandbox. No executable contributor Python runs on FastAPI or in
+  the browser.
+- For cost and abuse safety, public-method executions require login and are
+  capped to **2/minute and 15/day per account**, with a global project limit
+  of **250/day**. First runs may take 20–40 seconds. This is a development
+  budget guard, NOT a substitute for provider billing alerts/production abuse
+  monitoring. No anonymous pay-per-run API access is permitted.
+- Public method running is **disabled by default**. After applying 008,
+  set `ENABLE_PUBLIC_METHOD_RUNNER=true` in the PRIVATE `api/.env` (alongside
+  the existing `ENABLE_DRAFT_RUNNER=true`) and restart FastAPI.
+- Original TABLEAU Base remains declare/fill/display **without Tri input**.
+  Its selection-sort example is now a separately selectable trusted
+  **Base · Tri par sélection** in the same TABLEAU module, with its own
+  input dropdown, explanation and code. It is not an eighth library concept.
+- The SQL migration updates only the TABLEAU display payload, not original
+  accounts, original import attribution, published pointers or audit history.
+
+Testing: sign in as student, open an approved method, enter custom values and
+run; verify quotas and failure messages. As contributor, propose a new chapter,
+run tests, submit, then approve with another reviewer account. Check no public
+chapter is visible before approval. Visit TABLEAU to switch between its two
+independent Base variants.

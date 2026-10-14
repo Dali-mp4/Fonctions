@@ -1,3 +1,4 @@
+import type { Algorithm } from "@/lib/catalog";
 /** Public-facing catalog mapping. No secrets or private revisions here. */
 export type MethodRecord = {
   id: string;
@@ -6,6 +7,7 @@ export type MethodRecord = {
   topic_title: string;
   category: string;
   school_level: string;
+  topic_summary?: string;
   method_type: "base" | "advanced";
   title: string;
   explanation: string;
@@ -55,4 +57,26 @@ export function mergeOriginalLessons<T extends { slug: string; method: string; c
   // The fixed seven stay available even if Supabase is down or a DB row is missing.
   // Unknown DB slugs cannot turn a public lesson into an executable built-in.
   return originals.map(lesson => fromDb.get(lesson.slug) ?? lesson);
+}
+
+// A chapter appears only when an independently approved method is active.
+// New topics NEVER become trusted built-in execution targets.
+export function withApprovedChapters(originals: Algorithm[], methods: MethodRecord[]): Algorithm[] {
+  const known = new Set(originals.map(l => l.slug));
+  const additional: Algorithm[] = [];
+  for (const method of methods) {
+    if (known.has(method.topic_slug)) continue;
+    known.add(method.topic_slug);
+    additional.push({
+      slug: method.topic_slug, name: method.topic_title, title: method.topic_title,
+      category: method.category, level: method.school_level, method: "base",
+      collection: "community", icon: "📚",
+      summary: method.topic_summary || method.explanation.slice(0, 180),
+      principle: method.lesson_content?.principle || method.explanation,
+      example: method.lesson_content?.example || "", limits: method.lesson_content?.limits || "",
+      tags: [method.topic_slug, method.topic_title.toLowerCase()], inputs: [],
+      code_sections: method.lesson_content?.sections ?? [],
+    });
+  }
+  return [...originals, ...additional];
 }

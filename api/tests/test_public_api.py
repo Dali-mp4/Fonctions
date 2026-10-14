@@ -18,14 +18,14 @@ def test_catalog_has_original_seven():
 
 def test_pgcd_and_tableau():
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 48, "b": 18}}).json()["value"] == 6
-    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [8, 3, 11, 2, 5], "ordre": "Croissant"}}).json()["value"] == [2, 3, 5, 8, 11]
+    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [8, 3, 11, 2, 5]}}).json()["value"] == [8, 3, 11, 2, 5]
 
 
 def test_schema_rejects_extra_unknown_or_huge_payload():
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 48, "b": 18, "evil": 1}}).status_code == 422
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 0, "b": 18}}).status_code == 422
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 10**100, "b": 1}}).status_code == 422
-    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [1] * 41, "ordre": "Croissant"}}).status_code == 422
+    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [1] * 41}}).status_code == 422
     assert client.post("/api/v1/algorithms/matrice/run", json={"inputs": {"matrice": [[1, 2], [3]]}}).status_code == 422
     assert client.post("/api/v1/algorithms/x/run", json={"inputs": {}}).status_code == 404
 
@@ -41,7 +41,7 @@ def test_all_seven_can_be_executed_with_classroom_examples():
         "ppcm": ({"a": 12, "b": 18}, 36),
         "som-ch": ({"a": 4825}, 19),
         "verif": ({"a": 3, "borne_min": 0, "borne_max": 10}, True),
-        "tableau": ({"tableau": [8, 3, 11, 2, 5], "ordre": "Décroissant"}, [11, 8, 5, 3, 2]),
+        "tableau": ({"tableau": [8, 3, 11, 2, 5]}, [8, 3, 11, 2, 5]),
         "matrice": ({"matrice": [[1, 2], [3, 4]]}, [[1, 2], [3, 4]]),
         "enregistrement": ({"champs": [{"nom": "age", "type": "entier", "valeur": "17"}]}, {"age": 17}),
     }
@@ -55,7 +55,7 @@ def test_tableau_defaults_to_display_without_sorting():
     values = [8, 3, 11, 2, 5]
     response = client.post(
         "/api/v1/algorithms/tableau/run",
-        json={"inputs": {"tableau": values, "ordre": "Aucun"}},
+        json={"inputs": {"tableau": values}},
     )
     assert response.status_code == 200
     result = response.json()
@@ -74,7 +74,7 @@ def test_tableau_sort_is_optional_and_preserves_original():
         ("Décroissant", [11, 8, 5, 3, 2]),
     ]:
         r = client.post(
-            "/api/v1/algorithms/tableau/run",
+            "/api/v1/algorithms/tableau-tri/run",
             json={"inputs": {"tableau": values, "ordre": order}},
         )
         assert r.status_code == 200
@@ -82,7 +82,7 @@ def test_tableau_sort_is_optional_and_preserves_original():
         assert "Tri facultatif" in r.json()["note"]
     assert values == [8, 3, 11, 2, 5]
     assert client.post(
-        "/api/v1/algorithms/tableau/run",
+        "/api/v1/algorithms/tableau-tri/run",
         json={"inputs": {"tableau": values, "ordre": "Inconnu"}},
     ).status_code == 422
 
@@ -91,15 +91,15 @@ def test_classroom_tableau_content_prioritizes_array_basics():
     spec = client.get("/api/v1/algorithms/tableau").json()
     assert "remplir" in spec["title"]
     assert "affichage" in spec["summary"]
-    assert spec["inputs"][1]["default"] == "Aucun"
-    assert spec["inputs"][1]["options"] == ["Aucun", "Croissant", "Décroissant"]
+    assert len(spec["inputs"]) == 1
     assert [c["title"] for c in spec["code_sections"]][:4] == [
         "Déclarer le tableau — TDNT et TDOG",
         "Remplir manuellement",
         "Remplir aléatoirement",
         "Afficher les éléments",
     ]
-    assert "facultatif" in spec["code_sections"][-1]["title"]
+    assert len(spec["code_sections"]) == 4
+    assert all("trier" not in sec["title"].lower() for sec in spec["code_sections"])
 
 
 def test_matrice_stays_unchanged_and_has_no_sort_option():
@@ -123,3 +123,17 @@ def test_tableau_omitting_sort_choice_also_defaults_to_display():
     assert r.status_code == 200
     assert r.json()["value"] == [7, 1, 5]
     assert "Aucun tri" in r.json()["note"]
+
+
+def test_tableau_display_does_not_allow_sorting_input():
+    r = client.post("/api/v1/algorithms/tableau/run",
+                    json={"inputs": {"tableau": [3, 1, 2], "ordre": "Croissant"}})
+    assert r.status_code == 422
+
+
+def test_tableau_sort_is_separate_trusted_base_variant():
+    r = client.post("/api/v1/algorithms/tableau-tri/run",
+                    json={"inputs": {"tableau": [3, 1, 2], "ordre": "Croissant"}})
+    assert r.status_code == 200
+    assert r.json()["value"] == [1, 2, 3]
+    assert "tableau-tri" not in {x["slug"] for x in client.get("/api/v1/algorithms").json()}

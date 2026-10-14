@@ -269,16 +269,14 @@
     "method": "base",
     "collection": "general",
     "icon": "📊",
-    "summary": "Comprendre la déclaration, le remplissage et l’affichage d’un tableau. Tri facultatif.",
-    "principle": "Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre. Un tri peut être étudié en exercice facultatif.",
+    "summary": "Comprendre la déclaration, le remplissage et l’affichage d’un tableau.",
+    "principle": "Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre.",
     "example": "T = [8, 3, 11, 2, 5] ; T[0] = 8 ; n = 5",
     "tags": [
       "tableau",
       "déclaration",
       "remplissage",
-      "affichage",
-      "tri",
-      "sélection"
+      "affichage"
     ],
     "limits": "Maximum 40 entiers pour garder un atelier facile à lire.",
     "inputs": [
@@ -291,20 +289,6 @@
         "max_value": null,
         "options": [],
         "hint": "Séparer les entiers par des virgules."
-      },
-      {
-        "name": "ordre",
-        "label": "Tri (facultatif)",
-        "kind": "choice",
-        "default": "Aucun",
-        "min_value": null,
-        "max_value": null,
-        "options": [
-          "Aucun",
-          "Croissant",
-          "Décroissant"
-        ],
-        "hint": "Aucun : afficher simplement le tableau. Choisis un ordre pour essayer le tri."
       }
     ],
     "code_sections": [
@@ -331,12 +315,6 @@
         "pseudocode": "Procédure AFFICHER(T : Tab, n : Entier)\nDébut\n    Pour i de 0 à n - 1 Faire\n        Écrire(T[i])\n    Fin Pour\nFin",
         "python": "def afficher(T, n):\n    for i in range(n):\n        print(T[i])",
         "note": ""
-      },
-      {
-        "title": "Exercice facultatif — trier le tableau (tri par sélection)",
-        "pseudocode": "Fonction TRI(T : Tab, n : Entier) : Tab\nDébut\n    Pour i de 0 à n - 2 Faire\n        p ← i\n        Pour j de i + 1 à n - 1 Faire\n            Si T[j] > T[p] Alors\n                p ← j\n            Fin Si\n        Fin Pour\n        Si p ≠ i Alors\n            a ← T[i]\n            T[i] ← T[p]\n            T[p] ← a\n        Fin Si\n    Fin Pour\n    Retourner T\nFin",
-        "python": "def tri(T, n):\n    for i in range(n - 1):\n        p = i\n        for j in range(i + 1, n):\n            if T[j] > T[p]:\n                p = j\n        if p != i:\n            a = T[i]\n            T[i] = T[p]\n            T[p] = a\n    return T",
-        "note": "Exercice facultatif : le tri d’origine classe dans l’ordre décroissant. Pour trier directement en croissant, remplacer > par < dans ce code ; dans l’atelier, le tri croissant inverse le résultat décroissant."
       }
     ]
   },
@@ -363,7 +341,7 @@
         "name": "a",
         "label": "Nombre à vérifier",
         "kind": "float",
-        "default": 7.0,
+        "default": 7,
         "min_value": null,
         "max_value": null,
         "options": [],
@@ -373,7 +351,7 @@
         "name": "borne_min",
         "label": "Borne minimale",
         "kind": "float",
-        "default": 2.0,
+        "default": 2,
         "min_value": null,
         "max_value": null,
         "options": [],
@@ -383,7 +361,7 @@
         "name": "borne_max",
         "label": "Borne maximale",
         "kind": "float",
-        "default": 10.0,
+        "default": 10,
         "min_value": null,
         "max_value": null,
         "options": [],

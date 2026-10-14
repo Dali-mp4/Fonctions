@@ -1,22 +1,80 @@
 "use client";
 import { useState } from "react";
-import { BookOpenText, Code2, Play, ChevronDown, CheckCircle2, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { BookOpenText, Code2, Play, ChevronDown, ShieldCheck } from "lucide-react";
 import type { MethodRecord } from "@/lib/public-catalog-model";
+import { browserSupabase } from "@/lib/supabase-browser";
+import { ResultDisplay } from "@/components/result-display";
 
-type Case = { label?: string; inputs?: unknown; expected?: unknown };
-const objectValue = (x: unknown) => x && typeof x === "object" && !Array.isArray(x);
+type Param = { name: string; type: string };
+type Case = { label?: string; inputs?: Record<string, unknown>; expected?: unknown };
+const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
-/** Same three pedagogical tabs as the original Fonctions lessons.
- * Contributed Python is ALWAYS text, never evaluated in the public browser/API. */
+function parseInput(raw: string, type: string): unknown {
+  if (type === "str") return raw;
+  if (type === "bool") return raw === "true";
+  const parsed: unknown = JSON.parse(raw);
+  if (type === "int" && (!Number.isSafeInteger(parsed) || typeof parsed !== "number"))
+    throw new Error("Saisis un entier valide.");
+  if (type === "float" && (typeof parsed !== "number" || !Number.isFinite(parsed)))
+    throw new Error("Saisis un nombre fini.");
+  if (type.startsWith("list[") && !Array.isArray(parsed))
+    throw new Error("Saisis un tableau JSON, par exemple [1,2,3].");
+  return parsed;
+}
+const toText = (v: unknown, type: string) => type === "str" ? String(v ?? "") : JSON.stringify(v ?? null);
+
+/** Same three teaching tabs as the seven trusted Base lessons, but a metered,
+ * authenticated Modal sandbox executes ONLY the pinned, reviewed source. */
 export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
   const [tab, setTab] = useState<"essayer"|"comprendre"|"code">("essayer");
-  const [caseNumber, setCaseNumber] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [output, setOutput] = useState<unknown>(null);
+  const [didRun, setDidRun] = useState(false);
+  const [error, setError] = useState("");
   const content = m.lesson_content;
-  const cases: Case[] = Array.isArray(m.test_cases) ? m.test_cases.filter(objectValue) as Case[] : [];
+  const schema = m.input_schema as { parameters?: Param[]; returns?: string } | null;
+  const params = Array.isArray(schema?.parameters) ? schema.parameters : [];
+  const cases = Array.isArray(m.test_cases) ? m.test_cases as Case[] : [];
+  const firstInputs = cases[0]?.inputs ?? {};
+  const [values, setValues] = useState<Record<string,string>>(() => Object.fromEntries(
+    params.map(p => [p.name, toText(firstInputs[p.name], p.type)])));
   const sections = Array.isArray(content?.sections) && content.sections.length ? content.sections : [
     { title: "Algorithme proposé", pseudocode: m.pseudocode, python: m.python_code, note: "" },
   ];
-  const sample = cases[caseNumber];
+
+  async function run(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault(); setError(""); setDidRun(false); setOutput(null);
+    let inputs: Record<string,unknown>;
+    try {
+      inputs = Object.fromEntries(params.map(p => [p.name,parseInput(values[p.name] ?? "",p.type)]));
+    } catch (exc) {
+      setError(exc instanceof Error ? exc.message : "Entrées invalides"); return;
+    }
+    const sb = browserSupabase();
+    if (!sb) { setError("Connexion non configurée."); return; }
+    setRunning(true);
+    try {
+      const {data:{session}} = await sb.auth.getSession();
+      if (!session?.access_token) throw new Error("Connecte-toi pour exécuter cette méthode.");
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 55000);
+      try {
+        const res = await fetch(`${API}/api/v1/methods/${m.id}/run`, {
+          method: "POST", signal: controller.signal,
+          headers: {"Content-Type":"application/json",Authorization:`Bearer ${session.access_token}`},
+          body: JSON.stringify({inputs}),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : `Erreur HTTP ${res.status}`);
+        if (data.status === "error") throw new Error(data.error || "Erreur Python");
+        if (data.status !== "ok") throw new Error("Réponse invalide du sandbox");
+        setOutput(data.value);setDidRun(true);
+      } finally {clearTimeout(timer);}
+    } catch(exc) {setError(exc instanceof Error ? exc.message : "Sandbox indisponible");}
+    finally {setRunning(false);}
+  }
+
   return <div className="lesson-tabs">
     <div className="tab-bar" role="tablist" aria-label="Onglets du module">
       <button role="tab" aria-selected={tab==="essayer"} className={tab==="essayer"?"selected":""} onClick={()=>setTab("essayer")}><Play size={17}/> Essayer</button>
@@ -25,22 +83,29 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
     </div>
     {tab==="essayer" && <section className="tab-body" role="tabpanel">
       <div className="workspace-grid">
-        <div className="panel"><div className="panel-title"><Play size={18}/> Exemples validés</div>
-          <p>Retrouve les exemples fournis par le contributeur et examinés pendant la relecture.</p>
-          <label className="method-example-select">Choisir un cas de test
-            <select value={caseNumber} onChange={e=>setCaseNumber(Number(e.target.value))}>
-              {cases.map((tc,i)=><option key={i} value={i}>{tc.label || `Exemple ${i+1}`}</option>)}
-            </select>
-          </label>
-          <p className="studio-hint">Cette méthode est approuvée, mais le lancement de code communautaire sur des valeurs libres n&apos;est pas encore activé publiquement.</p>
+        <div className="panel"><div className="panel-title"><Play size={18}/> Tes paramètres</div>
+          <p>Modifie librement les valeurs, puis exécute la méthode approuvée dans un sandbox isolé.</p>
+          <form onSubmit={e=>void run(e)} className="run-form">
+            {params.map(p=><label key={p.name}><span>{p.name} · {p.type}</span>
+              {p.type === "bool" ? <select value={values[p.name]??"false"} onChange={e=>setValues(v=>({...v,[p.name]:e.target.value}))}>
+                <option value="true">Vrai</option><option value="false">Faux</option>
+              </select> : p.type.startsWith("list[") ?
+                <textarea rows={3} value={values[p.name]??""} onChange={e=>setValues(v=>({...v,[p.name]:e.target.value}))} placeholder="[1,2,3]"/> :
+                <input type={p.type === "str" ? "text" : "number"} step={p.type === "int" ? "1" : "any"}
+                  value={values[p.name]??""} onChange={e=>setValues(v=>({...v,[p.name]:e.target.value}))}/>
+              }<small>{p.type.startsWith("list[") ? "Utilise la notation JSON." : "Saisis ta propre valeur."}</small>
+            </label>)}
+            <button className="btn btn-primary run-button" type="submit" disabled={running}>
+              {running ? "Exécution isolée…" : "Exécuter la méthode"}<Play size={16}/>
+            </button>
+          </form>
+          <p className="studio-hint">Connexion requise · 2 exécutions/minute et 15/jour par compte · quota global de protection. <Link href="/connexion">Se connecter</Link></p>
         </div>
-        <div className="panel output-panel"><div className="panel-title"><CheckCircle2 size={18}/> Exemple de résultat attendu</div>
-          {sample ? <div className="method-example-output">
-            <strong>{sample.label || `Exemple ${caseNumber+1}`}</strong>
-            <span>Entrées</span><pre>{JSON.stringify(sample.inputs,null,2)}</pre>
-            <span>Résultat attendu</span><pre>{JSON.stringify(sample.expected,null,2)}</pre>
-            <small>Il s&apos;agit d&apos;un exemple enregistré, et non d&apos;une nouvelle exécution.</small>
-          </div> : <p>Aucun exemple enregistré.</p>}
+        <div className="panel output-panel"><div className="panel-title"><ShieldCheck size={18}/> Résultat réel</div>
+          {error ? <div className="run-error" role="alert">{error}</div> : didRun ?
+            <div className="result-success"><strong>EXÉCUTION RÉUSSIE</strong><ResultDisplay slug={m.topic_slug} value={output}/></div> :
+            <div className="result-idle"><span className="idle-icon"><Play size={23}/></span><strong>Prêt à tester ?</strong>
+              <p>Entre tes valeurs et lance une exécution Python isolée.</p></div>}
         </div>
       </div>
     </section>}
@@ -54,8 +119,7 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
       </div>
     </section>}
     {tab==="code" && <section className="tab-body" role="tabpanel">
-      <div className="code-intro"><h2>Du pseudo-code au Python.</h2>
-        <p>Cette méthode a été soumise, testée en sandbox puis approuvée par un relecteur indépendant. Les extraits sont présentés pour apprendre.</p></div>
+      <div className="code-intro"><h2>Du pseudo-code au Python.</h2><p>Code testé dans Modal puis approuvé par un relecteur indépendant.</p></div>
       <div className="sections-list">{sections.map((sec,i)=><details className="code-section" key={`${sec.title}-${i}`} open={i===0}>
         <summary><span><small>{String(i+1).padStart(2,"0")}</small> {sec.title}</span><ChevronDown size={20}/></summary>
         <div className="code-columns">
@@ -63,7 +127,7 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
           <div><div className="snippet-title"><span>PYTHON APPROUVÉ</span></div><pre><code>{sec.python || "Non fourni"}</code></pre></div>
         </div>{sec.note && <p className="snippet-note">{sec.note}</p>}
       </details>)}</div>
-      <p className="method-security-note"><ShieldCheck size={17}/> Le code est affiché uniquement. L&apos;API publique continue d&apos;exécuter exclusivement les sept moteurs scolaires éprouvés.</p>
+      <p className="method-security-note"><ShieldCheck size={17}/> Les exécutions se font uniquement dans un sandbox isolé, soumis à des quotas.</p>
     </section>}
   </div>;
 }

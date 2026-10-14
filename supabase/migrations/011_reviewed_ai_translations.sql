@@ -38,8 +38,8 @@ RETURNS boolean LANGUAGE sql IMMUTABLE SET search_path='' AS $$
    jsonb_typeof(p_content)='object'
    AND p_content ?& ARRAY['topic_summary','explanation','principle','example','limits','sections']
    AND NOT EXISTS (
-     SELECT 1 FROM jsonb_object_keys(p_content) key
-     WHERE key NOT IN ('topic_summary','explanation','principle','example','limits','sections')
+     SELECT 1 FROM jsonb_object_keys(p_content) AS fields(name)
+     WHERE fields.name NOT IN ('topic_summary','explanation','principle','example','limits','sections')
    )
    AND jsonb_typeof(p_content->'sections')='array'
    AND jsonb_array_length(p_content->'sections')=p_sections
@@ -55,14 +55,14 @@ RETURNS boolean LANGUAGE sql IMMUTABLE SET search_path='' AS $$
    AND length(p_content->>'example')<=1000
    AND length(p_content->>'limits')<=2000
    AND NOT EXISTS (
-     SELECT 1 FROM jsonb_array_elements(p_content->'sections') s
-     WHERE jsonb_typeof(s)<>'object'
-       OR NOT (s ?& ARRAY['title','note'])
-       OR EXISTS (SELECT 1 FROM jsonb_object_keys(s) k WHERE k NOT IN ('title','note'))
-       OR jsonb_typeof(s->'title')<>'string'
-       OR jsonb_typeof(s->'note')<>'string'
-       OR length(s->>'title') NOT BETWEEN 1 AND 160
-       OR length(s->>'note')>1500
+     SELECT 1 FROM jsonb_array_elements(p_content->'sections') AS sections(item)
+     WHERE jsonb_typeof(sections.item)<>'object'
+       OR NOT (sections.item ?& ARRAY['title','note'])
+       OR EXISTS (SELECT 1 FROM jsonb_object_keys(sections.item) AS child(field) WHERE child.field NOT IN ('title','note'))
+       OR jsonb_typeof(sections.item->'title')<>'string'
+       OR jsonb_typeof(sections.item->'note')<>'string'
+       OR length(sections.item->>'title') NOT BETWEEN 1 AND 160
+       OR length(sections.item->>'note')>1500
    ), false);
 $$;
 REVOKE ALL ON FUNCTION public.translation_content_valid(jsonb,integer) FROM PUBLIC,anon,authenticated;

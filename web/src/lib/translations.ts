@@ -395,6 +395,572 @@ const arabic: Record<string,string> = {
   "Tableau d'entiers": "قائمة أعداد صحيحة",
   "Matrice d'entiers": "مصفوفة أعداد صحيحة"
 };
+Object.assign(extra,{
+  "Onglets du module": [
+    "Module tabs",
+    "تبويبات الوحدة"
+  ],
+  "Paramètres d'entrée": [
+    "Input parameters",
+    "معطيات الإدخال"
+  ],
+  "Résultat de l'exécution": [
+    "Execution result",
+    "نتيجة التنفيذ"
+  ],
+  "Voir les étapes": [
+    "View steps",
+    "عرض الخطوات"
+  ],
+  "À RETENIR": [
+    "REMEMBER",
+    "تذكّر"
+  ],
+  "Comment fonctionne": [
+    "How does",
+    "كيف تعمل"
+  ],
+  "Tes paramètres": [
+    "Your inputs",
+    "قيم الإدخال"
+  ],
+  "Remplis le tableau et affiche ses valeurs.": [
+    "Fill the array and display its values.",
+    "املأ الجدول واعرض قيمه."
+  ],
+  "Remplis la matrice ligne par ligne pour observer ses cases et ses indices.": [
+    "Fill the matrix row by row to see its cells and indices.",
+    "املأ المصفوفة سطرًا بسطر لملاحظة الخلايا والفهارس."
+  ],
+  "Modifie les valeurs pour observer le comportement de la fonction.": [
+    "Change the values to see how the function behaves.",
+    "غيّر القيم لملاحظة سلوك الدالة."
+  ],
+  "Une ligne par champ : nom;type;valeur": [
+    "One field per line: name;type;value",
+    "حقل لكل سطر: الاسم؛النوع؛القيمة"
+  ],
+  "Exécuter l'algorithme": [
+    "Run algorithm",
+    "تنفيذ الخوارزمية"
+  ],
+  "Exécution...": [
+    "Running...",
+    "جارٍ التنفيذ..."
+  ],
+  "Entre tes valeurs et lance l'exécution. Le résultat apparaîtra ici.": [
+    "Enter values and run. The result will appear here.",
+    "أدخل قيمك ونفّذ الخوارزمية. ستظهر النتيجة هنا."
+  ],
+  "Les exécutions se font uniquement dans un sandbox isolé, soumis à des quotas.": [
+    "Runs take place only in a rate-limited isolated sandbox.",
+    "يجري التنفيذ فقط في بيئة معزولة مع حدود للاستخدام."
+  ],
+  "Inscription": [
+    "Joined",
+    "تاريخ التسجيل"
+  ],
+  "Dernière connexion": [
+    "Last sign-in",
+    "آخر دخول"
+  ],
+  "Adresse vérifiée": [
+    "Verified email",
+    "بريد مؤكد"
+  ],
+  "Ouvrir El studio. →": [
+    "Open the studio →",
+    "افتح الاستوديو ←"
+  ],
+  "Ton nom d'affichage est indépendant de ton rôle et de tes contributions.": [
+    "Your display name is separate from your role and contributions.",
+    "اسم العرض مستقل عن دورك ومساهماتك."
+  ],
+  "Nom d'affichage": [
+    "Display name",
+    "اسم العرض"
+  ],
+  "Méthodes liées à ce compte :": [
+    "Sign-in methods linked to this account:",
+    "طرق الدخول المرتبطة بالحساب:"
+  ],
+  "Nouvelle adresse e-mail": [
+    "New email address",
+    "عنوان بريد جديد"
+  ],
+  "Choisis au moins 12 caractères. Une reconnexion ou une vérification supplémentaire peut être demandée.": [
+    "Use at least 12 characters. You may be asked to sign in again.",
+    "استخدم 12 حرفًا على الأقل. قد يلزم تسجيل الدخول مجددًا."
+  ],
+  "Nouveau mot de passe": [
+    "New password",
+    "كلمة المرور الجديدة"
+  ],
+  "Confirmer le mot de passe": [
+    "Confirm password",
+    "تأكيد كلمة المرور"
+  ],
+  "Gère la session de ce navigateur ou révoque les sessions des autres appareils.": [
+    "Manage this browser session or revoke sessions on other devices.",
+    "أدر جلسة هذا المتصفح أو ألغِ الجلسات على الأجهزة الأخرى."
+  ],
+  "Déconnecter les autres appareils": [
+    "Sign out other devices",
+    "تسجيل خروج الأجهزة الأخرى"
+  ],
+  "La révocation des sessions n'invalide pas instantanément les jetons d'accès déjà émis ; ils expirent naturellement.": [
+    "Previously issued access tokens remain valid until expiry.",
+    "تبقى رموز الوصول السابقة صالحة حتى انتهاء مدتها."
+  ],
+  "Le compte propriétaire ne peut pas être supprimé depuis cette page. Un transfert de propriété est nécessaire.": [
+    "The owner account cannot be deleted here; ownership must be transferred first.",
+    "لا يمكن حذف حساب المالك هنا؛ يجب نقل الملكية أولًا."
+  ],
+  "Demandes antérieures": [
+    "Previous requests",
+    "طلبات سابقة"
+  ],
+  "Ces demandes datent de l'ancien système. Les membres peuvent désormais supprimer directement leur compte après confirmation et reconnexion récente.": [
+    "These requests are from the old system. Members can now delete their accounts after confirmation and recent sign-in.",
+    "هذه الطلبات من النظام السابق. يمكن للأعضاء حذف حساباتهم بعد التأكيد وتسجيل دخول حديث."
+  ],
+  "Aucune demande en attente.": [
+    "No pending requests.",
+    "لا توجد طلبات معلقة."
+  ],
+  "Retrouve l'identifiant dans Supabase → Authentication → Users. Les contenus pédagogiques et l'historique sont conservés de manière pseudonyme.": [
+    "Find the user ID in Supabase → Authentication → Users. Educational content and history are retained under pseudonyms.",
+    "ابحث عن المعرّف في Supabase → Authentication → Users. يُحتفظ بالمحتوى التعليمي والسجل بهويات مستعارة."
+  ],
+  "Ton nom public": [
+    "Your public name",
+    "اسمك العلني"
+  ],
+  "Choisis un nom de 2 à 80 caractères.": [
+    "Choose a name between 2 and 80 characters.",
+    "اختر اسمًا يتكون من 2 إلى 80 حرفًا."
+  ],
+  "Supabase non configuré.": [
+    "Supabase is not configured.",
+    "لم يتم إعداد Supabase."
+  ],
+  "Ton nom d'affichage a été mis à jour.": [
+    "Display name updated.",
+    "تم تحديث اسم العرض."
+  ],
+  "Adresse e-mail invalide.": [
+    "Invalid email address.",
+    "عنوان البريد غير صالح."
+  ],
+  "Cette adresse est déjà associée au compte.": [
+    "This email is already associated with your account.",
+    "هذا البريد مرتبط بحسابك بالفعل."
+  ],
+  "Demande envoyée. Confirme le changement depuis les e-mails de validation avant qu'il prenne effet.": [
+    "Request sent. Confirm the change using the verification emails.",
+    "تم إرسال الطلب. أكّد التغيير عبر رسائل التحقق."
+  ],
+  "Utilise un mot de passe de 12 à 72 caractères.": [
+    "Use a password between 12 and 72 characters.",
+    "استخدم كلمة مرور من 12 إلى 72 حرفًا."
+  ],
+  "Les deux mots de passe ne correspondent pas.": [
+    "Passwords do not match.",
+    "كلمتا المرور غير متطابقتين."
+  ],
+  "Mot de passe mis à jour. Supabase peut demander une reconnexion selon les paramètres de sécurité.": [
+    "Password updated. Supabase may ask you to sign in again.",
+    "تم تحديث كلمة المرور. قد يطلب Supabase تسجيل الدخول مجددًا."
+  ],
+  "Les autres sessions ont été révoquées. Les jetons déjà émis peuvent rester valides jusqu'à expiration.": [
+    "Other sessions were revoked. Existing tokens may remain valid until they expire.",
+    "أُلغيت الجلسات الأخرى. قد تبقى الرموز الحالية صالحة حتى انتهاء مدتها."
+  ],
+  "Confirme les conséquences et recopie ton adresse e-mail exacte.": [
+    "Confirm and re-enter your exact email address.",
+    "أكّد العملية وأعد كتابة بريدك الإلكتروني بدقة."
+  ],
+  "Mes implémentations": [
+    "My implementations",
+    "تطبيقاتي"
+  ],
+  "Nouvelle": [
+    "New",
+    "جديد"
+  ],
+  "Chargement des brouillons…": [
+    "Loading drafts…",
+    "جارٍ تحميل المسودات…"
+  ],
+  "Tu n'as pas encore de brouillon. Crée ta première méthode ci-dessous.": [
+    "You have no drafts yet. Create your first method below.",
+    "ليس لديك مسودات بعد. أنشئ طريقتك الأولى أدناه."
+  ],
+  "Ouvrir et modifier →": [
+    "Open and edit →",
+    "افتح وعدّل ←"
+  ],
+  "Réussis les tests Python avant de soumettre.": [
+    "Pass the Python tests before submitting.",
+    "اجتز اختبارات بايثون قبل الإرسال."
+  ],
+  "Concept": [
+    "Concept",
+    "مفهوم"
+  ],
+  "Nouveau chapitre": [
+    "New chapter",
+    "فصل جديد"
+  ],
+  "Ce chapitre reste privé jusqu'à l'approbation de sa première méthode par un autre relecteur.": [
+    "This chapter stays private until another reviewer approves its first method.",
+    "يبقى هذا الفصل خاصًا حتى يوافق مراجع آخر على طريقته الأولى."
+  ],
+  "Identifiant URL": [
+    "URL slug",
+    "معرّف الرابط"
+  ],
+  "Nom": [
+    "Name",
+    "الاسم"
+  ],
+  "Catégorie": [
+    "Category",
+    "الصنف"
+  ],
+  "Niveau scolaire": [
+    "School level",
+    "المستوى الدراسي"
+  ],
+  "Présentation": [
+    "Overview",
+    "تقديم"
+  ],
+  "Type": [
+    "Type",
+    "النوع"
+  ],
+  "Base — méthode progressive": [
+    "Base — progressive method",
+    "Base — طريقة تدريجية"
+  ],
+  "Advanced — autre méthode": [
+    "Advanced — alternative method",
+    "Advanced — طريقة بديلة"
+  ],
+  "Titre": [
+    "Title",
+    "العنوان"
+  ],
+  "Explication": [
+    "Explanation",
+    "الشرح"
+  ],
+  "Présentation de la méthode": [
+    "Method overview",
+    "تقديم الطريقة"
+  ],
+  "Toutes les méthodes utilisent la même présentation : principe, exemple, limites et sections de pseudo-code / Python.": [
+    "All methods use the same layout: idea, example, limits, pseudocode and Python sections.",
+    "تستخدم جميع الطرق نفس العرض: الفكرة والمثال والحدود وأقسام الخوارزمية وبايثون."
+  ],
+  "Le principe": [
+    "The idea",
+    "الفكرة"
+  ],
+  "Exemple expliqué": [
+    "Worked example",
+    "مثال محلول"
+  ],
+  "À retenir / limites": [
+    "Notes / limits",
+    "ملاحظات وحدود"
+  ],
+  "Titre de la section principale": [
+    "Main section title",
+    "عنوان القسم الرئيسي"
+  ],
+  "Pseudo-code principal": [
+    "Main pseudocode",
+    "الخوارزمية الرئيسية"
+  ],
+  "Le Python principal est le code de l'éditeur à droite, qui sera testé par le sandbox.": [
+    "The main Python is the editor code on the right, tested in the sandbox.",
+    "كود بايثون الرئيسي هو الموجود في المحرر على اليمين وسيُختبر في بيئة معزولة."
+  ],
+  "Pseudo-code": [
+    "Pseudocode",
+    "الخوارزمية الوصفية"
+  ],
+  "Extrait Python": [
+    "Python snippet",
+    "مقطع بايثون"
+  ],
+  "Note": [
+    "Note",
+    "ملاحظة"
+  ],
+  "Retirer cette section": [
+    "Remove section",
+    "حذف القسم"
+  ],
+  "Ajouter une section (TDNT, TDOG, algorithme…)": [
+    "Add a section (TDNT, TDOG, algorithm…)",
+    "أضف قسمًا (TDNT، TDOG، خوارزمية...)"
+  ],
+  "Code Python": [
+    "Python code",
+    "كود بايثون"
+  ],
+  "NUMPY + RANDOM PRÉVUS": [
+    "NUMPY + RANDOM",
+    "NUMPY + RANDOM"
+  ],
+  "Exécution Python isolée.": [
+    "Isolated Python execution.",
+    "تنفيذ بايثون في بيئة معزولة."
+  ],
+  "Chargement de l'éditeur...": [
+    "Loading editor...",
+    "جارٍ تحميل المحرر..."
+  ],
+  "Nouvelle implémentation": [
+    "New implementation",
+    "تطبيق جديد"
+  ],
+  "Modifier le brouillon": [
+    "Edit draft",
+    "تعديل المسودة"
+  ],
+  "Enregistrer le brouillon": [
+    "Save draft",
+    "حفظ المسودة"
+  ],
+  "Créer le brouillon": [
+    "Create draft",
+    "إنشاء مسودة"
+  ],
+  "Exécuter les tests": [
+    "Run tests",
+    "إجراء الاختبارات"
+  ],
+  "Soumettre à la relecture →": [
+    "Submit for review →",
+    "إرسال للمراجعة ←"
+  ],
+  "Envoi…": [
+    "Sending…",
+    "جارٍ الإرسال…"
+  ],
+  "Déclare le nom de la fonction, les paramètres et le résultat attendu. Les valeurs sont enregistrées avec ton brouillon. Cette vérification contrôle": [
+    "Declare the function name, parameters and expected result. This validation checks",
+    "حدّد اسم الدالة والمعاملات والنتيجة المتوقعة. يتحقق هذا الفحص من"
+  ],
+  "le format": [
+    "format",
+    "الصيغة"
+  ],
+  ", pas le résultat du code Python.": [
+    ", not Python's actual result.",
+    "، وليس نتيجة تنفيذ بايثون."
+  ],
+  "Ajouter un test": [
+    "Add test",
+    "إضافة اختبار"
+  ],
+  "Cette fonction ne reçoit aucun argument.": [
+    "This function takes no arguments.",
+    "هذه الدالة لا تستقبل معاملات."
+  ],
+  "Aucun test défini. Ajoute des exemples avant de soumettre ta méthode à la vérification Python (prochaine étape).": [
+    "No tests defined. Add examples before testing your method.",
+    "لا توجد اختبارات. أضف أمثلة قبل اختبار طريقتك."
+  ],
+  "Nom du test": [
+    "Test name",
+    "اسم الاختبار"
+  ],
+  "Entrées (objet JSON)": [
+    "Inputs (JSON object)",
+    "المدخلات (JSON)"
+  ],
+  "Résultat attendu (JSON)": [
+    "Expected result (JSON)",
+    "النتيجة المتوقعة (JSON)"
+  ],
+  "Tableau :": [
+    "Array:",
+    "جدول:"
+  ],
+  "· Matrice :": [
+    "· Matrix:",
+    "· مصفوفة:"
+  ],
+  "Vérifier le format des tests": [
+    "Validate test format",
+    "تحقق من صيغة الاختبارات"
+  ],
+  "Exécution dans un sandbox sécurisé…": [
+    "Running in a secure sandbox…",
+    "جارٍ التنفيذ في بيئة آمنة..."
+  ],
+  "Chaque lancement prépare un environnement isolé. Patiente pendant la vérification des tests.": [
+    "Each run starts an isolated environment. Wait while the tests run.",
+    "كل تشغيل يجهّز بيئة معزولة. انتظر إتمام الاختبارات."
+  ],
+  "La préparation du sandbox peut prendre plusieurs secondes.": [
+    "Preparing the sandbox can take several seconds.",
+    "قد يستغرق تجهيز بيئة التنفيذ بضع ثوان."
+  ],
+  "Durée serveur :": [
+    "Server time:",
+    "زمن الخادم:"
+  ],
+  "Sandbox :": [
+    "Sandbox:",
+    "بيئة التنفيذ:"
+  ],
+  "Démarrage Modal :": [
+    "Modal startup:",
+    "تشغيل Modal:"
+  ],
+  "Python :": [
+    "Python:",
+    "بايثون:"
+  ],
+  "Résultat de la vérification du format": [
+    "Test format validation result",
+    "نتيجة التحقق من صيغة الاختبارات"
+  ],
+  "Aucun test Python n'a été exécuté et aucun cas n'est certifié réussi.": [
+    "No Python tests have run; none is verified as passed.",
+    "لم تُنفّذ اختبارات بايثون بعد ولم يتم التحقق من نجاح أي حالة."
+  ],
+  "File de relecture": [
+    "Review queue",
+    "قائمة المراجعة"
+  ],
+  "Inspecte le code Python, le pseudo-code, les cas de test et les résultats avant d'approuver. Un test réussi n'est pas une preuve de correction complète. Tu ne peux pas relire ton propre travail.": [
+    "Review code, pseudocode, tests and results before approval. A passing test is not proof of correctness. You cannot review your own work.",
+    "راجع بايثون والخوارزمية والاختبارات ونتائجها قبل الموافقة. نجاح الاختبار لا يضمن الصحة الكاملة. لا يمكنك مراجعة عملك."
+  ],
+  "Aucune soumission en attente. Les brouillons privés ne figurent pas ici.": [
+    "No submissions awaiting review. Private drafts are not listed.",
+    "لا توجد مساهمات تنتظر المراجعة. المسودات الخاصة لا تظهر هنا."
+  ],
+  "Code Python et pseudo-code soumis": [
+    "Submitted code and pseudocode",
+    "الكود والخوارزمية المقدّمان"
+  ],
+  "Contrat, tests et résultats d'exécution": [
+    "Contract, tests and execution results",
+    "تعريف الدالة والاختبارات ونتائج التنفيذ"
+  ],
+  "Résultats réels": [
+    "Actual results",
+    "النتائج الفعلية"
+  ],
+  "Aucune preuve enregistrée.": [
+    "No evidence recorded.",
+    "لا توجد أدلة محفوظة."
+  ],
+  "Fiche pédagogique présentée aux élèves": [
+    "Teaching guide shown to students",
+    "الشرح التعليمي المعروض للتلاميذ"
+  ],
+  "Sections d'apprentissage": [
+    "Learning sections",
+    "أقسام التعلّم"
+  ],
+  "Cette soumission t'appartient. Demande à un autre relecteur de la valider.": [
+    "This is your submission. Another reviewer must approve it.",
+    "هذه مساهمتك. يجب أن يوافق عليها مراجع آخر."
+  ],
+  "Demander des modifications": [
+    "Request changes",
+    "طلب تعديلات"
+  ],
+  "Envoyer le retour": [
+    "Send feedback",
+    "إرسال الملاحظات"
+  ],
+  "Explique précisément les changements à effectuer.": [
+    "Describe the required changes precisely.",
+    "اشرح التعديلات المطلوبة بدقة."
+  ],
+  "Publications · Propriétaire": [
+    "Publications · Owner",
+    "المنشورات · المالك"
+  ],
+  "Les méthodes approuvées rejoignent immédiatement la bibliothèque. Retirer une publication la rend indisponible sans effacer son historique.": [
+    "Approved methods appear in the library. Withdrawing hides them without erasing their history.",
+    "تظهر الطرق المعتمدة في المكتبة. يؤدي سحبها إلى إخفائها دون حذف سجلّها."
+  ],
+  "Aucune version publiée ou archivée.": [
+    "No published or archived revisions.",
+    "لا توجد نسخ منشورة أو مؤرشفة."
+  ],
+  "Retirer de publication": [
+    "Withdraw publication",
+    "سحب النشر"
+  ],
+  "Restaurer cette version": [
+    "Restore this revision",
+    "استعادة هذه النسخة"
+  ],
+  "Gérer les contributeurs": [
+    "Manage contributors",
+    "إدارة المساهمين"
+  ],
+  "Le compte de ton ami doit déjà exister. Retrouve son User UID dans Supabase → Authentication → Users. Seul le propriétaire peut accorder ou retirer ces rôles.": [
+    "The member must already have an account. Find their UID in Supabase → Authentication → Users. Only the owner can manage these roles.",
+    "يجب أن يكون العضو مسجلًا. اعثر على معرّفه في Supabase → Authentication → Users. يحق للمالك فقط إدارة هذه الصلاحيات."
+  ],
+  "User UID": [
+    "User UID",
+    "معرّف المستخدم"
+  ],
+  "Rôle": [
+    "Role",
+    "الدور"
+  ],
+  "Contributeur — crée des brouillons": [
+    "Contributor — creates drafts",
+    "مساهم — ينشئ مسودات"
+  ],
+  "Relecteur — vérifie les soumissions": [
+    "Reviewer — reviews submissions",
+    "مراجع — يراجع المساهمات"
+  ],
+  "Étudiant — retire les droits élevés": [
+    "Student — removes elevated privileges",
+    "تلميذ — سحب الصلاحيات المرتفعة"
+  ],
+  "Le rôle propriétaire n'est jamais attribuable depuis cette interface.": [
+    "Owner access cannot be assigned here.",
+    "لا يمكن منح دور المالك من هذه الواجهة."
+  ],
+  "Aucun événement enregistré.": [
+    "No events recorded.",
+    "لا توجد أحداث مسجلة."
+  ],
+  "Ouvrir les modules": [
+    "Open modules",
+    "افتح الوحدات"
+  ],
+  "Voir les cas de test": [
+    "See test cases",
+    "عرض حالات الاختبار"
+  ],
+  "Algorithme proposé": [
+    "Submitted algorithm",
+    "الخوارزمية المقترحة"
+  ],
+  "Entrées invalides": [
+    "Invalid inputs",
+    "مدخلات غير صحيحة"
+  ]
+});
 export function tr(locale:Locale, french:string):string {
  if(locale==="fr")return french;
  if(extra[french])return extra[french][locale==="en"?0:1];

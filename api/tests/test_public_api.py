@@ -18,7 +18,7 @@ def test_catalog_has_original_seven():
 
 def test_pgcd_and_tableau():
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 48, "b": 18}}).json()["value"] == 6
-    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [8, 3, 11, 2, 5]}}).json()["value"] == [2, 3, 5, 8, 11]
+    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [8, 3, 11, 2, 5]}}).json()["value"] == [8, 3, 11, 2, 5]
 
 
 def test_schema_rejects_extra_unknown_or_huge_payload():

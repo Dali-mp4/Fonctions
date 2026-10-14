@@ -51,6 +51,6 @@ test("requested navigation names appear consistently without breaking routes",()
   assert.match(studio,/El studio/);
   assert.match(library,/El biblioteque/);
   assert.match(header,/href="\/studio"/);
-  assert.match(header,/href="\/bibliotheque"/);
+  assert.match(header,/href: "\/bibliotheque"/);
   assert.match(header,/href="\/compte"/);
 });

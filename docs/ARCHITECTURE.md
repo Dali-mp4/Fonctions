@@ -88,3 +88,7 @@ contributions. The original seven algorithms retain their fixed interactive
 FastAPI engine; arbitrary contributor Python is never run by the public API.
 Withdrawal/rollback in Phase 4 switches the pointer and therefore immediately
 removes a public contribution; detail pages resolve only active revisions.
+
+### Phase 5 refinement — consistent pedagogy, protected execution
+
+Migration 007 augments each immutable reviewed revision with an atomically saved `lesson_content` JSON object (principle, example, limits, code sections). Approved alternatives now render within the original topic, using the original lesson's three tabs. Existing published revisions are backfilled from previously stored fields and retain their publication status. Library still uses anonymous RLS and `security_invoker` view, avoiding private drafts. The original seven classroom executors are never replaced. Contributor-public `Essayer` displays stored educational examples only, without real-time execution; a separate secured sandbox service would be needed to accept arbitrary public values.

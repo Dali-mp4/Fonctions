@@ -17,6 +17,7 @@ import { PublicationManagement } from "@/components/publication-management";
 import { RevisionHistory } from "@/components/revision-history";
 import type { DraftRunResult } from "@/lib/draft-runner";
 import { TeamRoles } from "@/components/team-roles";
+import { type LessonContent, type LessonSection, makeLessonContent, validateLessonContent } from "@/lib/lesson-content";
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -36,6 +37,7 @@ export type Revision = {
   id: string;
   title: string;
   explanation: string;
+  lesson_content: LessonContent | null;
   pseudocode: string;
   python_code: string;
   entry_function: string | null;
@@ -70,6 +72,11 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [method, setMethod] = useState<"base" | "advanced">("advanced");
   const [title, setTitle] = useState("");
   const [explanation, setExplanation] = useState("");
+  const [principle, setPrinciple] = useState("");
+  const [example, setExample] = useState("PGCD(24, 18) = 6");
+  const [limits, setLimits] = useState("");
+  const [sectionTitle, setSectionTitle] = useState("Fonction principale");
+  const [extraSections, setExtraSections] = useState<LessonSection[]>([]);
   const [pseudocode, setPseudocode] = useState("");
   const [code, setCode] = useState(sample);
   const [entry, setEntry] = useState("pgcd");
@@ -89,15 +96,16 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
 
   function contentSignature(values: {
     title: string; explanation: string; pseudocode: string; code: string;
-    entry: string; parameters: Parameter[]; returns: ValueType; tests: EditableTest[];
+    entry: string; parameters: Parameter[]; returns: ValueType; tests: EditableTest[]; lesson: LessonContent;
   }) {
     const check = validateTestCases(values.entry, values.code,
       { parameters: values.parameters, returns: values.returns }, values.tests);
     return JSON.stringify({ title: values.title.trim(), explanation: values.explanation.trim(),
       pseudocode: values.pseudocode, code: values.code, entry: values.entry,
-      parameters: values.parameters, returns: values.returns, cases: check.testCases });
+      parameters: values.parameters, returns: values.returns, cases: check.testCases, lesson: values.lesson });
   }
-  const signature = contentSignature({ title, explanation, pseudocode, code, entry, parameters, returns, tests: testCases });
+  const lesson = makeLessonContent(principle, example, limits, sectionTitle, pseudocode, code, extraSections);
+  const signature = contentSignature({ title, explanation, pseudocode, code, entry, parameters, returns, tests: testCases, lesson });
   const pristine = Boolean(editing && savedSignature === signature);
 
   const refresh = useCallback(async () => {
@@ -117,6 +125,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   function newDraft() {
     setEditing(null); setEditSeq(1); setTopic("pgcd"); setMethod("advanced");
     setTitle(""); setExplanation(""); setPseudocode(""); setCode(sample);
+    setPrinciple(""); setExample("PGCD(24, 18) = 6"); setLimits("");
+    setSectionTitle("Fonction principale"); setExtraSections([]);
     setEntry("pgcd"); setParameters(initialParameters.map(p => ({...p})));
     setReturns("int"); setTestCases(initialTests.map(t => ({...t})));
     setError(""); setOk(""); setSavedSignature(null); setRunResult(null); setRunError("");
@@ -129,6 +139,12 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setMethod(draft.implementations.method_type);
     setTitle(draft.title); setExplanation(draft.explanation);
     setPseudocode(draft.pseudocode); setCode(draft.python_code);
+    const teaching = draft.lesson_content;
+    setPrinciple(teaching?.principle || draft.explanation);
+    setExample(teaching?.example || "Exemple à renseigner");
+    setLimits(teaching?.limits || "");
+    setSectionTitle(teaching?.sections?.[0]?.title || "Fonction principale");
+    setExtraSections(teaching?.sections?.slice(1) || []);
     setEntry(draft.entry_function ?? "");
     const schema = draft.input_schema;
     setParameters(schema && "parameters" in schema && Array.isArray(schema.parameters)
@@ -140,7 +156,11 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       pseudocode: draft.pseudocode, code: draft.python_code,
       entry: draft.entry_function ?? "", parameters: schema && "parameters" in schema && Array.isArray(schema.parameters)
         ? schema.parameters : [], returns: schema && "returns" in schema && schema.returns ? schema.returns : "int",
-      tests: restoredTests }));
+      tests: restoredTests, lesson: makeLessonContent(
+        teaching?.principle || draft.explanation, teaching?.example || "Exemple à renseigner",
+        teaching?.limits || "", teaching?.sections?.[0]?.title || "Fonction principale",
+        draft.pseudocode, draft.python_code, teaching?.sections?.slice(1) || [],
+      ) }));
     const saved = draft.test_evidence as Partial<DraftRunResult> | null;
     setRunResult(saved?.results && Array.isArray(saved.results) && saved.run_id ? {
       run_id: saved.run_id, status: draft.test_status === "passed" ? "passed" :
@@ -160,6 +180,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       setError("Titre (5–160), explication (15–20 000) et code Python (10–30 000 caractères) requis.");
       return;
     }
+    const pedagogicalErrors = validateLessonContent(lesson);
+    if(pedagogicalErrors.length){setError(pedagogicalErrors.join(" "));return;}
     const schema: FunctionSchema = { parameters, returns };
     const preflight = validateTestCases(entry, code, schema, testCases);
     const badCases = preflight.cases.filter(t => !t.ok);
@@ -172,21 +194,21 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setBusy(true);
     try {
       if (editing) {
-        const { data, error: saveError } = await sb.rpc("update_draft_with_contract", {
+        const { data, error: saveError } = await sb.rpc("update_draft_lesson_with_contract", {
           p_revision: editing, p_expected_edit_seq: editSeq,
           p_title: title.trim(), p_explanation: explanation.trim(),
           p_pseudocode: pseudocode, p_python_code: code,
-          p_entry_function: entry, p_input_schema: schema, p_test_cases: preflight.testCases,
+          p_entry_function: entry, p_input_schema: schema, p_test_cases: preflight.testCases, p_lesson_content: lesson,
         });
         if (saveError) throw saveError;
         setEditSeq(Number(data));
         setOk("Brouillon mis à jour. Les éventuels anciens tests ont été annulés.");
       } else {
-        const { data, error: saveError } = await sb.rpc("create_draft_with_contract", {
+        const { data, error: saveError } = await sb.rpc("create_draft_lesson_with_contract", {
           p_topic_slug: topic, p_method_type: method,
           p_title: title.trim(), p_explanation: explanation.trim(),
           p_pseudocode: pseudocode, p_python_code: code,
-          p_entry_function: entry, p_input_schema: schema, p_test_cases: preflight.testCases,
+          p_entry_function: entry, p_input_schema: schema, p_test_cases: preflight.testCases, p_lesson_content: lesson,
         });
         if (saveError) throw saveError;
         setEditing(String(data)); setEditSeq(1);
@@ -295,7 +317,25 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         </select></label>
         <label>Titre<input maxLength={160} placeholder="Ex. PGCD avec Euclide" value={title} onChange={e => setTitle(e.target.value)}/></label>
         <label>Explication<textarea rows={5} maxLength={20000} placeholder="Explique la méthode aux élèves…" value={explanation} onChange={e => setExplanation(e.target.value)}/></label>
-        <label>Pseudo-code<textarea rows={5} maxLength={30000} placeholder="Version algorithmique pour la classe…" value={pseudocode} onChange={e => setPseudocode(e.target.value)}/></label>
+        <section className="studio-lesson-fields" aria-label="Présentation pédagogique">
+          <h3>Présentation de la méthode</h3>
+          <p>Comme dans les modules Base : principe, exemple, limites et sections de pseudo-code / Python.</p>
+          <label>Le principe<textarea rows={4} maxLength={5000} value={principle} onChange={e=>setPrinciple(e.target.value)} placeholder="Explique les étapes et l'idée de cette méthode…"/></label>
+          <label>Exemple expliqué<input maxLength={1000} value={example} onChange={e=>setExample(e.target.value)} placeholder="Ex. PGCD(24,18) = 6"/></label>
+          <label>À retenir / limites<textarea rows={3} maxLength={2000} value={limits} onChange={e=>setLimits(e.target.value)} placeholder="Cas limites, préconditions, complexité…"/></label>
+          <label>Titre de la section principale<input maxLength={160} value={sectionTitle} onChange={e=>setSectionTitle(e.target.value)} placeholder="Fonction principale"/></label>
+          <label>Pseudo-code principal<textarea rows={5} maxLength={10000} placeholder="Version algorithmique pour la classe…" value={pseudocode} onChange={e => setPseudocode(e.target.value)}/></label>
+          <p>Le Python principal est le code de l&apos;éditeur à droite, qui sera testé par le sandbox.</p>
+          {extraSections.map((sec,i)=><div className="studio-lesson-extra" key={i}>
+            <h4>Section {i+2}</h4>
+            <label>Titre<input maxLength={160} value={sec.title} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/></label>
+            <label>Pseudo-code<textarea rows={4} maxLength={10000} value={sec.pseudocode} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,pseudocode:e.target.value}:x))}/></label>
+            <label>Extrait Python<textarea rows={4} maxLength={15000} value={sec.python} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,python:e.target.value}:x))}/></label>
+            <label>Note<textarea rows={2} maxLength={1500} value={sec.note} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,note:e.target.value}:x))}/></label>
+            <button type="button" className="btn btn-muted" onClick={()=>setExtraSections(old=>old.filter((_,j)=>j!==i))}>Retirer cette section</button>
+          </div>)}
+          <button type="button" className="btn btn-muted" disabled={extraSections.length>=7} onClick={()=>setExtraSections(old=>[...old,{title:"",pseudocode:"",python:"",note:""}])}>Ajouter une section (TDNT, TDOG, algorithme…)</button>
+        </section>
         <button className="btn btn-primary" onClick={() => void save()} disabled={busy}><Save size={17}/>{busy ? "Enregistrement…" : editing ? "Enregistrer les changements" : "Créer le brouillon"}</button>
         {error && <div className="run-error" role="alert">{error}</div>}
         {ok && <div className="success-strip" role="status"><CheckCircle2 size={15}/> {ok}</div>}

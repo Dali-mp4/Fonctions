@@ -174,3 +174,32 @@
 .method-case-card{background:#141d2b;border:1px solid #38465c;border-radius:11px;padding:16px;min-width:0;font-size:12px}
 .method-case-card code{overflow-wrap:anywhere;color:#c5c6ff}
 @media(max-width:700px){.method-learning-layout,.method-case-grid{grid-template-columns:1fr}}
+
+/* Unified Phase 5: methods belong to the same seven school modules. */
+.module-methods{margin:25px 0 18px}
+.module-methods h2{font-size:18px;margin:0 0 12px}
+.method-switcher{display:flex;gap:11px;flex-wrap:wrap}
+.method-switcher a{display:flex;flex-direction:column;gap:6px;padding:14px 17px;background:#151b2c;border:1px solid #353c55;border-radius:12px;min-width:205px;max-width:360px;flex:1;transition:border-color .2s}
+.method-switcher a.active{border-color:#c2a6ff;background:#29213c}
+.method-switcher strong{font-size:13px;line-height:1.5}
+.method-switcher small{color:#aeb6ca;font-size:11px}
+.method-example-select{display:flex;flex-direction:column;gap:8px;color:#ced6e6;font-size:12px}
+.method-example-select select{width:100%;padding:11px;border:1px solid #43495c;border-radius:9px;background:#141827;color:#ececfc}
+.method-example-output{display:flex;flex-direction:column;gap:11px}
+.method-example-output>strong{color:#c6b1ff}
+.method-example-output span{font-size:11px;color:#adbcd1;font-weight:700}
+.method-example-output pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;background:#0d1322;border:1px solid #343c4f;border-radius:9px;margin:0}
+.method-example-output small{font-size:11px;color:#adbaca;line-height:1.5}
+.method-security-note{display:flex;gap:10px;align-items:center;margin-top:19px;color:#c0c8df;font-size:12px;line-height:1.6}
+.studio-lesson-fields{margin:25px 0;padding:22px;background:#131a2a;border:1px solid #3c4560;border-radius:14px}
+.studio-lesson-fields h3{font-size:18px;margin:0 0 9px}
+.studio-lesson-fields>p{font-size:12px;color:#a9b6ca;line-height:1.6}
+.studio-lesson-fields label{display:flex;flex-direction:column;gap:8px;font-size:12px;color:#d2d9e9;margin-top:12px}
+.studio-lesson-fields input,.studio-lesson-fields textarea{width:100%;padding:10px 12px;border:1px solid #424a60;background:#0d1322;color:#eef0fa;border-radius:8px}
+.studio-lesson-extra{margin-top:18px;padding:12px;border:1px solid #303d57;border-radius:9px}
+.studio-lesson-extra .btn{margin-top:10px}
+.studio-lesson-fields>.btn{margin-top:14px}
+.review-lesson-preview{margin:16px 0;padding:14px;border:1px solid #405174;border-radius:10px}
+.review-lesson-preview h4{margin:5px 0 10px}
+.review-lesson-preview p{white-space:pre-wrap;font-size:12px;line-height:1.7}
+@media(max-width:600px){.method-switcher a{min-width:100%;max-width:100%}.studio-lesson-fields{padding:14px}}

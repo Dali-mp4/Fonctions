@@ -256,3 +256,15 @@ approvals, or published revision pointers. No new API secrets are required.
 **Next planned milestone after Phase 5:** `/compte` (Manage Account) with
 account details, email/password change or reset, Google-linked identity
 information, session/logout options and privacy-safe account deletion.
+
+## Phase 5 refinement — one unified school module per concept
+
+After applying **migration 006**, apply **supabase/migrations/007_unified_lesson_methods.sql** exactly once. Do **not** rerun migration 006.
+
+The library now shows seven school-concept cards rather than a separate catalog of contributor submissions. Open PGCD (or any other original concept) to switch between the protected **Base** lesson and independently approved **Advanced/Base alternatives**. Every selected method uses the same three pedagogical tabs: **Essayer, Comprendre, Algorithme & Python**.
+
+Contributor editors now author an explanation of the principle, worked example, limits, and titled teaching sections including pseudo-code, Python, and optional notes. The first code section uses the exact main Python source tested by Modal. DB writes are atomic and any edit invalidates earlier verified test status; submitted/published versions stay immutable. The reviewer queue includes the full lesson structure. Migration 007 backfills a minimal presentation for existing saved and published versions from their own text and example tests (does not invent authors).
+
+**Security/feature boundary:** The base lesson's interactive **Essayer** remains backed by its seven reviewed FastAPI functions. For community methods, **Essayer** presents selected author-submitted, reviewer-checked example inputs and expected outputs; it is explicitly **not** an execution with custom values. Enabling public custom-input execution of arbitrary approved code requires a separately budgeted, authenticated and rate-limited sandbox endpoint. Neither browser JavaScript nor the public built-in FastAPI route may execute contributor source.
+
+Existing `/methode/[id]` bookmarks redirect to the matching original topic with the approved method selected. Withdrawn method links 404.

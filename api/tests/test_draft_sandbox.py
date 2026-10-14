@@ -89,15 +89,29 @@ def test_modal_adapter_enforces_limits_and_no_secrets(monkeypatch):
         attrs["create"] = kw
         return Sandbox()
     fake.App = SimpleNamespace(lookup=lambda *a, **kw: object())
-    fake.Image = SimpleNamespace(debian_slim=lambda **kw: SimpleNamespace(pip_install=lambda *a: object()))
+    def make_image(**kwargs):
+        return SimpleNamespace(pip_install=lambda *args: SimpleNamespace(
+            add_local_file=lambda *args, **kwargs: attrs.setdefault("image_file", (args, kwargs))))
+    fake.Image = SimpleNamespace(debian_slim=make_image)
     fake.Sandbox = SimpleNamespace(create=create)
     monkeypatch.setitem(sys.modules, "modal", fake)
-    result = execute_in_modal(code="def pgcd(a,b): return 6", entry="pgcd", inputs=[{"a": 24, "b": 18}])
+    from app.runner.modal_runner import _modal_resources
+    _modal_resources.cache_clear()
+    phases = {}
+    try:
+        result = execute_in_modal(code="def pgcd(a,b): return 6", entry="pgcd",
+                                  inputs=[{"a": 24, "b": 18}], timings=phases)
+    finally:
+        _modal_resources.cache_clear()
     assert result == [{"ok": True, "value": 6}]
     assert attrs["create"]["block_network"] is True
     assert attrs["create"]["secrets"] == []
     assert attrs["create"]["volumes"] == {}
     assert attrs["create"]["timeout"] <= 20
-    assert attrs["exec"][0][:2] == ("python", "-I")
+    assert attrs["exec"][0] == ("python", "-I", "/opt/afj-harness.py")
+    assert attrs["image_file"][0][1] == "/opt/afj-harness.py"
+    assert attrs["image_file"][1]["copy"] is True
+    assert "/tmp/afj-harness.py" not in attrs
+    assert phases["setup"] >= 0 and phases["create"] >= 0 and phases["execute"] >= 0
     assert "expected" not in attrs["/tmp/afj-payload.json"]
     assert attrs["terminated"] is True

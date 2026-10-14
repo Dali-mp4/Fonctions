@@ -11,7 +11,7 @@ export default async function Home() {
     <section className="hero shell">
       <div className="hero-glow" />
       <div className="hero-copy">
-        <div className="eyebrow"><span className="live-dot"/> CONÇU POUR LES LYCÉENS TUNISIENS <span className="eyebrow-line"/> V2 EN CONSTRUCTION</div>
+        <div className="eyebrow"><span className="live-dot"/> CONÇU POUR LES LYCÉENS TUNISIENS</div>
         <h1>L&apos;algorithmique,<br/><em>à ta portée.</em></h1>
         <p>Tous les modules publiés réunis au même endroit. Des explications claires, plusieurs méthodes et du Python à tester.</p>
         <div className="hero-actions"><Link className="btn btn-primary" href="/bibliotheque">Explorer les fonctions <ArrowRight size={18}/></Link><Link className="btn btn-muted" href="/parcours">Choisir mon parcours <ChevronRight size={17}/></Link></div>

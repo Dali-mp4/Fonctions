@@ -399,3 +399,15 @@ The migration was tested in a BEGIN/ROLLBACK transaction against the project:
 a temporary synthetic user and authored draft were created, self-deleted, and
 verified that their content survived with an unlinked pseudonymous author.
 Neither real account was deleted. Use a fresh disposable user for live QA.
+
+### Google callback diagnosis
+The OAuth callback redirects to `/connexion?oauth_error=1&oauth_reason=...`
+with a fixed reason rather than hiding all failures behind one message.
+Reasons distinguish Google consent/test-user denial, missing callback code,
+missing Supabase configuration, PKCE verifier/cookie failure, exchange failure,
+and unexpected server failure. Never share the `code` or `state` value from
+Google callback URLs. For `pkce_missing`, use one hostname consistently
+(`http://localhost:3000`, not `127.0.0.1`) and enable browser cookies;
+for `provider_denied`, verify the Google OAuth Audience test users list.
+Browser OAuth errors may still require checking Supabase Auth logs when the
+provider doesn't return a precise reason.

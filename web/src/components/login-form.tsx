@@ -17,8 +17,19 @@ export function LoginForm(){
   const router=useRouter();
   useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
-    if(params.get("oauth_error")==="1")
-      setError("Connexion Google interrompue. Réessaie ou utilise ton e-mail.");
+    if(params.get("oauth_error")==="1"){
+      const reasons: Record<string,string> = {
+        provider_denied: "Google a annulé ou refusé la connexion. Vérifie que ton compte Google est autorisé comme utilisateur de test si l'application est en mode Test.",
+        provider_error: "Google ou Supabase a refusé l'autorisation. Vérifie le fournisseur Google, l'écran de consentement et ses URL de redirection.",
+        missing_code: "Le retour de Google ne contenait pas de code de connexion. Vérifie l'URL de rappel Supabase et les URL autorisées.",
+        missing_config: "La configuration Supabase de cette application est incomplète.",
+        pkce_missing: "La vérification de sécurité PKCE a échoué. Ouvre http://localhost:3000, utilise le même nom d'hôte durant la connexion et autorise les cookies.",
+        exchange_failed: "Supabase n'a pas pu valider la connexion Google. Vérifie les URL de rappel, puis recommence depuis la page de connexion.",
+        unexpected: "Une erreur inattendue est survenue pendant la connexion Google. Consulte le terminal Next.js.",
+      };
+      setError(reasons[params.get("oauth_reason") ?? ""] ??
+        "Connexion Google interrompue. Réessaie ou utilise ton e-mail.");
+    }
     if(params.get("deleted")==="1")
       setNotice("Ton compte a été supprimé. Tes anciennes contributions restent consultables sans identité personnelle liée.");
   },[]);

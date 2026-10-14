@@ -24,6 +24,7 @@ export function Header() {
         <nav className={open ? "main-nav open" : "main-nav"} aria-label="Navigation principale">
           {nav.map((item) => <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className={pathname === item.href ? "active" : ""}>{t(item.label)}</Link>)}
           <Link href="/studio" onClick={() => setOpen(false)} className={pathname === "/studio" ? "active" : ""}>{t("El studio.")}</Link>
+          <Link href="/compte" onClick={() => setOpen(false)} className="mobile-account-link">{t("Mon compte")}</Link>
         </nav>
         <LanguageSwitcher/>
         <Link href="/compte" className="header-login">{t("Mon compte")} <ArrowUpRight size={16}/></Link>

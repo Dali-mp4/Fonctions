@@ -264,3 +264,7 @@
 [dir="rtl"] .run-form input,[dir="rtl"] .run-form textarea,[dir="rtl"] .test-case textarea,[dir="rtl"] input[type=email],[dir="rtl"] input[type=password]{direction:ltr;text-align:left}
 [dir="rtl"] .back-link svg,[dir="rtl"] .card-arrow,[dir="rtl"] .text-link svg{transform:scaleX(-1)}
 @media(max-width:720px){.language-switch{min-width:auto;margin-inline-start:0}.language-switch select{max-width:100px;padding:7px 6px}}
+
+.mobile-account-link{display:none}
+@media(max-width:600px){.header-login{display:none}.main-nav.open .mobile-account-link{display:block}.header-inner{gap:9px}.language-switch{margin-inline-start:auto}.mobile-menu{margin-inline-start:0;margin-left:0}}
+[dir="rtl"] .mobile-menu{margin-inline-start:0}

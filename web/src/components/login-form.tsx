@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, LockKeyhole } from "lucide-react";
 import { authConfigured, browserSupabase } from "@/lib/supabase-browser";
+import { useTranslate } from "@/components/language-provider";
 
 export function LoginForm(){
+  const t=useTranslate();
   const [mode,setMode]=useState<"login"|"signup">("login");
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
@@ -27,29 +29,29 @@ export function LoginForm(){
         exchange_failed: "Supabase n'a pas pu valider la connexion Google. Vérifie les URL de rappel, puis recommence depuis la page de connexion.",
         unexpected: "Une erreur inattendue est survenue pendant la connexion Google. Consulte le terminal Next.js.",
       };
-      setError(reasons[params.get("oauth_reason") ?? ""] ??
-        "Connexion Google interrompue. Réessaie ou utilise ton e-mail.");
+      setError(t(reasons[params.get("oauth_reason") ?? ""] ??
+        "Connexion Google interrompue. Réessaie ou utilise ton e-mail."));
     }
     if(params.get("deleted")==="1")
-      setNotice("Ton compte a été supprimé. Tes anciennes contributions restent consultables sans identité personnelle liée.");
+      setNotice(t("Ton compte a été supprimé. Tes anciennes contributions restent consultables sans identité personnelle liée."));
   },[]);
 
   async function submit(e:React.FormEvent){
     e.preventDefault();setPending(true);setError("");setNotice("");
     const sb=browserSupabase();
-    if(!sb){setError("L'authentification n'est pas encore configurée.");setPending(false);return;}
+    if(!sb){setError(t("L'authentification n'est pas encore configurée."));setPending(false);return;}
     const result=mode==="login"?
       await sb.auth.signInWithPassword({email,password}):
       await sb.auth.signUp({email,password});
     if(result.error)setError(result.error.message);
-    else if(mode==="signup")setNotice("Compte créé. Vérifie ta boîte mail si la confirmation est activée.");
+    else if(mode==="signup")setNotice(t("Compte créé. Vérifie ta boîte mail si la confirmation est activée."));
     else{router.push("/compte");router.refresh();}
     setPending(false);
   }
   async function signInWithGoogle(){
     setError("");setNotice("");
     const sb=browserSupabase();
-    if(!sb){setError("L'authentification n'est pas encore configurée.");return;}
+    if(!sb){setError(t("L'authentification n'est pas encore configurée."));return;}
     setGooglePending(true);
     try {
       // @supabase/ssr saves the PKCE verifier to the same-origin auth cookie.
@@ -63,39 +65,39 @@ export function LoginForm(){
       // Supabase usually redirects automatically in browsers; handle custom clients.
       window.location.assign(data.url);
     } catch(e){
-      setError(e instanceof Error?e.message:"La connexion Google a échoué.");
+      setError(e instanceof Error?t(e.message):t("La connexion Google a échoué."));
       setGooglePending(false);
     }
   }
   return <div className="auth-card">
     <div className="auth-icon"><LockKeyhole size={22}/></div>
-    <h2>{mode==="login"?"Bienvenue !":"Créer mon compte"}</h2>
-    <p>{mode==="login"?"Choisis une méthode pour te connecter.":"Un nouveau compte commence avec le rôle étudiant."}</p>
-    {!authConfigured&&<div className="warning-strip">Configure Supabase pour activer les comptes.</div>}
+    <h2>{t(mode==="login"?"Bienvenue !":"Créer mon compte")}</h2>
+    <p>{t(mode==="login"?"Choisis une méthode pour te connecter.":"Un nouveau compte commence avec le rôle étudiant.")}</p>
+    {!authConfigured&&<div className="warning-strip">{t("Configure Supabase pour activer les comptes.")}</div>}
     <button type="button" className="google-auth-button"
       disabled={!authConfigured||pending||googlePending}
       onClick={()=>void signInWithGoogle()}>
       <span className="google-auth-mark" aria-hidden="true">G</span>
-      {googlePending?"Redirection vers Google…":"Continuer avec Google"}
+      {t(googlePending?"Redirection vers Google…":"Continuer avec Google")}
     </button>
-    <div className="auth-divider"><span>ou avec ton e-mail</span></div>
+    <div className="auth-divider"><span>{t("ou avec ton e-mail")}</span></div>
     <form onSubmit={e=>void submit(e)} className="auth-form">
-      <label>E-mail<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="toi@exemple.com"/></label>
-      <label>Mot de passe<input type="password" required minLength={6} value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••"/></label>
+      <label>{t("E-mail")}<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder={t("toi@exemple.com")}/></label>
+      <label>{t("Mot de passe")}<input type="password" required minLength={6} value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••"/></label>
       {error&&<div className="run-error" role="alert">{error}</div>}
       {notice&&<div className="success-strip">{notice}</div>}
       <button className="btn btn-primary" disabled={pending||googlePending||!authConfigured}>
-        {pending?"Veuillez patienter...":mode==="login"?"Se connecter":"Créer mon compte"}<ArrowRight size={17}/>
+        {t(pending?"Veuillez patienter...":mode==="login"?"Se connecter":"Créer mon compte")}<ArrowRight size={17}/>
       </button>
     </form>
     <div className="auth-switch">
-      {mode==="login"?"Pas encore de compte ?":"Déjà un compte ?"}{" "}
+      {t(mode==="login"?"Pas encore de compte ?":"Déjà un compte ?")}{" "}
       <button onClick={()=>{setMode(mode==="login"?"signup":"login");setError("");setNotice("");}}>
-        {mode==="login"?"S'inscrire":"Se connecter"}
+        {t(mode==="login"?"S'inscrire":"Se connecter")}
       </button>
     </div>
-    <p className="auth-disclaimer">Les rôles contributeur et relecteur restent réservés aux invitations.
-      {" "}<Link href="/">Retour à l&apos;accueil</Link>
+    <p className="auth-disclaimer">{t("Les rôles contributeur et relecteur restent réservés aux invitations.")}
+      {" "}<Link href="/">{t("Retour à l'accueil")}</Link>
     </p>
   </div>;
 }

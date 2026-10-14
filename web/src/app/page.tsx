@@ -15,7 +15,7 @@ export default async function Home() {
       <div className="hero-glow" />
       <div className="hero-copy">
         <div className="eyebrow"><span className="live-dot"/> {tr(locale,"CONÇU POUR LES LYCÉENS TUNISIENS")}</div>
-        <h1>{tr(locale,"L\u0027algorithmique,")}<br/><em>{tr(locale,"à ta portée.")}</em></h1>
+        <h1>{tr(locale,"L\u0027algorithmique")}<br/><em>{tr(locale,"dans ta poche.")}</em></h1>
         <p>{tr(locale,"Tous les modules publiés réunis au même endroit. Des explications claires, plusieurs méthodes et du Python à tester.")}</p>
         <div className="hero-actions"><Link className="btn btn-primary" href="/bibliotheque">{tr(locale,"Explorer les fonctions")} <ArrowRight size={18}/></Link><Link className="btn btn-muted" href="/parcours">{tr(locale,"Choisir mon parcours")} <ChevronRight size={17}/></Link></div>
         <div className="hero-metrics"><div><strong>{String(lessons.length).padStart(2,"0")}</strong><span>{tr(locale,"modules disponibles")}</span></div><div><strong>02</strong><span>{tr(locale,"approches Base et Advanced")}</span></div><div><strong>∞</strong><span>{tr(locale,"idées à partager")}</span></div></div>

@@ -207,14 +207,14 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "name": "التسجيل",
       "title": "قيم مسمّاة ومحدّدة الأنواع",
       "category": "هياكل البيانات",
-      "summary": "تعريف حقول بأسماء وقيم من أنواع مختلفة.",
-      "principle": "نربط بكل حقل اسمًا ونوعًا وقيمة ثم نجمع الحقول. في بايثون نمثّلها بقاموس.",
+      "summary": "تتعلّم كيفاش تعمل حقول بأسامي وقيم من أنواع مختلفة.",
+      "principle": "كل حقل نعطيوه اسم ونوع وقيمة، وبعد نجمعوهم. في Python نستعملو dictionary.",
       "example": "الاسم = '3mor' · العمر = 17 · مقبول = صحيح",
-      "limits": "يجب أن تكون أسماء الحقول فريدة وصحيحة. المثال يستخدم قاموس بايثون.",
+      "limits": "أسامي الحقول لازم تكون مختلفة وصحيحة. المثال يستعمل dictionary في Python.",
       "sections": [
         [
           "تعريف سجل — TDNT وTDOG",
-          "مثال ثابت بثلاثة حقول، ويمكنك إضافة حقول أخرى في الورشة."
+          "مثال فيه ثلاثة حقول، وتنجّم تزيد حقول أخرى في التجربة."
         ],
         [
           "تعبئة الحقول",
@@ -236,10 +236,10 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "name": "مصفوفة",
       "title": "جدول ثنائي الأبعاد",
       "category": "هياكل البيانات",
-      "summary": "تعبئة مصفوفة من الأعداد الصحيحة وعرضها.",
-      "principle": "تتكوّن المصفوفة من أسطر وأعمدة. نتنقّل بين خلاياها باستعمال مؤشّرين.",
+      "summary": "عمّر مصفوفة بأعداد صحيحة وورّي محتواها.",
+      "principle": "المصفوفة فيها أسطر وأعمدة. باش توصل لكل خانة تستعمل زوز مؤشّرات.",
       "example": "[[1, 2, 3], [4, 5, 6]] ← سطران × ثلاثة أعمدة",
-      "limits": "الحد الأقصى 10 × 10 خلايا للحفاظ على وضوح العرض.",
+      "limits": "أقصى حجم 10 × 10 خانات باش يبقى العرض واضح.",
       "sections": [
         [
           "تعريف المصفوفة — TDNT وTDOG",
@@ -255,13 +255,13 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
         ],
         [
           "عرض الخلايا",
-          "لا يتضمن هذا الدرس ترتيب المصفوفة."
+          "الدرس هذا ما فيهش ترتيب للمصفوفة."
         ]
       ],
       "inputs": [
         [
           "قيم المصفوفة",
-          "اكتب سطرًا لكل صف وافصل الأعداد بفواصل."
+          "اكتب كل سطر وحدو وفرّق بين الأعداد بفواصل."
         ]
       ]
     },
@@ -269,14 +269,14 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "name": "القاسم المشترك الأكبر",
       "title": "القاسم المشترك الأكبر",
       "category": "الرياضيات",
-      "summary": "إيجاد أكبر قاسم مشترك لعددين صحيحين.",
-      "principle": "نطرح العدد الأصغر من الأكبر مرارًا حتى تتساوى القيمتان.",
+      "summary": "احسب القاسم المشترك الأكبر لزوز أعداد صحيحة.",
+      "principle": "نقصّو العدد الأصغر من الأكبر مرّة بعد مرّة لين يوليوا كيف كيف.",
       "example": "PGCD(48, 18) = 6",
-      "limits": "يجب أن يكون العددان موجبين تمامًا. تعتمد الطريقة على الطرح المتكرر.",
+      "limits": "الزوز أعداد لازم يكونوا أكبر من الصفر. الطريقة تعتمد على الطرح المتكرّر.",
       "sections": [
         [
           "حساب القاسم المشترك الأكبر بالطرح المتكرر",
-          "يجب أن يكون العددان موجبين تمامًا."
+          "الزوز أعداد لازم يكونوا أكبر من الصفر."
         ]
       ],
       "inputs": [
@@ -294,14 +294,14 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "name": "المضاعف المشترك الأصغر",
       "title": "المضاعف المشترك الأصغر",
       "category": "الرياضيات",
-      "summary": "إيجاد أصغر مضاعف مشترك لعددين صحيحين.",
-      "principle": "نختبر مضاعفات العدد الأول بالتتابع حتى نجد مضاعفًا يقبل القسمة على العدد الثاني.",
+      "summary": "احسب المضاعف المشترك الأصغر لزوز أعداد صحيحة.",
+      "principle": "نجرّبو مضاعفات العدد الأول وحدة بوحدة لين نلقاو عدد يقبل القسمة على الثاني.",
       "example": "PPCM(12, 18) = 36",
-      "limits": "العددان موجبان تمامًا مع حدود على المدخلات لضمان سرعة التنفيذ.",
+      "limits": "الزوز أعداد لازمهم يكونوا أكبر من الصفر، ومعاهم حدّ للقيم باش التنفيذ يبقى سريع.",
       "sections": [
         [
           "حساب المضاعف المشترك الأصغر بالجمع المتكرر",
-          "يجب أن يكون العددان موجبين تمامًا."
+          "الزوز أعداد لازم يكونوا أكبر من الصفر."
         ]
       ],
       "inputs": [
@@ -319,14 +319,14 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "name": "مجموع الأرقام",
       "title": "مجموع أرقام عدد",
       "category": "معالجة البيانات",
-      "summary": "حساب مجموع كل أرقام عدد صحيح.",
-      "principle": "نحوّل العدد إلى سلسلة نصية ونمرّ على كل رمز ونجمع قيمته الرقمية.",
+      "summary": "احسب مجموع الأرقام متاع عدد صحيح.",
+      "principle": "نحوّلو العدد لنصّ، وبعد نمرّو على كل رقم ونجمعوه.",
       "example": "SOM_CH(4825) = 19",
-      "limits": "عدد صحيح غير سالب من تسعة أرقام على الأكثر في هذه الورشة.",
+      "limits": "استعمل عدد صحيح موجب أو صفر، فيه 9 أرقام على الأكثر.",
       "sections": [
         [
           "جمع أرقام عدد",
-          "حوّل العدد إلى سلسلة نصية ثم عالج الرموز واحدًا تلو الآخر."
+          "حوّل العدد لنصّ وعالج كل رقم وحدو."
         ]
       ],
       "inputs": [
@@ -340,10 +340,10 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "name": "جدول",
       "title": "تعريف جدول وتعبئته وعرضه",
       "category": "هياكل البيانات",
-      "summary": "فهم تعريف الجدول وتعبئته وعرض عناصره.",
-      "principle": "يحتوي الجدول على قيم من النوع نفسه ويمكن الوصول إليها بالفهرس. نعرّفه ونملأ خاناته ثم نعرضها بالترتيب.",
+      "summary": "تعلّم كيفاش تعرّف الجدول وتعمّرو وتورّي عناصره.",
+      "principle": "الجدول فيه قيم من نفس النوع، وكل قيمة عندها index. نعرّفوه، نعمّرو خاناته، وبعد نورّيوهم بالترتيب.",
       "example": "T = [8, 3, 11, 2, 5] ; T[0] = 8 ; n = 5",
-      "limits": "حتى 40 عددًا صحيحًا للحفاظ على سهولة القراءة.",
+      "limits": "حتى لـ 40 عدد صحيح باش يبقى العرض ساهل للقراية.",
       "sections": [
         [
           "تعريف الجدول — TDNT وTDOG",
@@ -351,7 +351,7 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
         ],
         [
           "التعبئة يدويًا",
-          "تم تعريف T وn في الخطوة الأولى."
+          "T وn تعرّفوا في المرحلة الأولى."
         ],
         [
           "التعبئة عشوائيًا",
@@ -365,7 +365,7 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "inputs": [
         [
           "عناصر الجدول",
-          "افصل الأعداد بفواصل."
+          "فرّق بين الأعداد بفواصل."
         ]
       ]
     },
@@ -373,14 +373,14 @@ const translations:Record<"en"|"ar",Record<string,LessonWords>> = {
       "name": "التحقّق",
       "title": "الانتماء إلى مجال",
       "category": "معالجة البيانات",
-      "summary": "التحقق مما إذا كان عدد ينتمي إلى مجال مغلق.",
-      "principle": "ينتمي العدد إلى [min, max] إذا وفقط إذا تحقق min ≤ العدد ≤ max.",
+      "summary": "شوف كان العدد داخل في مجال مغلق ولا لا.",
+      "principle": "العدد يكون داخل المجال [min, max] كان هو بين min وmax، والحدود محسوبة.",
       "example": "VERIF(7, 2, 10) = صحيح",
-      "limits": "المجال مغلق: يشمل الحدّين. لا يمكن أن يتجاوز الحد الأدنى الحد الأقصى.",
+      "limits": "المجال مغلق يعني الزوز حدود محسوبين. min ما ينجمش يكون أكبر من max.",
       "sections": [
         [
           "التحقق من مجال مغلق",
-          "تعيد الدالة False صراحةً عندما لا يتحقق الشرط."
+          "كي الشرط ما يتحقّقش، الدالة ترجع False."
         ]
       ],
       "inputs": [
@@ -404,7 +404,7 @@ export function localizeLesson(item:Algorithm,locale:Locale):Algorithm {
  if(locale==="fr")return item;
  if(item.slug==="tableau-tri"){
    return {...item,
-     name:locale==="en"?"ARRAY · SORT":"جدول · ترتيب",
+     name:item.name,
      title:locale==="en"?"Selection sort":"الترتيب بالاختيار",
      summary:locale==="en"?"Sort an array using selection sort in ascending or descending order.":"رتّب جدولًا بالاختيار تصاعديًا أو تنازليًا.",
      principle:locale==="en"?"On each pass, find the greatest remaining item and swap it into position. Reverse the result for ascending order.":"في كل دورة نجد أكبر عنصر متبقٍ ونبدّله مع العنصر الحالي، ثم نعكس النتيجة للترتيب التصاعدي.",
@@ -421,7 +421,7 @@ export function localizeLesson(item:Algorithm,locale:Locale):Algorithm {
  }
  const x=translations[locale][item.slug];
  if(!x)return item;
- return {...item,name:x.name,title:x.title,category:x.category,summary:x.summary,
+ return {...item,name:item.name,title:x.title,category:x.category,summary:x.summary,
   principle:x.principle,example:x.example,limits:x.limits,
   code_sections:item.code_sections.map((s,i)=>({...s,title:x.sections[i]?.[0]??s.title,note:x.sections[i]?.[1]??s.note})),
   inputs:item.inputs.map((f,i)=>({...f,label:x.inputs[i]?.[0]??f.label,hint:x.inputs[i]?.[1]??f.hint}))};

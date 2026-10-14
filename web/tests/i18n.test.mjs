@@ -22,6 +22,7 @@ test("all seven lessons have translated teaching prose, never modified code or r
    for(const original of originals){
      const localized=localizeLesson(original,locale);
      assert.ok(isTranslatedLesson(original,locale),original.slug);
+     assert.equal(localized.name,original.name,`module name must stay fixed: ${original.slug} (${locale})`);
      assert.notEqual(localized.summary,original.summary);
      assert.notEqual(localized.principle,original.principle);
      assert.equal(localized.slug,original.slug);
@@ -75,9 +76,26 @@ test("TABLEAU sorting remains a Base method with independently localized titles 
  const original={...originals.find(x=>x.slug==="tableau"),slug:"tableau-tri"};
  for(const locale of ["en","ar"]){
   const translated=localizeLesson(original,locale);
+  assert.equal(translated.name,original.name);
   assert.notEqual(translated.title,original.title);
   assert.equal(translated.slug,"tableau-tri");
   assert.deepEqual(translated.code_sections.map(s=>s.python),original.code_sections.map(s=>s.python));
  }
  assert.match(read("src/components/lesson-tabs.tsx"),/Le pseudo-code et les résultats du moteur/);
+});
+
+test("brand and names remain stable across locales while the hero reflects in-your-pocket meaning",()=>{
+ for(const locale of ["fr","en","ar"]){
+  assert.equal(tr(locale,"El biblioteque."),"El biblioteque.");
+  assert.equal(tr(locale,"El studio."),"El studio.");
+ }
+ assert.equal(tr("fr","L\u0027algorithmique"),"L\u0027algorithmique");
+ assert.equal(tr("fr","dans ta poche."),"dans ta poche.");
+ assert.equal(tr("en","L\u0027algorithmique"),"Algorithms");
+ assert.equal(tr("en","dans ta poche."),"in your pocket.");
+ assert.equal(tr("ar","L\u0027algorithmique"),"الخوارزميات");
+ assert.equal(tr("ar","dans ta poche."),"في جيبك.");
+ assert.equal(tr("ar","Rechercher PGCD, tableau, matrice..."),"لوّج على PGCD، TABLEAU، MATRICE...");
+ const hero=read("src/app/page.tsx");
+ assert.match(hero,/tr\(locale,"dans ta poche\."\)/);
 });

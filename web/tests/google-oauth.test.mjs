@@ -45,5 +45,6 @@ test("OAuth callback provides fixed, safe diagnostic categories without leaking 
  assert.doesNotMatch(callback,/searchParams\.get\("error_description"\)/);
  assert.doesNotMatch(callback,/console\.(?:log|warn|error)\(.*\bcode\b\)/);
  assert.match(login,/param[s]?\.get\("oauth_reason"\)/);
- assert.match(login,/http:\/\/localhost:3000/);
+ assert.match(login,/Réessaie depuis l’adresse officielle du site/);
+ assert.doesNotMatch(login,/Ouvre http:\/\/localhost:3000/);
 });

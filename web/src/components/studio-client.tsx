@@ -199,6 +199,13 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       setError([...preflight.errors, ...badCases.map(t => `${t.label} : ${t.message}`)].join(" "));
       return;
     }
+    if (!editing && creatingChapter &&
+      (!/^[a-z][a-z0-9-]{2,39}$/.test(chapterSlug) ||
+       chapterTitle.trim().length < 4 || chapterCategory.trim().length < 3 ||
+       chapterLevel.trim().length < 3 || chapterSummary.trim().length < 20)) {
+      setError("Complète les champs du nouveau chapitre : identifiant, nom, catégorie, niveau et résumé (20 caractères minimum).");
+      return;
+    }
     const sb = browserSupabase();
     if (!sb) { setError("Supabase n'est pas configuré."); return; }
     setBusy(true);
@@ -213,6 +220,19 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         if (saveError) throw saveError;
         setEditSeq(Number(data));
         setOk("Brouillon mis à jour. Les éventuels anciens tests ont été annulés.");
+      } else if (creatingChapter) {
+        const {data,error:saveError}=await sb.rpc("create_chapter_lesson",{
+          p_slug:chapterSlug.trim(),p_chapter_title:chapterTitle.trim(),
+          p_category:chapterCategory.trim(),p_school_level:chapterLevel.trim(),
+          p_summary:chapterSummary.trim(),
+          p_title:title.trim(),p_explanation:explanation.trim(),
+          p_pseudocode:pseudocode,p_python_code:code,p_entry_function:entry,
+          p_input_schema:schema,p_test_cases:preflight.testCases,p_lesson_content:lesson,
+        });
+        if(saveError) throw saveError;
+        setEditing(String(data));setEditSeq(1);setTopic(chapterSlug.trim());
+        setMethod("base");setCreatingChapter(false);
+        setOk("Chapitre proposé avec son premier brouillon. Relecture nécessaire avant publication.");
       } else {
         const { data, error: saveError } = await sb.rpc("create_draft_lesson_with_contract", {
           p_topic_slug: topic, p_method_type: method,

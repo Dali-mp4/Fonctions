@@ -334,3 +334,68 @@ notify the owner; they are visible when the owner opens /compte.
 
 Navigation headings and menu/footer labels use **El studio.** and
 **El biblioteque.**, while routes remain /studio and /bibliotheque.
+
+## Google login and self-service deletion (October 2026)
+
+### Google OAuth provider setup
+
+Google credentials must never be copied into source files or web/.env.local.
+
+1. At Google Cloud Console → Google Auth Platform, set up Branding, Audience
+   (test users for External/Testing), and create a Web application OAuth client.
+2. Add http://localhost:3000 under Google Authorized JavaScript origins.
+   Under Google Authorized redirect URIs, use the **Supabase callback** shown
+   in Supabase → Authentication → Providers → Google:
+   https://YOUR_PROJECT.supabase.co/auth/v1/callback
+   This is NOT the Next.js /auth/callback route.
+3. Enable Google in Supabase → Authentication → Providers → Google, and enter
+   the Google Client ID and Client Secret in **Supabase dashboard only**.
+4. In Supabase → Authentication → URL Configuration, set local Site URL to
+   http://localhost:3000 and add http://localhost:3000/auth/callback to
+   Additional Redirect URLs. When deployed, register your HTTPS origin in
+   Google and the deployed /auth/callback in Supabase.
+5. Test /connexion → "Continuer avec Google". Supabase handles the OAuth
+   PKCE verifier cookie, and Next.js /auth/callback exchanges the code for
+   a session and redirects to /compte. Existing email/password login remains.
+   Supabase may automatically link an OAuth identity with an existing verified
+   email address; unverified/different-email identities are not promised to link.
+
+Official reference: https://supabase.com/docs/guides/auth/social-login/auth-google
+
+### Delete your own account: migration 010
+
+Run supabase/migrations/010_self_service_account_deletion.sql once, AFTER
+migration 009. Migration 010 itself deletes **no existing accounts**.
+Restart Next.js after pulling the code.
+
+Non-owner users can then permanently delete their own account under /compte
+without an administrator. The user must confirm their exact email and must
+have signed in within the previous 15 minutes. The database performs all
+changes together: it removes the Auth login and personal profile but maps
+their authorship, test and approval foreign keys to a NEW per-user pseudonymous
+profile without a login, email or display name. That preserves the actual
+approved lesson text, contributor methods, authorship/reviewer separation,
+test evidence and historical audits. No published content is cascaded away.
+
+Important limitations:
+- Migration 010 drops the direct profiles.id → auth.users.id foreign key
+  to allow non-login pseudonymous profiles. Always delete accounts with the
+  new /compte workflow. Directly deleting an Auth user from the dashboard
+  will bypass anonymization and can leave a personally identified orphan.
+- This is pseudonymization of the account identity, **not guaranteed erasure
+  of personal details someone may have typed into published source or text**.
+  Published code/explanations and audits are retained, as are backups/logs
+  according to separate retention policies. Editorial removal/redaction may
+  still be necessary for identifying text.
+- Supabase Storage object owners must remove their stored objects first;
+  otherwise the atomic deletion aborts without making partial changes.
+- Existing Auth JWTs can stay cryptographically valid until expiry. The user's
+  real profile is removed, so they cannot continue role-scoped database access.
+- The owner account is protected from self-deletion.
+- Pre-existing deletion requests remain listed as old requests for the owner;
+  no new administrator approval is required to delete an ordinary account.
+
+The migration was tested in a BEGIN/ROLLBACK transaction against the project:
+a temporary synthetic user and authored draft were created, self-deleted, and
+verified that their content survived with an unlinked pseudonymous author.
+Neither real account was deleted. Use a fresh disposable user for live QA.

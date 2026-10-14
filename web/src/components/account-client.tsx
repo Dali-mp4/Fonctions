@@ -31,7 +31,6 @@ export function AccountClient(props: AccountProps) {
   const [busy,setBusy] = useState("");
   const [notice,setNotice] = useState("");
   const [error,setError] = useState("");
-  const [deletionStatus,setDeletionStatus] = useState(props.deletionStatus);
   const [deletionConfirmed,setDeletionConfirmed] = useState(false);
   const [deletionEmail,setDeletionEmail] = useState("");
   const [pendingRequests,setPendingRequests] = useState<PendingRequest[]>([]);
@@ -82,27 +81,22 @@ export function AccountClient(props: AccountProps) {
     if(scope==="others"){setNotice("Les autres sessions ont été révoquées. Les jetons déjà émis peuvent rester valides jusqu'à expiration.");setBusy("");return;}
     router.replace("/connexion");router.refresh();
   }
-  async function requestDeletion() {
+  async function deleteMyAccount() {
     resetMessages();
-    if(!deletionConfirmed || deletionEmail.trim()!==props.email){
-      setError("Coche la confirmation et recopie ton adresse e-mail exacte.");return;
+    if (!deletionConfirmed || deletionEmail.trim() !== props.email) {
+      setError("Confirme les conséquences et recopie ton adresse e-mail exacte.");
+      return;
     }
-    if(!window.confirm("Envoyer une demande de suppression ? Aucun compte ne sera supprimé automatiquement."))return;
-    const sb=browserSupabase();if(!sb)return;
+    if (!window.confirm("Supprimer définitivement ton compte ? Les méthodes approuvées et les décisions de relecture restent conservées avec un auteur pseudonyme. Cette action est irréversible.")) return;
+    const sb = browserSupabase();
+    if (!sb) {setError("Supabase non configuré.");return;}
     setBusy("delete");
-    const {error:e}=await sb.rpc("request_my_account_deletion");
-    if(e)setError(e.message);
-    else {setDeletionStatus("pending");setDeletionConfirmed(false);setDeletionEmail("");
-      setNotice("Demande enregistrée. Elle nécessite une vérification humaine et n'efface pas ton compte maintenant.");}
-    setBusy("");
-  }
-  async function cancelDeletion() {
-    resetMessages();const sb=browserSupabase();if(!sb)return;
-    setBusy("delete");
-    const {error:e}=await sb.rpc("cancel_my_account_deletion");
-    if(e)setError(e.message);
-    else {setDeletionStatus("cancelled");setNotice("Demande de suppression annulée.");}
-    setBusy("");
+    const {error:e} = await sb.rpc("delete_my_account",{p_confirm_email:props.email});
+    if (e) {setError(e.message);setBusy("");return;}
+    // Authentication record is deleted. Best effort local session cleanup.
+    await sb.auth.signOut({scope:"local"});
+    router.replace("/connexion?deleted=1");
+    router.refresh();
   }
 
   useEffect(()=>{
@@ -155,7 +149,7 @@ export function AccountClient(props: AccountProps) {
         <p>Méthodes liées à ce compte : <strong>{props.providers.length?props.providers.map(p=>p==="email"?"E-mail":p==="google"?"Google":p).join(" · "):"E-mail"}</strong>.</p>
         <p className="account-hint">{props.providers.includes("google") ?
           "Ton identité Google est associée à ce compte. Les paramètres de Google se gèrent également chez Google." :
-          "Aucune identité Google liée. L'ajout de Google nécessite d'abord l'activation du fournisseur dans Supabase Auth."}</p>
+          "Tu peux choisir Continuer avec Google depuis la page de connexion après avoir activé ce fournisseur dans Supabase Auth."}</p>
         <form className="account-form" onSubmit={e=>{e.preventDefault();void saveEmail();}}>
           <label>Nouvelle adresse e-mail<input type="email" required maxLength={320} autoComplete="email"
             value={email} onChange={e=>setEmail(e.target.value)}/></label>
@@ -189,33 +183,47 @@ export function AccountClient(props: AccountProps) {
       </section>
 
       <section className="account-panel account-danger" aria-labelledby="account-deletion">
-        <h2 id="account-deletion"><AlertTriangle size={21}/> Suppression du compte</h2>
-        {props.role==="owner" ? <p>Un compte propriétaire ne peut pas demander sa suppression depuis cette page. Un transfert de propriété et une procédure administrative sont nécessaires.</p> :
-        deletionStatus==="pending" ? <>
-          <p>Ta demande est <strong>en attente de traitement humain</strong>. Le compte, les brouillons et les publications ne sont pas supprimés automatiquement.</p>
-          <button className="btn btn-muted" disabled={Boolean(busy)} onClick={()=>void cancelDeletion()}>Annuler la demande</button>
-        </> : <>
-          <p>Tu peux demander la suppression de tes informations personnelles. Pour préserver les cours publiés et les décisions de relecture, la demande doit être vérifiée par le propriétaire avant toute suppression.</p>
-          <label className="review-approval-check">
-            <input type="checkbox" checked={deletionConfirmed} onChange={e=>setDeletionConfirmed(e.target.checked)}/>
-            Je comprends que cette action enregistre une demande et ne supprime pas immédiatement mon compte.
-          </label>
-          <label>Recopie ton e-mail pour confirmer<input type="email" value={deletionEmail}
-            onChange={e=>setDeletionEmail(e.target.value)} placeholder={props.email}/></label>
-          <button className="btn btn-muted account-request-delete" disabled={Boolean(busy)||!deletionConfirmed||deletionEmail.trim()!==props.email}
-            onClick={()=>void requestDeletion()}>Demander la suppression</button>
-        </>}
+        <h2 id="account-deletion"><AlertTriangle size={21}/> Suppression définitive</h2>
+        {props.role==="owner" ?
+          <p>Le compte propriétaire ne peut pas être supprimé depuis cette page. Un transfert de propriété est nécessaire.</p> :
+          <>
+            <p>Supprime ton compte sans validation administrative. Ton accès, ton e-mail
+              et ton nom d'affichage seront effacés. Les cours, les méthodes
+              et les décisions de relecture restent conservés sans identité personnelle liée.</p>
+            <p className="account-hint">Par sécurité, reconnecte-toi dans les 15 minutes précédant cette opération.
+              La suppression est irréversible. Les contenus que tu as créés restent visibles
+              s'ils ont été approuvés.</p>
+            {props.deletionStatus==="pending" && <p className="account-hint">
+              Tu avais une demande en attente. Tu peux maintenant supprimer directement ton compte.
+            </p>}
+            <label className="review-approval-check">
+              <input type="checkbox" checked={deletionConfirmed}
+                onChange={e=>setDeletionConfirmed(e.target.checked)}/>
+              Je comprends que mon compte sera supprimé et que mes contributions pédagogiques
+              et leurs validations resteront conservées sous un auteur pseudonyme.
+            </label>
+            <label>Recopie ton e-mail pour confirmer
+              <input type="email" value={deletionEmail}
+                onChange={e=>setDeletionEmail(e.target.value)} placeholder={props.email}/>
+            </label>
+            <button className="btn btn-muted account-request-delete"
+              disabled={Boolean(busy)||!deletionConfirmed||deletionEmail.trim()!==props.email}
+              onClick={()=>void deleteMyAccount()}>
+              {busy==="delete"?"Suppression…":"Supprimer définitivement mon compte"}
+            </button>
+          </>
+        }
       </section>
 
       {props.role==="owner" && <section className="account-panel" aria-labelledby="account-owner-requests">
-        <h2 id="account-owner-requests"><Users size={21}/> Demandes de suppression</h2>
-        <p>Ces demandes nécessitent un examen manuel des contributions, tests et audits. Ne supprime pas directement un profil dont les contenus ou validations sont encore référencés.</p>
+        <h2 id="account-owner-requests"><Users size={21}/> Demandes antérieures</h2>
+        <p>Ces demandes datent de l'ancien système. Les membres peuvent désormais supprimer directement leur compte après confirmation et reconnexion récente.</p>
         {queueError && <p className="run-error" role="alert">{queueError}</p>}
         {queueLoading ? <p>Chargement…</p> :
           pendingRequests.length ? <div className="account-requests">{pendingRequests.map(request=>
             <div key={request.user_id}><code>{request.user_id}</code><span>{formatDate(request.requested_at)}</span></div>)}</div> :
           <p className="account-hint">Aucune demande en attente.</p>}
-        <p className="account-hint">Retrouve l'identifiant dans Supabase → Authentication → Users. Le processus de suppression définitive doit préserver le contenu pédagogique publié et l'historique d'approbation.</p>
+        <p className="account-hint">Retrouve l'identifiant dans Supabase → Authentication → Users. Les contenus pédagogiques et l'historique sont conservés de manière pseudonyme.</p>
       </section>}
     </div>
   </div>;

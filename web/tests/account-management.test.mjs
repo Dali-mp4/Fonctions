@@ -23,20 +23,26 @@ test("account changes use Supabase Auth and scoped name RPC; never modify roles"
   assert.doesNotMatch(page,/SUPABASE_SERVICE_ROLE_KEY|sb_secret_/);
 });
 
-test("deletion is a request and owner account is protected, never deleted by client",()=>{
-  const sql=read("../supabase/migrations/009_account_management.sql");
-  const client=read("src/components/account-client.tsx");
-  assert.match(sql,/ENABLE ROW LEVEL SECURITY/);
-  assert.match(sql,/role='owner'/);
-  assert.match(sql,/ON DELETE CASCADE/);
-  assert.match(sql,/request_my_account_deletion/);
-  assert.match(sql,/cancel_my_account_deletion/);
-  assert.match(sql,/REVOKE ALL ON public\.account_deletion_requests/);
-  assert.match(client,/request_my_account_deletion/);
-  assert.match(client,/cancel_my_account_deletion/);
-  assert.match(client,/en attente de traitement humain/);
-  assert.doesNotMatch(client,/auth\.admin|deleteUser\(/);
-  assert.doesNotMatch(sql,/DELETE FROM (?:auth\.users|public\.revisions|public\.implementations)/);
+test("self-service deletion uses protected RPC and preserves contribution references",()=>{
+ const sql=read("../supabase/migrations/010_self_service_account_deletion.sql");
+ const ui=read("src/components/account-client.tsx");
+ assert.match(sql,/CREATE FUNCTION public\.delete_my_account\(p_confirm_email text\)/);
+ assert.match(sql,/target_uid uuid := \(SELECT auth\.uid\(\)\)/);
+ assert.match(sql,/confirmed_user\.email IS DISTINCT FROM p_confirm_email/);
+ assert.match(sql,/account_role='owner'/);
+ assert.match(sql,/last_sign_in_at < now\(\)-interval '15 minutes'/);
+ assert.match(sql,/DROP CONSTRAINT IF EXISTS profiles_id_fkey/);
+ assert.match(sql,/INSERT INTO public\.profiles\(id,display_name,role,is_deleted,created_at\)/);
+ for(const table of ["topics","implementations","revisions","draft_test_runs","public_method_runs","audit_events"]){
+   assert.match(sql,new RegExp("UPDATE public\\."+table+" SET "));
+ }
+ assert.match(sql,/DELETE FROM auth\.users WHERE id=target_uid/);
+ assert.match(sql,/REVOKE ALL ON FUNCTION public\.delete_my_account\(text\) FROM PUBLIC,anon/);
+ assert.doesNotMatch(sql,/DELETE FROM public\.(revisions|implementations|topics|draft_test_runs)/);
+ assert.match(ui,/delete_my_account/);
+ assert.match(ui,/p_confirm_email:props\.email/);
+ assert.match(ui,/deletionEmail\.trim\(\) !== props\.email/);
+ assert.doesNotMatch(ui,/auth\.admin|deleteUser\(/);
 });
 
 test("requested navigation names appear consistently without breaking routes",()=>{

@@ -69,6 +69,13 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [editing, setEditing] = useState<string | null>(null);
   const [editSeq, setEditSeq] = useState(1);
   const [topic, setTopic] = useState("pgcd");
+  const [allTopics, setAllTopics] = useState<{slug:string;title:string;state:string}[]>(algorithms.map(a=>({slug:a.slug,title:a.name,state:"published"})));
+  const [creatingChapter,setCreatingChapter] = useState(false);
+  const [chapterSlug,setChapterSlug] = useState("");
+  const [chapterTitle,setChapterTitle] = useState("");
+  const [chapterCategory,setChapterCategory] = useState("Algorithmique");
+  const [chapterLevel,setChapterLevel] = useState("3ème Info");
+  const [chapterSummary,setChapterSummary] = useState("");
   const [method, setMethod] = useState<"base" | "advanced">("advanced");
   const [title, setTitle] = useState("");
   const [explanation, setExplanation] = useState("");
@@ -112,6 +119,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     const sb = browserSupabase();
     if (!sb) { setListError("Supabase n'est pas configuré."); setLoading(false); return; }
     setLoading(true);
+    const {data:rows,error:te}=await sb.from("topics").select("slug,title,state").order("title").limit(200);
+    if(!te && rows) setAllTopics(rows);
     const { data, error: queryError } = await sb.from("revisions")
       .select(revisionWithImplementationSelect)
       .eq("created_by", userId).order("updated_at", { ascending: false }).limit(100);
@@ -124,6 +133,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
 
   function newDraft() {
     setEditing(null); setEditSeq(1); setTopic("pgcd"); setMethod("advanced");
+    setCreatingChapter(false);setChapterSlug("");setChapterTitle("");setChapterSummary("");
     setTitle(""); setExplanation(""); setPseudocode(""); setCode(sample);
     setPrinciple(""); setExample(""); setLimits("");
     setSectionTitle("Fonction principale"); setExtraSections([]);
@@ -135,7 +145,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   function openDraft(draft: Revision) {
     if (!editable(draft)) return;
     setEditing(draft.id); setEditSeq(draft.edit_seq);
-    setTopic(draft.implementations.topics.slug);
+    setTopic(draft.implementations.topics.slug);setCreatingChapter(false);
     setMethod(draft.implementations.method_type);
     setTitle(draft.title); setExplanation(draft.explanation);
     setPseudocode(draft.pseudocode); setCode(draft.python_code);

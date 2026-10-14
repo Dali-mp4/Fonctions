@@ -70,3 +70,14 @@ test("author-created modules remain in original published language absent review
  const lib=read("src/components/library-client.tsx");
  assert.match(lib,/localizeLesson\(a,locale\)/);
 });
+
+test("TABLEAU sorting remains a Base method with independently localized titles and unchanged source",()=>{
+ const original={...originals.find(x=>x.slug==="tableau"),slug:"tableau-tri"};
+ for(const locale of ["en","ar"]){
+  const translated=localizeLesson(original,locale);
+  assert.notEqual(translated.title,original.title);
+  assert.equal(translated.slug,"tableau-tri");
+  assert.deepEqual(translated.code_sections.map(s=>s.python),original.code_sections.map(s=>s.python));
+ }
+ assert.match(read("src/components/lesson-tabs.tsx"),/Le pseudo-code et les résultats du moteur/);
+});

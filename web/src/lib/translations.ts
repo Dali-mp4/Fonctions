@@ -1116,6 +1116,7 @@ Object.assign(extra,{
   ]
 });
 Object.assign(extra,{"Croissant":["Ascending","تصاعدي"],"Décroissant":["Descending","تنازلي"],"L'ordre du tri":["Sort order","اتجاه الترتيب"]});
+Object.assign(extra,{"Le pseudo-code et les résultats du moteur peuvent conserver leur langue pédagogique d’origine.":["Pseudocode and runner results may retain their original teaching language.","قد تحتفظ الخوارزمية الوصفية ونتائج التنفيذ بلغتها التعليمية الأصلية."]});
 export function tr(locale:Locale, french:string):string {
  if(locale==="fr")return french;
  if(extra[french])return extra[french][locale==="en"?0:1];

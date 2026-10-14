@@ -79,13 +79,13 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
 
   return <div className="lesson-tabs">
     <div className="tab-bar" role="tablist" aria-label={t("Onglets du module")}>
-      <button role="tab" aria-selected={tab==="essayer"} className={tab==="essayer"?"selected":""} onClick={()=>setTab("essayer")}><Play size={17}/> Essayer</button>
-      <button role="tab" aria-selected={tab==="comprendre"} className={tab==="comprendre"?"selected":""} onClick={()=>setTab("comprendre")}><BookOpenText size={17}/> Comprendre</button>
-      <button role="tab" aria-selected={tab==="code"} className={tab==="code"?"selected":""} onClick={()=>setTab("code")}><Code2 size={17}/> Algorithme & Python</button>
+      <button role="tab" aria-selected={tab==="essayer"} className={tab==="essayer"?"selected":""} onClick={()=>setTab("essayer")}><Play size={17}/> {t("Essayer")}</button>
+      <button role="tab" aria-selected={tab==="comprendre"} className={tab==="comprendre"?"selected":""} onClick={()=>setTab("comprendre")}><BookOpenText size={17}/> {t("Comprendre")}</button>
+      <button role="tab" aria-selected={tab==="code"} className={tab==="code"?"selected":""} onClick={()=>setTab("code")}><Code2 size={17}/> {t("Algorithme & Python")}</button>
     </div>
     {tab==="essayer" && <section className="tab-body" role="tabpanel">
       <div className="workspace-grid">
-        <div className="panel"><div className="panel-title"><Play size={18}/> Tes paramètres</div>
+        <div className="panel"><div className="panel-title"><Play size={18}/> {t("Tes paramètres")}</div>
           <p>{t("Modifie librement les valeurs, puis exécute la méthode approuvée dans un sandbox isolé.")}</p>
           <form onSubmit={e=>void run(e)} className="run-form">
             {params.map(p=><label key={p.name}><span>{p.name} · {p.type}</span>
@@ -98,12 +98,12 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
               }<small>{t(p.type.startsWith("list[") ? "Utilise la notation JSON." : "Saisis ta propre valeur.")}</small>
             </label>)}
             <button className="btn btn-primary run-button" type="submit" disabled={running}>
-              {running ? "Exécution isolée…" : "Exécuter la méthode"}<Play size={16}/>
+              {running ? t("Exécution isolée…") : t("Exécuter la méthode")}<Play size={16}/>
             </button>
           </form>
           <p className="studio-hint">{t("Connexion requise · 2 exécutions/minute et 15/jour par compte · quota global de protection.")} <Link href="/connexion">{t("Se connecter")}</Link></p>
         </div>
-        <div className="panel output-panel"><div className="panel-title"><ShieldCheck size={18}/> Résultat réel</div>
+        <div className="panel output-panel"><div className="panel-title"><ShieldCheck size={18}/> {t("Résultat réel")}</div>
           {error ? <div className="run-error" role="alert">{error}</div> : didRun ?
             <div className="result-success"><strong>{t("EXÉCUTION RÉUSSIE")}</strong><ResultDisplay slug={m.topic_slug} value={output}/></div> :
             <div className="result-idle"><span className="idle-icon"><Play size={23}/></span><strong>{t("Prêt à tester ?")}</strong>
@@ -125,8 +125,8 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
       <div className="sections-list">{sections.map((sec,i)=><details className="code-section" key={`${sec.title}-${i}`} open={i===0}>
         <summary><span><small>{String(i+1).padStart(2,"0")}</small> {sec.title}</span><ChevronDown size={20}/></summary>
         <div className="code-columns">
-          <div><div className="snippet-title"><span>{t("ALGORITHME / PSEUDO-CODE")}</span></div><pre><code>{sec.pseudocode || "Non fourni"}</code></pre></div>
-          <div><div className="snippet-title"><span>{t("PYTHON")}</span></div><pre><code>{sec.python || "Non fourni"}</code></pre></div>
+          <div><div className="snippet-title"><span>{t("ALGORITHME / PSEUDO-CODE")}</span></div><pre><code>{sec.pseudocode || t("Non fourni")}</code></pre></div>
+          <div><div className="snippet-title"><span>{t("PYTHON")}</span></div><pre><code>{sec.python || t("Non fourni")}</code></pre></div>
         </div>{sec.note && <p className="snippet-note">{sec.note}</p>}
       </details>)}</div>
       <p className="method-security-note"><ShieldCheck size={17}/> {t("Les exécutions se font uniquement dans un sandbox isolé, soumis à des quotas.")}</p>

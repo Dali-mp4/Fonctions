@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+
 import { type Locale, tr } from "@/lib/translations";
 
 const LocaleContext=createContext<Locale>("fr");
@@ -13,12 +13,12 @@ export function useTranslate(){
  return (french:string)=>tr(locale,french);
 }
 export function LanguageSwitcher(){
- const locale=useLocale(),router=useRouter();
+ const locale=useLocale();
  function choose(raw:string){
    const next=raw==="en"||raw==="ar"?raw:"fr";
    document.cookie="afj_locale="+next+"; Path=/; Max-Age=31536000; SameSite=Lax";
-   // Force a fresh server render (including html lang and RTL direction).
-   router.refresh();
+   // Full reload updates the HTML lang/dir attributes and server content.
+   window.location.reload();
  }
  return <label className="language-switch" dir="ltr">
    <span className="sr-only">{tr(locale,"Langue")}</span>

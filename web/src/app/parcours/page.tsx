@@ -38,7 +38,7 @@ export default async function Parcours() {
       </article>)}
     </div>
     {paths.length===0 && <p className="page-lead">
-      Consulte <Link href="/bibliotheque">{tr(locale,"El biblioteque.")}</Link> pour découvrir les modules disponibles.
+      {tr(locale,"Consulte")} <Link href="/bibliotheque">{tr(locale,"El biblioteque.")}</Link> {tr(locale,"pour découvrir les modules disponibles.")}
     </p>}
   </div>;
 }

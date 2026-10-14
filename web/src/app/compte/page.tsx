@@ -18,7 +18,7 @@ export default async function AccountPage() {
     <h1>{tr(locale,"Mon compte")}<span className="title-dot">.</span></h1>
     <div className="studio-guard"><LockKeyhole size={35}/><h2>{tr(locale,"Connexion requise")}</h2>
       <p>{!authConfigured ? tr(locale,"L'authentification Supabase n'est pas configurée.") :
-        "{tr(locale,"Connecte-toi pour consulter et gérer ton profil en toute sécurité.")}"}</p>
+        tr(locale,"Connecte-toi pour consulter et gérer ton profil en toute sécurité.")}</p>
       <Link href="/connexion" className="btn btn-primary">{tr(locale,"Se connecter")} <ArrowRight size={17}/></Link>
     </div>
   </div>;

@@ -13,7 +13,13 @@ export type PublicCatalog = {
 export async function getPublicCatalog(): Promise<PublicCatalog> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) return { lessons: algorithms, methods: [], connected: false };
+  if (!url || !key) {
+    // Do not log values: only whether required browser-safe configuration exists.
+    console.error("[public-catalog] Missing Supabase configuration", {
+      urlConfigured: Boolean(url), publishableKeyConfigured: Boolean(key),
+    });
+    return { lessons: algorithms, methods: [], connected: false };
+  }
   const sb = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) },
@@ -24,6 +30,11 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
       sb.from("published_methods").select("*").order("reviewed_at", { ascending: false }).limit(200),
     ]);
     if (legacy.error || approved.error) {
+      // Log only public error codes; never the key, access token, or lesson data.
+      console.error("[public-catalog] Supabase read failed", {
+        legacyCode: legacy.error?.code ?? null,
+        publishedCode: approved.error?.code ?? null,
+      });
       // No fallback to privileged cookies, browser RPCs, or draft tables.
       return { lessons: algorithms, methods: [], connected: false };
     }
@@ -33,7 +44,10 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
       methods,
       connected: true,
     };
-  } catch {
+  } catch (error) {
+    console.error("[public-catalog] Supabase request failed", {
+      errorType: error instanceof Error ? error.name : "unknown",
+    });
     return { lessons: algorithms, methods: [], connected: false };
   }
 }

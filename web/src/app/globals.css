@@ -153,3 +153,24 @@
 .review-card>small{overflow-wrap:anywhere}
 .publication-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .publication-actions .btn{display:inline-flex;align-items:center;gap:8px}
+
+/* Phase 5: public approved methods complement—not replace—the school collection. */
+.published-method-card{border-color:#51615a;background:linear-gradient(160deg,#182622,#141923)}
+.published-method-card .algo-glyph{color:#b4f0c4}
+.catalog-offline{border:1px solid #64563f;border-radius:10px;background:#221f19;color:#e9d1a3;padding:14px 18px;font-size:12px;margin:16px 0}
+.lesson-related{margin:35px 0 24px;padding:22px;border:1px solid #3a4c55;border-radius:15px;background:#151e2b}
+.lesson-related h2{font-size:21px}
+.approved-method-links{display:flex;flex-wrap:wrap;gap:12px}
+.approved-method-links a{padding:12px 15px;border-radius:10px;background:#232e36;color:#baf1ce;font-size:13px;font-weight:700}
+.approved-method-links a:hover{text-decoration:underline}
+.method-public-note{display:flex;align-items:flex-start;gap:15px;padding:18px;border:1px solid #3b6956;border-radius:12px;background:#16251f;margin:26px 0}
+.method-public-note svg{flex-shrink:0;color:#a8e5b9}
+.method-public-note p{font-size:13px;line-height:1.75;color:#c6dece;margin:0}
+.method-learning-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin:24px 0}
+.method-learning-layout h2{font-size:19px;display:flex;align-items:center;gap:9px}
+.method-public-code{white-space:pre-wrap;overflow-wrap:anywhere;max-height:440px;overflow:auto;padding:18px;border-radius:9px;border:1px solid #333e50;background:#0c1120;color:#e4e7ff;font:12px/1.85 Consolas,monospace}
+.method-public-tests{margin-top:28px;border-top:1px solid #333e50;padding-top:22px}
+.method-case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.method-case-card{background:#141d2b;border:1px solid #38465c;border-radius:11px;padding:16px;min-width:0;font-size:12px}
+.method-case-card code{overflow-wrap:anywhere;color:#c5c6ff}
+@media(max-width:700px){.method-learning-layout,.method-case-grid{grid-template-columns:1fr}}

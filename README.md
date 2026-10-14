@@ -173,67 +173,86 @@ limits, private hidden regression cases, production-ready CORS and the Phase 4
 review/publish UI. Account settings (password changes etc.) remain scheduled
 for after Phase 5.
 
-## Phase 3C — faster repeat tests and measured latency (October 2026)
+## Phase 4 — Contributor submission, independent review and publication
 
-No new Supabase migration or secrets are needed. Update V2 and restart both
-servers; existing Modal setup and migration 004 must already work.
+Run `supabase/migrations/005_review_publication_workflow.sql` exactly once,
+after migrations 001–004. This adds the `submitted_at` timestamp, verifies
+that an unchanged revision's pass status is linked to a trusted finished
+sandbox reservation, and strengthens all reviewer state transitions.
+No new API credentials or changes to Modal are required.
 
-- The trusted harness is baked into the Modal image via
-  `add_local_file(..., copy=True)` and pinned NumPy/Python versions remain.
-- Only immutable App/Image descriptors are cached **per API process**.
-  Every test still uses a fresh network-blocked sandbox with the same CPU,
-  memory, execution, response-size and per-user quota limits.
-- The API measures authentication, draft load, quota reservation, sandbox,
-  and result finalization, plus internal Modal phases, using a monotonic clock.
-  Durations contain no credentials, source, private arguments or expected values.
-- UI shows elapsed time while running, then measured durations for server,
-  sandbox, Modal creation and Python. This is not a fake progress percentage.
-- The first run after an image change may take longer while it builds.
-  Repeated runs may improve, but no fixed speedup is promised.
+- **Contributors:** Save a draft, run its Python examples, then click
+  **Soumettre à la relecture** on a passing saved revision. The database checks
+  ownership, edit sequence, trusted evidence, and valid draft status before
+  locking the submission. Direct row updates still cannot submit code.
+- **Reviewers / owners:** Open **File de relecture**, inspect explanation,
+  pseudocode, Python code, function schema, expected/actual test cases, and
+  decision history. Leave a detailed change request (10–2000 characters),
+  or confirm manual examination and **Approuver et publier**. No one may
+  approve their own submission, even if their role is `owner`.
+- **Request changes:** Invalidates passing test status. Author must save or
+  rerun tests and resubmit; no silent publication of stale evidence.
+- **Owners:** View published/archived DB revisions, **Retirer de publication**
+  if moderation is required and **Restaurer** only an archived revision that
+  had truly passed and received independent approval. Withdrawals/restorations
+  are audited; existing source and history are not deleted.
+- **History:** Authors and reviewers can view scoped audit events with notes;
+  ordinary students cannot read private reviews or editor source.
 
-Run the **same saved PGCD draft twice** (within 4/min quota) and compare
-"Durée serveur", "Sandbox", "Démarrage Modal" and "Python".
+**Important:** These actions change the authoritative *database* publication
+pointer. The publicly visible student library still uses the original seven
+vetted modules until **Phase 5** integrates approved DB revisions. Reviewers
+should inspect test coverage manually; author-supplied tests alone can miss
+incorrect algorithms. Keep the app in limited testing until final security
+review and production deployment.
 
+**Two-account QA:** With account A as `owner` and a second account B as
+`contributor` or `reviewer`, create and test a draft as A. A can submit,
+but cannot approve their own work. Sign in as B after assigning the reviewer
+role from the owner's team panel. B may approve or request changes; only A
+has owner-only rollback controls. The original main/Streamlit branches
+remain unchanged.
 
-## Phase 4 — Contributor submission, independent review and publication (October 2026)
+## Phase 5 — Durable public library (October 2026)
 
-Run **supabase/migrations/005_review_publication_workflow.sql** once in the
-Supabase SQL Editor, **after migrations 001–004**. It strengthens approval
-and audit rules; it does not remove users or drafts. No new Modal configuration
-or API credentials are required.
+**Before activating the dynamic library**, open Supabase SQL Editor and run
+`supabase/migrations/006_published_catalog.sql` **once**, after 005. This
+migration does **not** touch existing account records, draft histories, reviewer
+approvals, or published revision pointers. No new API secrets are required.
 
-- Contributors save a draft, run real Python tests and click **Soumettre à la
-  relecture**. Submission requires a passing, trusted, finalized run linked to
-  the exact saved edit sequence. The submitted code is locked against editing.
-- Reviewers see a queue in **File de relecture** with Python source, pseudo-code,
-  educational explanation, declared inputs/return type, examples and real
-  result evidence. They may request changes (10–2000 character note), which
-  invalidates previous test certification and requires fresh tests before
-  resubmission, or manually confirm and **Approuver et publier**.
-- **No self-approval:** even the project owner cannot approve their own
-  revision. Create another account and assign the **reviewer** role via the
-  owner's existing team panel to test end to end.
-- Every decision is audited. Authors and reviewers can read a limited
-  **Historique des décisions** for an accessible revision.
-- Owner-only **Publications** controls withdraw a published revision (without
-  deleting it) and restore a previously approved, still-tested archived
-  revision. Neither action mutates published source code.
+- All seven original Fonctions V1 teaching lessons are imported as complete
+  JSON records into `public.legacy_lessons`, with original classroom Python,
+  TDNT/TDOG, examples, input forms and source-attribution metadata intact.
+  These are curated originals, **not** disguised as sandbox-tested submissions.
+- `public.published_methods` is a read-only, RLS-respecting
+  `security_invoker` view of **only active, independently approved revisions**:
+  `implementations.published_revision_id` must match the revision, and the
+  revision must be `published`, `passed`, independently reviewed and timestamped.
+  Submitted/withdrawn/archived/private drafts never appear.
+- Anonymous Next.js server requests read the database with **only** the
+  publishable key and no logged-in user's session. No privileged key is used
+  by the public site. Approved methods appear in `/bibliotheque`, the homepage,
+  and their own `/methode/<revision-id>` educational page. The original
+  `/algorithme/<slug>` links keep their school examples and exercises.
+- The public FastAPI executor still accepts **only** the seven built-in,
+  separately reviewed algorithms; approving contributor Python **never** makes
+  it executable directly in the API/browser. New methods are shown as readable
+  learning resources with signature, pseudocode and example test inputs.
+- If Supabase is temporarily unavailable or migration 006 isn't installed,
+  the seven built-in lessons remain accessible from the frozen snapshot;
+  contributions are hidden with an availability notice until DB access returns.
 
-**Important distinction:** "Publié" means the *Supabase database revision
-pointer* is set. The student-facing catalog still serves the original seven
-reviewed built-ins. Phase **5** will integrate approved database revisions
-into the public learning experience. Author-provided tests are not sufficient
-to establish full algorithmic correctness; independent reviewers must inspect
-coverage and edge cases.
+### Quick verification after migration 006
 
-### Recommended two-account verification
+1. Open `/bibliotheque`: the original seven modules should still show their
+   full sections. Filter **Fondamentaux** and **Contributions**.
+2. From a separate reviewer account, approve a saved tested draft. Refresh
+   `/bibliotheque`: the contribution should appear and link to `/methode/<id>`.
+3. As owner, withdraw it. Refresh both URLs: the card should disappear and
+   its former detail URL should return **404**, not reveal the old code.
+4. Restore the approved version as owner: it should reappear without retesting.
+5. `npm run test:catalog` exercises safety rules; other CI checks continue.
 
-1. Sign in as **owner**. Open the saved passing PGCD draft and submit it.
-2. Confirm the owner sees its own submitted card but **cannot approve it**.
-3. Create/sign in as a second account; assign it **reviewer** using the owner's
-   team panel. Open /studio and use **File de relecture**.
-4. Either request changes (verify feedback appears and previous pass is
-   invalidated), or review the tests/code, tick the confirmation box and approve.
-5. Back on the owner account, verify the approved item appears in
-   **Publications**; try withdrawal/restore and inspect audit history.
-6. Existing Streamlit and main GitHub branches remain untouched.
+**Next planned milestone after Phase 5:** `/compte` (Manage Account) with
+account details, email/password change or reset, Google-linked identity
+information, session/logout options and privacy-safe account deletion.

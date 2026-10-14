@@ -121,3 +121,15 @@
 .python-test-ok{color:#a4e8bd;flex-shrink:0}.python-test-fail{color:#ffa99b;flex-shrink:0}
 
 .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+/* Phase 3C: real elapsed seconds and measured timings, never fake progress. */
+.python-run-progress{display:flex;align-items:flex-start;gap:13px;margin-top:17px;padding:17px 19px;background:#161d32;border:1px solid #4e5377;border-radius:12px}
+.python-run-progress>div{flex:1;min-width:0}
+.python-run-progress strong{font-size:13px;color:#e6dcff}
+.python-run-progress p{font-size:11px;color:#b4bad2;line-height:1.6;margin:6px 0 0}
+.python-run-elapsed{font-variant-numeric:tabular-nums;white-space:nowrap}
+.python-run-spinner{flex-shrink:0;width:18px;height:18px;border:2px solid #625481;border-top-color:#cfb8ff;border-radius:50%;animation:afj-spin .8s linear infinite}
+@keyframes afj-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.python-run-spinner{animation:none}}
+.python-run-timings{display:flex;gap:9px 18px;flex-wrap:wrap;padding:12px 0;font-size:11px;color:#b7c7d2;border-top:1px solid #344a4a}
+.python-run-timings strong{color:#e5eaf7}

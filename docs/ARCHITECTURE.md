@@ -59,3 +59,11 @@ Modal must be enabled/configured separately, and the new SQL migration 004
 applied to the user's project. Full production security testing and hidden
 reviewer cases are still pending. Do not deploy contributor test endpoints
 without strict CORS, secret storage, rate/budget monitoring and abuse checks.
+
+### Phase 3C — latency telemetry and harness image
+
+Trusted harness is baked into the pinned image; App/Image descriptors are
+cached locally, but **sandbox instances and contributor code are never pooled**.
+Resource isolation, blocked networking and quotas stay unchanged. The API
+reports real monotonic timing breakdowns for diagnosis, not estimates or
+performance guarantees; warm images require live measurement.

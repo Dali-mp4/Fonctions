@@ -172,3 +172,24 @@ API secrets, monitoring, additional negative/abuse tests, provider billing
 limits, private hidden regression cases, production-ready CORS and the Phase 4
 review/publish UI. Account settings (password changes etc.) remain scheduled
 for after Phase 5.
+
+## Phase 3C — faster repeat tests and measured latency (October 2026)
+
+No new Supabase migration or secrets are needed. Update V2 and restart both
+servers; existing Modal setup and migration 004 must already work.
+
+- The trusted harness is baked into the Modal image via
+  `add_local_file(..., copy=True)` and pinned NumPy/Python versions remain.
+- Only immutable App/Image descriptors are cached **per API process**.
+  Every test still uses a fresh network-blocked sandbox with the same CPU,
+  memory, execution, response-size and per-user quota limits.
+- The API measures authentication, draft load, quota reservation, sandbox,
+  and result finalization, plus internal Modal phases, using a monotonic clock.
+  Durations contain no credentials, source, private arguments or expected values.
+- UI shows elapsed time while running, then measured durations for server,
+  sandbox, Modal creation and Python. This is not a fake progress percentage.
+- The first run after an image change may take longer while it builds.
+  Repeated runs may improve, but no fixed speedup is promised.
+
+Run the **same saved PGCD draft twice** (within 4/min quota) and compare
+"Durée serveur", "Sandbox", "Démarrage Modal" and "Python".

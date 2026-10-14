@@ -138,7 +138,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       run_id: saved.run_id, status: draft.test_status === "passed" ? "passed" :
         draft.test_status === "failed" ? "failed" : "error",
       case_count: saved.results.length, results: saved.results,
-      error: saved.error,
+      error: saved.error, timings_ms: saved.timings_ms,
     } : null);
     setRunError("");
     setError(""); setOk("");

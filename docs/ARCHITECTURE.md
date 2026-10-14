@@ -60,29 +60,31 @@ applied to the user's project. Full production security testing and hidden
 reviewer cases are still pending. Do not deploy contributor test endpoints
 without strict CORS, secret storage, rate/budget monitoring and abuse checks.
 
-### Phase 3C — latency telemetry and harness image
+### Phase 4 review and rollback
 
-Trusted harness is baked into the pinned image; App/Image descriptors are
-cached locally, but **sandbox instances and contributor code are never pooled**.
-Resource isolation, blocked networking and quotas stay unchanged. The API
-reports real monotonic timing breakdowns for diagnosis, not estimates or
-performance guarantees; warm images require live measurement.
+Migration 005 replaces legacy unversioned submission/approval RPCs with exact
+`edit_seq` checks and a strict link from saved passing evidence to the
+`draft_test_runs` trusted finalized reservation. Submissions become read-only;
+reviewer feedback invalidates previous passing evidence. Another reviewer
+must explicitly approve the immutable revision. A DB pointer selects published
+content; owner may withdraw or restore only a prior independently reviewed,
+still verified revision. The app exposes scoped audit history; direct writes
+remain disallowed. The student catalog still uses the seven reviewed source
+modules until Phase 5, and account settings after Phase 5 remain planned.
 
+### Phase 5 — Public database catalog with preserved teaching provenance
 
-### Phase 4 — immutable submissions and moderated publication
+Migration 006 imports the seven source-controlled Fonctions V1 JSON lessons
+into `legacy_lessons` with provenance checksums. These teaching artifacts
+aren't counterfeit `revisions` with invented authors or test attestations.
+The `published_methods` view has `security_invoker=true` and joins the exact
+active pointer, published status, passed sandbox status, independent reviewer
+and review timestamp. Anonymous public frontend queries never use auth cookies
+or administrative credentials; they read only these two exposed, read-only
+resources under least-privilege grants and RLS.
 
-Migration 005 replaces the legacy one-argument submit/approve RPCs with
-optimistically locked actions and a **DB-verified association** between the
-revision's passed evidence and a finalized \`draft_test_runs\` reservation.
-Contributors can submit only their own, unchanged and passing draft.
-Reviewers/owners cannot review their own submissions. Feedback invalidates
-test status and remains in the audit log; author must test again.
-Approval pins a revision to the corresponding \`implementations.published_revision_id\`
-and locks submitted content. Owner-only withdraw/restore transactions operate
-on published revision pointers and retain all audit records and source history;
-restoration requires prior independent review and intact trusted evidence.
-A scoped \`get_revision_history\` RPC avoids opening audit_events to all users.
-
-The original classroom-facing seven remain in the frozen reviewed catalog
-until Phase 5 consumes approved DB revisions. The Manage Account page remains
-scheduled **after Phase 5** and before launch.
+Student learning routes display both school originals and approved community
+contributions. The original seven algorithms retain their fixed interactive
+FastAPI engine; arbitrary contributor Python is never run by the public API.
+Withdrawal/rollback in Phase 4 switches the pointer and therefore immediately
+removes a public contribution; detail pages resolve only active revisions.

@@ -11,7 +11,8 @@
     "test:queries": "node --test tests/revision-embedding.test.mjs",
     "test:contract": "node --experimental-strip-types --test tests/test-contract.test.mjs",
     "test:runner": "node --test tests/draft-runner.test.mjs",
-    "test:review": "node --test tests/review-workflow.test.mjs"
+    "test:review": "node --test tests/review-workflow.test.mjs",
+    "test:catalog": "node --experimental-strip-types --test tests/public-catalog.test.mjs"
   },
   "dependencies": {
     "next": "^16.0.0",

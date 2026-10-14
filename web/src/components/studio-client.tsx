@@ -13,6 +13,8 @@ import { FunctionTestsEditor } from "@/components/function-tests-editor";
 import { type EditableTest, type FunctionSchema, type Parameter, type ValueType,
   testsFromDatabase, validateTestCases } from "@/lib/test-contract";
 import { ReviewerWorkspace } from "@/components/reviewer-workspace";
+import { PublicationManagement } from "@/components/publication-management";
+import { RevisionHistory } from "@/components/revision-history";
 import type { DraftRunResult } from "@/lib/draft-runner";
 import { TeamRoles } from "@/components/team-roles";
 
@@ -29,7 +31,7 @@ const initialTests: EditableTest[] = [
 ];
 
 type Topic = { slug: string; title: string };
-type Implementation = { method_type: "base" | "advanced"; topics: Topic };
+type Implementation = { id: string; published_revision_id: string | null; method_type: "base" | "advanced"; topics: Topic };
 export type Revision = {
   id: string;
   title: string;
@@ -43,6 +45,9 @@ export type Revision = {
   test_status: "not_run" | "passed" | "failed";
   test_evidence: unknown;
   review_note: string | null;
+  reviewer_id: string | null;
+  reviewed_at: string | null;
+  submitted_at: string | null;
   edit_seq: number;
   updated_at: string;
   created_by: string;
@@ -78,6 +83,9 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [runResult, setRunResult] = useState<DraftRunResult | null>(null);
   const [runError, setRunError] = useState("");
   const [running, setRunning] = useState(false);
+  const [submitBusy, setSubmitBusy] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState("");
+  const [submitNotice, setSubmitNotice] = useState("");
 
   function contentSignature(values: {
     title: string; explanation: string; pseudocode: string; code: string;
@@ -218,6 +226,29 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     } finally { setRunning(false); }
   }
 
+  async function submitDraft(draft: Revision) {
+    setSubmitError(""); setSubmitNotice("");
+    if (!editable(draft) || draft.test_status !== "passed" ||
+        (editing === draft.id && !pristine) || running || busy) {
+      setSubmitError("Enregistre les modifications et réussis les tests Python avant de soumettre.");
+      return;
+    }
+    const sb = browserSupabase();
+    if (!sb) { setSubmitError("Supabase n'est pas configuré."); return; }
+    setSubmitBusy(draft.id);
+    try {
+      const { error: submitErr } = await sb.rpc("submit_revision", {
+        p_revision: draft.id, p_expected_edit_seq: draft.edit_seq,
+      });
+      if (submitErr) throw submitErr;
+      setSubmitNotice("Soumission envoyée : un autre relecteur peut maintenant l'examiner.");
+      if (editing === draft.id) newDraft();
+      await refresh();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Impossible d'envoyer la soumission.");
+    } finally { setSubmitBusy(null); }
+  }
+
   return <div className="studio-workspace">
     <div className="studio-banner"><ShieldCheck size={20}/><div>
       <strong>{user}</strong><small>Rôle : {role} · La base de données protège tes brouillons privés.</small>
@@ -231,6 +262,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       </div>
     </div>
     {listError && <p className="run-error" role="alert">{listError}. Vérifie que les migrations Supabase ont été appliquées.</p>}
+    {submitError && <p className="run-error" role="alert">{submitError}</p>}
+    {submitNotice && <p className="success-strip" role="status">{submitNotice}</p>}
     {loading ? <p className="studio-hint">Chargement des brouillons…</p> : drafts.length === 0
       ? <p className="studio-hint">Tu n&apos;as pas encore de brouillon. Crée ta première méthode ci-dessous.</p>
       : <div className="draft-grid">{drafts.map(d =>
@@ -239,8 +272,15 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
           <strong>{d.title}</strong>
           <small>{statusName[d.status]} · version {d.edit_seq} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
           {d.review_note && <p className="review-message">Retour : {d.review_note}</p>}
-          {editable(d) ? <button type="button" onClick={() => openDraft(d)}>Ouvrir et modifier →</button>
-            : <span className="studio-muted">Lecture seule · enregistrement verrouillé</span>}
+          {editable(d) ? <>
+            <button type="button" onClick={() => openDraft(d)} disabled={busy || running || submitBusy !== null}>Ouvrir et modifier →</button>
+            {d.test_status === "passed" ? <button type="button" className="draft-submit-btn"
+              disabled={busy || running || submitBusy !== null || (editing === d.id && !pristine)}
+              onClick={() => void submitDraft(d)}>
+              {submitBusy === d.id ? "Envoi…" : "Soumettre à la relecture →"}
+            </button> : <span className="studio-muted">Réussis les tests Python avant de soumettre.</span>}
+          </> : <span className="studio-muted">Lecture seule · {d.status === "submitted" ? "en attente d'un relecteur" : "version validée"}</span>}
+          <RevisionHistory revisionId={d.id}/>
         </div>)}</div>}
 
     <div className="studio-layout">
@@ -265,7 +305,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         <Monaco height="480px" language="python" theme="vs-dark" value={code} onChange={v => setCode(v ?? "")}
           options={{ minimap: { enabled: false }, fontSize: 14, tabSize: 4, wordWrap: "on", scrollBeyondLastLine: false, automaticLayout: true }}/>
         <div className="sandbox-note"><LockKeyhole size={18}/><p>
-          <strong>Exécution et publication désactivées.</strong> Les fonctions des contributeurs ne seront testées que dans un environnement isolé. Un brouillon enregistré n&apos;est ni validé ni publié.
+          <strong>Exécution Python isolée.</strong> Enregistre puis teste ton code avant de soumettre. La publication exige l&apos;accord d&apos;un autre relecteur. Les soumissions sont verrouillées.
         </p></div>
       </div>
     </div>
@@ -278,6 +318,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       runHint={!editing ? "Crée et enregistre un brouillon pour tester Python." :
         !pristine ? "Enregistre les modifications avant de relancer les tests." : "Exécution isolée · NumPy et random disponibles"}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
+    {role === "owner" && <PublicationManagement/>}
     {role === "owner" && <TeamRoles/>}
   </div>;
 }

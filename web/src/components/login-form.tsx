@@ -16,8 +16,11 @@ export function LoginForm(){
   const [googlePending,setGooglePending]=useState(false);
   const router=useRouter();
   useEffect(()=>{
-    if(new URLSearchParams(window.location.search).get("oauth_error")==="1")
+    const params=new URLSearchParams(window.location.search);
+    if(params.get("oauth_error")==="1")
       setError("Connexion Google interrompue. Réessaie ou utilise ton e-mail.");
+    if(params.get("deleted")==="1")
+      setNotice("Ton compte a été supprimé. Tes anciennes contributions restent consultables sans identité personnelle liée.");
   },[]);
 
   async function submit(e:React.FormEvent){
@@ -42,7 +45,7 @@ export function LoginForm(){
       // Google's credentials and client secret stay ONLY in Supabase / Google.
       const {data,error:oauthError}=await sb.auth.signInWithOAuth({
         provider:"google",
-        options:{redirectTo:`${window.location.origin}/auth/callback`},
+        options:{redirectTo:`${window.location.origin}/auth/callback`,skipBrowserRedirect:true},
       });
       if(oauthError)throw oauthError;
       if(!data.url)throw new Error("Lien de connexion Google indisponible.");

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslate, useLocale } from "@/components/language-provider";
 import { useState } from "react";
 import { Clock3, History } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -12,6 +13,8 @@ const labels:Record<string,string> = {
   publication_withdrawn:"Publication retirée",publication_restored:"Version restaurée",
 };
 export function RevisionHistory({revisionId}:{revisionId:string}) {
+  const t=useTranslate();
+  const locale=useLocale();
   const [open,setOpen]=useState(false);
   const [loading,setLoading]=useState(false);
   const [events,setEvents]=useState<RevisionEvent[]>([]);
@@ -20,7 +23,7 @@ export function RevisionHistory({revisionId}:{revisionId:string}) {
     if(open){setOpen(false);return;}
     setOpen(true);setLoading(true);setError("");
     const sb=browserSupabase();
-    if(!sb){setError("Supabase non configuré.");setLoading(false);return;}
+    if(!sb){setError(t("Supabase non configuré."));setLoading(false);return;}
     const {data,error:e}=await sb.rpc("get_revision_history",{p_revision:revisionId});
     if(e)setError(e.message);else setEvents((data??[]) as RevisionEvent[]);
     setLoading(false);
@@ -30,9 +33,9 @@ export function RevisionHistory({revisionId}:{revisionId:string}) {
       <History size={14}/>{open?"Masquer l'historique":"Historique des décisions"}
     </button>
     {open&&<div className="review-history-panel">
-      {loading&&<p className="studio-hint">Chargement…</p>}
+      {loading&&<p className="studio-hint">{t("Chargement…")}</p>}
       {error&&<p className="run-error" role="alert">{error}</p>}
-      {!loading&&!error&&events.length===0&&<p className="studio-hint">Aucun événement enregistré.</p>}
+      {!loading&&!error&&events.length===0&&<p className="studio-hint">{t("Aucun événement enregistré.")}</p>}
       {!loading&&!error&&events.map((evt,i)=><div className="review-history-event" key={`${evt.created_at}-${i}`}>
         <Clock3 size={14}/><div><strong>{labels[evt.action]??evt.action}</strong>
           <small>{new Date(evt.created_at).toLocaleString("fr-FR")}</small>

@@ -108,20 +108,21 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
       </div>
       <strong className="python-run-elapsed" aria-hidden="true">{elapsedSeconds} s</strong>
     </div>}
-    {runError && <div className="run-error" role="alert">{runError}</div>
+    {runError && <div className="run-error" role="alert">{runError}</div>}
     {runResult && <section className="python-test-results" aria-live="polite">
       <h3>Résultats réels du sandbox {runResult.status === "passed" ? "— Tous les tests réussis" :
         runResult.status === "failed" ? "— Certains tests ont échoué" : "— Erreur d'exécution"}</h3>
       {runResult.error && <p className="preflight-bad">{runResult.error}</p>}
-      {typeof runResult.timings_ms?.total === "number" && <div className="python-run-timings">
-        <span>Durée serveur : <strong>{(runResult.timings_ms.total / 1000).toFixed(1)} s</strong></span>
+      {(typeof runResult.timings_ms?.total === "number" || typeof runResult.timings_ms?.sandbox === "number") && <div className="python-run-timings">
+        {typeof runResult.timings_ms?.total === "number" &&
+          <span>Durée serveur : <strong>{(runResult.timings_ms.total / 1000).toFixed(1)} s</strong></span>}
         {typeof runResult.timings_ms.sandbox === "number" &&
           <span>Sandbox : <strong>{(runResult.timings_ms.sandbox / 1000).toFixed(1)} s</strong></span>}
         {typeof runResult.timings_ms.modal_phases?.create === "number" &&
           <span>Démarrage Modal : <strong>{(runResult.timings_ms.modal_phases.create / 1000).toFixed(1)} s</strong></span>}
         {typeof runResult.timings_ms.modal_phases?.execute === "number" &&
           <span>Python : <strong>{(runResult.timings_ms.modal_phases.execute / 1000).toFixed(1)} s</strong></span>}
-      </div>
+      </div>}
       <p className="studio-hint">{runResult.results.filter(r => r.passed).length}/{runResult.case_count} tests réussis. Résultats liés au brouillon enregistré, pas aux modifications non sauvegardées.</p>
       {runResult.results.map((item, i) => <div key={`${i}-${item.label}`} className="python-test-row">
         {item.passed ? <CheckCircle2 size={17} className="python-test-ok"/> : <AlertCircle size={17} className="python-test-fail"/>}

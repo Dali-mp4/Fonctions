@@ -239,3 +239,12 @@
 .account-requests code{font-size:11px;overflow-wrap:anywhere}
 .account-requests span{color:#afb9cd;font-size:11px}
 @media(max-width:830px){.account-layout{grid-template-columns:minmax(0,1fr)}.account-overview{position:static}}
+
+/* Google OAuth login */
+.google-auth-button{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 16px;margin:20px 0 12px;border-radius:11px;background:#f6f7fb;border:1px solid #e1e4eb;color:#19202e;font-size:14px;font-weight:800}
+.google-auth-button:hover:not(:disabled){background:#e9ebf2}
+.google-auth-button:disabled{opacity:.55;cursor:not-allowed}
+.google-auth-button:focus-visible{outline:3px solid #a989ff;outline-offset:3px}
+.google-auth-mark{font-family:Arial,sans-serif;font-size:19px;font-weight:800;color:#4285f4}
+.auth-divider{display:flex;align-items:center;gap:13px;color:#8d99b0;text-align:center;margin:13px 0 20px;font-size:12px}
+.auth-divider:before,.auth-divider:after{content:"";height:1px;flex:1;background:#343b52}

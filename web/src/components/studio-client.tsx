@@ -1,4 +1,5 @@
 "use client";
+import { useTranslate, useLocale } from "@/components/language-provider";
 
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
@@ -19,9 +20,13 @@ import type { DraftRunResult } from "@/lib/draft-runner";
 import { TeamRoles } from "@/components/team-roles";
 import { type LessonContent, type LessonSection, makeLessonContent, validateLessonContent } from "@/lib/lesson-content";
 
+function LocalizedEditorLoading(){
+  const t=useTranslate();
+  return <div className="editor-loading">{t("Chargement de l'éditeur...")}</div>;
+}
 const Monaco = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
-  loading: () => <div className="editor-loading">Chargement de l&apos;éditeur...</div>,
+  loading: () => <LocalizedEditorLoading/>,
 });
 
 const sample = `def pgcd(a, b):\n    while b != 0:\n        a, b = b, a % b\n    return a`;
@@ -76,6 +81,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [chapterCategory,setChapterCategory] = useState("Algorithmique");
   const [chapterLevel,setChapterLevel] = useState("3ème Info");
   const [chapterSummary,setChapterSummary] = useState("");
+  const t=useTranslate();
+  const locale=useLocale();
   const [method, setMethod] = useState<"base" | "advanced">("advanced");
   const [title, setTitle] = useState("");
   const [explanation, setExplanation] = useState("");
@@ -117,7 +124,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
 
   const refresh = useCallback(async () => {
     const sb = browserSupabase();
-    if (!sb) { setListError("Supabase n'est pas configuré."); setLoading(false); return; }
+    if (!sb) { setListError(t("Supabase n'est pas configuré.")); setLoading(false); return; }
     setLoading(true);
     const {data:rows,error:te}=await sb.from("topics").select("slug,title,state").order("title").limit(200);
     if(!te && rows) setAllTopics(rows);
@@ -187,7 +194,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     if (title.trim().length < 5 || code.length < 10 || explanation.trim().length < 15 ||
       title.trim().length > 160 || explanation.length > 20000 ||
       code.length > 30000 || pseudocode.length > 30000) {
-      setError("Titre (5–160), explication (15–20 000) et code Python (10–30 000 caractères) requis.");
+      setError(t("Titre (5–160), explication (15–20 000) et code Python (10–30 000 caractères) requis."));
       return;
     }
     const pedagogicalErrors = validateLessonContent(lesson);
@@ -203,11 +210,11 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       (!/^[a-z][a-z0-9-]{2,39}$/.test(chapterSlug) ||
        chapterTitle.trim().length < 4 || chapterCategory.trim().length < 3 ||
        chapterLevel.trim().length < 3 || chapterSummary.trim().length < 20)) {
-      setError("Complète les champs du nouveau chapitre : identifiant, nom, catégorie, niveau et résumé (20 caractères minimum).");
+      setError(t("Complète les champs du nouveau chapitre : identifiant, nom, catégorie, niveau et résumé (20 caractères minimum)."));
       return;
     }
     const sb = browserSupabase();
-    if (!sb) { setError("Supabase n'est pas configuré."); return; }
+    if (!sb) { setError(t("Supabase n'est pas configuré.")); return; }
     setBusy(true);
     try {
       if (editing) {
@@ -219,7 +226,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         });
         if (saveError) throw saveError;
         setEditSeq(Number(data));
-        setOk("Brouillon mis à jour. Les éventuels anciens tests ont été annulés.");
+        setOk(t("Brouillon mis à jour. Les éventuels anciens tests ont été annulés."));
       } else if (creatingChapter) {
         const {data,error:saveError}=await sb.rpc("create_chapter_lesson",{
           p_slug:chapterSlug.trim(),p_chapter_title:chapterTitle.trim(),
@@ -232,7 +239,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         if(saveError) throw saveError;
         setEditing(String(data));setEditSeq(1);setTopic(chapterSlug.trim());
         setMethod("base");setCreatingChapter(false);
-        setOk("Chapitre proposé avec son premier brouillon. Relecture nécessaire avant publication.");
+        setOk(t("Chapitre proposé avec son premier brouillon. Relecture nécessaire avant publication."));
       } else {
         const { data, error: saveError } = await sb.rpc("create_draft_lesson_with_contract", {
           p_topic_slug: topic, p_method_type: method,
@@ -242,7 +249,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         });
         if (saveError) throw saveError;
         setEditing(String(data)); setEditSeq(1);
-        setOk("Brouillon privé créé. Aucun code n'a été exécuté ni publié.");
+        setOk(t("Brouillon privé créé. Aucun code n'a été exécuté ni publié."));
       }
       setSavedSignature(signature); setRunResult(null); setRunError("");
       await refresh();
@@ -254,11 +261,11 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   async function runTests() {
     setRunError(""); setRunResult(null);
     if (!editing || !pristine || testCases.length < 1) {
-      setRunError("Enregistre d'abord ce brouillon et tous ses tests avant l'exécution.");
+      setRunError(t("Enregistre d'abord ce brouillon et tous ses tests avant l'exécution."));
       return;
     }
     const sb = browserSupabase();
-    if (!sb) { setRunError("Authentification non configurée."); return; }
+    if (!sb) { setRunError(t("Authentification non configurée.")); return; }
     setRunning(true);
     try {
       const { data: { session } } = await sb.auth.getSession();
@@ -282,18 +289,18 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setSubmitError(""); setSubmitNotice("");
     if (!editable(draft) || draft.test_status !== "passed" ||
         (editing === draft.id && !pristine) || running || busy) {
-      setSubmitError("Enregistre les modifications et réussis les tests Python avant de soumettre.");
+      setSubmitError(t("Enregistre les modifications et réussis les tests Python avant de soumettre."));
       return;
     }
     const sb = browserSupabase();
-    if (!sb) { setSubmitError("Supabase n'est pas configuré."); return; }
+    if (!sb) { setSubmitError(t("Supabase n'est pas configuré.")); return; }
     setSubmitBusy(draft.id);
     try {
       const { error: submitErr } = await sb.rpc("submit_revision", {
         p_revision: draft.id, p_expected_edit_seq: draft.edit_seq,
       });
       if (submitErr) throw submitErr;
-      setSubmitNotice("Soumission envoyée : un autre relecteur peut maintenant l'examiner.");
+      setSubmitNotice(t("Soumission envoyée : un autre relecteur peut maintenant l'examiner."));
       if (editing === draft.id) newDraft();
       await refresh();
     } catch (err) {
@@ -307,30 +314,30 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     </div></div>
 
     <div className="studio-panel-head">
-      <h2><FolderOpen size={21}/> Mes implémentations</h2>
+      <h2><FolderOpen size={21}/> {t("Mes implémentations")}</h2>
       <div className="studio-actions">
-        <button className="btn btn-muted" disabled={loading} onClick={() => void refresh()}><RefreshCw size={15}/> Actualiser</button>
-        <button className="btn btn-primary" onClick={newDraft}><Plus size={15}/> Nouvelle</button>
+        <button className="btn btn-muted" disabled={loading} onClick={() => void refresh()}><RefreshCw size={15}/> {t("Actualiser")}</button>
+        <button className="btn btn-primary" onClick={newDraft}><Plus size={15}/> {t("Nouvelle")}</button>
       </div>
     </div>
     {listError && <p className="run-error" role="alert">{listError}. Vérifie que les migrations Supabase ont été appliquées.</p>}
     {submitError && <p className="run-error" role="alert">{submitError}</p>}
     {submitNotice && <p className="success-strip" role="status">{submitNotice}</p>}
-    {loading ? <p className="studio-hint">Chargement des brouillons…</p> : drafts.length === 0
-      ? <p className="studio-hint">Tu n&apos;as pas encore de brouillon. Crée ta première méthode ci-dessous.</p>
+    {loading ? <p className="studio-hint">{t("Chargement des brouillons…")}</p> : drafts.length === 0
+      ? <p className="studio-hint">{t("Tu n'as pas encore de brouillon. Crée ta première méthode ci-dessous.")}</p>
       : <div className="draft-grid">{drafts.map(d =>
         <div key={d.id} className={`draft-card${editing === d.id ? " selected" : ""}`}>
           <span className="draft-meta">{d.implementations?.topics?.title ?? "Concept"} · {d.implementations?.method_type === "base" ? "Base" : "Advanced"}</span>
           <strong>{d.title}</strong>
-          <small>{statusName[d.status]} · version {d.edit_seq} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
+          <small>{t(statusName[d.status])} · version {d.edit_seq} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
           {d.review_note && <p className="review-message">Retour : {d.review_note}</p>}
           {editable(d) ? <>
-            <button type="button" onClick={() => openDraft(d)} disabled={busy || running || submitBusy !== null}>Ouvrir et modifier →</button>
+            <button type="button" onClick={() => openDraft(d)} disabled={busy || running || submitBusy !== null}>{t("Ouvrir et modifier →")}</button>
             {d.test_status === "passed" ? <button type="button" className="draft-submit-btn"
               disabled={busy || running || submitBusy !== null || (editing === d.id && !pristine)}
               onClick={() => void submitDraft(d)}>
               {submitBusy === d.id ? "Envoi…" : "Soumettre à la relecture →"}
-            </button> : <span className="studio-muted">Réussis les tests Python avant de soumettre.</span>}
+            </button> : <span className="studio-muted">{t("Réussis les tests Python avant de soumettre.")}</span>}
           </> : <span className="studio-muted">Lecture seule · {d.status === "submitted" ? "en attente d'un relecteur" : "version validée"}</span>}
           <RevisionHistory revisionId={d.id}/>
         </div>)}</div>}
@@ -339,7 +346,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       <div className="studio-form">
         <h2><FileCode2 size={22}/>{editing ? "Modifier le brouillon" : "Nouvelle implémentation"}</h2>
         <p className="studio-hint">{editing ? "Tu peux enregistrer plusieurs fois, sans créer de doublon." : "Choisis un concept et rédige ta méthode."}</p>
-        <label>Concept<select value={topic} disabled={Boolean(editing) || busy || creatingChapter} onChange={e=>setTopic(e.target.value)}>
+        <label>{t("Concept")}<select value={topic} disabled={Boolean(editing) || busy || creatingChapter} onChange={e=>setTopic(e.target.value)}>
           {allTopics.map(t=><option key={t.slug} value={t.slug}>{t.title}{t.state==="pending"?" · En attente de validation":""}</option>)}
         </select></label>
         {!editing && <label className="review-approval-check">
@@ -347,52 +354,52 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
             onChange={e=>{setCreatingChapter(e.target.checked);if(e.target.checked)setMethod("base");}}/>
           Proposer un nouveau concept / chapitre
         </label>}
-        {!editing && creatingChapter && <section className="studio-lesson-fields" aria-label="Nouveau chapitre">
-          <h3>Nouveau chapitre</h3>
-          <p>Ce chapitre reste privé jusqu'à l'approbation de sa première méthode par un autre relecteur.</p>
-          <label>Identifiant URL<input maxLength={40} value={chapterSlug}
+        {!editing && creatingChapter && <section className="studio-lesson-fields" aria-label={t("Nouveau chapitre")}>
+          <h3>{t("Nouveau chapitre")}</h3>
+          <p>{t("Ce chapitre reste privé jusqu'à l'approbation de sa première méthode par un autre relecteur.")}</p>
+          <label>{t("Identifiant URL")}<input maxLength={40} value={chapterSlug}
             onChange={e=>setChapterSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,""))}
-            placeholder="ex. recherche-dichotomique"/></label>
-          <label>Nom<input maxLength={100} value={chapterTitle} onChange={e=>setChapterTitle(e.target.value)}/></label>
-          <label>Catégorie<input maxLength={80} value={chapterCategory} onChange={e=>setChapterCategory(e.target.value)}/></label>
-          <label>Niveau scolaire<input maxLength={80} value={chapterLevel} onChange={e=>setChapterLevel(e.target.value)}/></label>
-          <label>Présentation<textarea rows={3} maxLength={500} value={chapterSummary}
-            onChange={e=>setChapterSummary(e.target.value)} placeholder="Explique le chapitre en au moins 20 caractères."/></label>
+            placeholder={t("ex. recherche-dichotomique")}/></label>
+          <label>{t("Nom")}<input maxLength={100} value={chapterTitle} onChange={e=>setChapterTitle(e.target.value)}/></label>
+          <label>{t("Catégorie")}<input maxLength={80} value={chapterCategory} onChange={e=>setChapterCategory(e.target.value)}/></label>
+          <label>{t("Niveau scolaire")}<input maxLength={80} value={chapterLevel} onChange={e=>setChapterLevel(e.target.value)}/></label>
+          <label>{t("Présentation")}<textarea rows={3} maxLength={500} value={chapterSummary}
+            onChange={e=>setChapterSummary(e.target.value)} placeholder={t("Explique le chapitre en au moins 20 caractères.")}/></label>
         </section>}
-        <label>Type<select value={method} disabled={Boolean(editing) || busy || creatingChapter} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
-          <option value="base">Base — méthode progressive</option><option value="advanced">Advanced — autre méthode</option>
+        <label>{t("Type")}<select value={method} disabled={Boolean(editing) || busy || creatingChapter} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
+          <option value="base">{t("Base — méthode progressive")}</option><option value="advanced">{t("Advanced — autre méthode")}</option>
         </select></label>
-        <label>Titre<input maxLength={160} placeholder="Ex. PGCD avec Euclide" value={title} onChange={e => setTitle(e.target.value)}/></label>
-        <label>Explication<textarea rows={5} maxLength={20000} placeholder="Explique la méthode aux élèves…" value={explanation} onChange={e => setExplanation(e.target.value)}/></label>
-        <section className="studio-lesson-fields" aria-label="Présentation pédagogique">
-          <h3>Présentation de la méthode</h3>
-          <p>Toutes les méthodes utilisent la même présentation : principe, exemple, limites et sections de pseudo-code / Python.</p>
-          <label>Le principe<textarea rows={4} maxLength={5000} value={principle} onChange={e=>setPrinciple(e.target.value)} placeholder="Explique les étapes et l'idée de cette méthode…"/></label>
-          <label>Exemple expliqué<input maxLength={1000} value={example} onChange={e=>setExample(e.target.value)} placeholder="Ex. PGCD(24,18) = 6"/></label>
-          <label>À retenir / limites<textarea rows={3} maxLength={2000} value={limits} onChange={e=>setLimits(e.target.value)} placeholder="Cas limites, préconditions, complexité…"/></label>
-          <label>Titre de la section principale<input maxLength={160} value={sectionTitle} onChange={e=>setSectionTitle(e.target.value)} placeholder="Fonction principale"/></label>
-          <label>Pseudo-code principal<textarea rows={5} maxLength={10000} placeholder="Version algorithmique pour la classe…" value={pseudocode} onChange={e => setPseudocode(e.target.value)}/></label>
-          <p>Le Python principal est le code de l&apos;éditeur à droite, qui sera testé par le sandbox.</p>
+        <label>{t("Titre")}<input maxLength={160} placeholder={t("Ex. PGCD avec Euclide")} value={title} onChange={e => setTitle(e.target.value)}/></label>
+        <label>{t("Explication")}<textarea rows={5} maxLength={20000} placeholder={t("Explique la méthode aux élèves…")} value={explanation} onChange={e => setExplanation(e.target.value)}/></label>
+        <section className="studio-lesson-fields" aria-label={t("Présentation pédagogique")}>
+          <h3>{t("Présentation de la méthode")}</h3>
+          <p>{t("Toutes les méthodes utilisent la même présentation : principe, exemple, limites et sections de pseudo-code / Python.")}</p>
+          <label>{t("Le principe")}<textarea rows={4} maxLength={5000} value={principle} onChange={e=>setPrinciple(e.target.value)} placeholder={t("Explique les étapes et l'idée de cette méthode…")}/></label>
+          <label>{t("Exemple expliqué")}<input maxLength={1000} value={example} onChange={e=>setExample(e.target.value)} placeholder={t("Ex. PGCD(24,18) = 6")}/></label>
+          <label>{t("À retenir / limites")}<textarea rows={3} maxLength={2000} value={limits} onChange={e=>setLimits(e.target.value)} placeholder={t("Cas limites, préconditions, complexité…")}/></label>
+          <label>{t("Titre de la section principale")}<input maxLength={160} value={sectionTitle} onChange={e=>setSectionTitle(e.target.value)} placeholder={t("Fonction principale")}/></label>
+          <label>{t("Pseudo-code principal")}<textarea rows={5} maxLength={10000} placeholder={t("Version algorithmique pour la classe…")} value={pseudocode} onChange={e => setPseudocode(e.target.value)}/></label>
+          <p>{t("Le Python principal est le code de l'éditeur à droite, qui sera testé par le sandbox.")}</p>
           {extraSections.map((sec,i)=><div className="studio-lesson-extra" key={i}>
             <h4>Section {i+2}</h4>
-            <label>Titre<input maxLength={160} value={sec.title} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/></label>
-            <label>Pseudo-code<textarea rows={4} maxLength={10000} value={sec.pseudocode} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,pseudocode:e.target.value}:x))}/></label>
-            <label>Extrait Python<textarea rows={4} maxLength={15000} value={sec.python} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,python:e.target.value}:x))}/></label>
-            <label>Note<textarea rows={2} maxLength={1500} value={sec.note} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,note:e.target.value}:x))}/></label>
-            <button type="button" className="btn btn-muted" onClick={()=>setExtraSections(old=>old.filter((_,j)=>j!==i))}>Retirer cette section</button>
+            <label>{t("Titre")}<input maxLength={160} value={sec.title} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,title:e.target.value}:x))}/></label>
+            <label>{t("Pseudo-code")}<textarea rows={4} maxLength={10000} value={sec.pseudocode} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,pseudocode:e.target.value}:x))}/></label>
+            <label>{t("Extrait Python")}<textarea rows={4} maxLength={15000} value={sec.python} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,python:e.target.value}:x))}/></label>
+            <label>{t("Note")}<textarea rows={2} maxLength={1500} value={sec.note} onChange={e=>setExtraSections(old=>old.map((x,j)=>j===i?{...x,note:e.target.value}:x))}/></label>
+            <button type="button" className="btn btn-muted" onClick={()=>setExtraSections(old=>old.filter((_,j)=>j!==i))}>{t("Retirer cette section")}</button>
           </div>)}
-          <button type="button" className="btn btn-muted" disabled={extraSections.length>=7} onClick={()=>setExtraSections(old=>[...old,{title:"",pseudocode:"",python:"",note:""}])}>Ajouter une section (TDNT, TDOG, algorithme…)</button>
+          <button type="button" className="btn btn-muted" disabled={extraSections.length>=7} onClick={()=>setExtraSections(old=>[...old,{title:"",pseudocode:"",python:"",note:""}])}>{t("Ajouter une section (TDNT, TDOG, algorithme…)")}</button>
         </section>
         <button className="btn btn-primary" onClick={() => void save()} disabled={busy}><Save size={17}/>{busy ? "Enregistrement…" : editing ? "Enregistrer les changements" : "Créer le brouillon"}</button>
         {error && <div className="run-error" role="alert">{error}</div>}
         {ok && <div className="success-strip" role="status"><CheckCircle2 size={15}/> {ok}</div>}
       </div>
       <div className="studio-editor">
-        <div className="editor-toolbar"><span><TerminalSquare size={17}/> Code Python</span><span className="tiny-tag">NUMPY + RANDOM PRÉVUS</span></div>
+        <div className="editor-toolbar"><span><TerminalSquare size={17}/> {t("Code Python")}</span><span className="tiny-tag">{t("NUMPY + RANDOM PRÉVUS")}</span></div>
         <Monaco height="480px" language="python" theme="vs-dark" value={code} onChange={v => setCode(v ?? "")}
           options={{ minimap: { enabled: false }, fontSize: 14, tabSize: 4, wordWrap: "on", scrollBeyondLastLine: false, automaticLayout: true }}/>
         <div className="sandbox-note"><LockKeyhole size={18}/><p>
-          <strong>Exécution Python isolée.</strong> Enregistre puis teste ton code avant de soumettre. La publication exige l&apos;accord d&apos;un autre relecteur. Les soumissions sont verrouillées.
+          <strong>{t("Exécution Python isolée.")}</strong> Enregistre puis teste ton code avant de soumettre. La publication exige l&apos;accord d&apos;un autre relecteur. Les soumissions sont verrouillées.
         </p></div>
       </div>
     </div>

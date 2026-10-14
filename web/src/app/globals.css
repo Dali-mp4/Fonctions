@@ -253,3 +253,18 @@
 .path-modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin:18px 0 23px}
 .path-modules>a{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:10px 12px;border:1px solid #343c56;border-radius:10px;background:#151b2b;color:#e5e8f6;text-decoration:none;font-size:13px;font-weight:600}
 .path-modules>a:hover,.path-modules>a:focus-visible{border-color:#ae92ff;color:#fff}
+
+/* Language preference in the global navigation. */
+.language-switch{display:inline-flex;align-items:center;justify-content:center;min-width:112px;margin-inline-start:auto}
+.language-switch select{max-width:145px;padding:8px 11px;background:#151a2a;border:1px solid #3c4861;border-radius:9px;color:#f3f4fc;font:inherit;font-size:12px;cursor:pointer}
+.language-switch select:focus-visible{outline:2px solid #a48fff;outline-offset:2px}
+.translation-note{margin:16px 0;padding:10px 14px;color:#bdc8d9;border-inline-start:3px solid #ab93ef;background:#181e2f;border-radius:6px;font-size:13px}
+[dir="rtl"] .site-header,[dir="rtl"] .page-lead,[dir="rtl"] .lesson-tabs,[dir="rtl"] .account-layout{text-align:start}
+[dir="rtl"] pre,[dir="rtl"] code,[dir="rtl"] .code-body,[dir="rtl"] .code-window,[dir="rtl"] .code-columns,[dir="rtl"] .result-details{direction:ltr;text-align:left;unicode-bidi:isolate}
+[dir="rtl"] .run-form input,[dir="rtl"] .run-form textarea,[dir="rtl"] .test-case textarea,[dir="rtl"] input[type=email],[dir="rtl"] input[type=password]{direction:ltr;text-align:left}
+[dir="rtl"] .back-link svg,[dir="rtl"] .card-arrow,[dir="rtl"] .text-link svg{transform:scaleX(-1)}
+@media(max-width:720px){.language-switch{min-width:auto;margin-inline-start:0}.language-switch select{max-width:100px;padding:7px 6px}}
+
+.mobile-account-link{display:none}
+@media(max-width:600px){.header-login{display:none}.main-nav.open .mobile-account-link{display:block}.header-inner{gap:9px}.language-switch{margin-inline-start:auto}.mobile-menu{margin-inline-start:0;margin-left:0}}
+[dir="rtl"] .mobile-menu{margin-inline-start:0}

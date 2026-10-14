@@ -127,7 +127,7 @@ export function AccountClient(props: AccountProps) {
       <div className="account-facts">
         <div><span>{t("Inscription")}</span><strong>{formatDate(props.joined,locale)}</strong></div>
         <div><span>{t("Dernière connexion")}</span><strong>{formatDate(props.lastLogin,locale)}</strong></div>
-        <div><span>{t("Adresse vérifiée")}</span><strong>{props.confirmed ? "Oui" : "En attente"}</strong></div>
+        <div><span>{t("Adresse vérifiée")}</span><strong>{t(props.confirmed ? "Oui" : "En attente")}</strong></div>
       </div>
       {["contributor","reviewer","owner"].includes(props.role) &&
         <Link className="btn btn-muted account-studio-link" href="/studio">{t("Ouvrir El studio. →")}</Link>}
@@ -143,21 +143,21 @@ export function AccountClient(props: AccountProps) {
           <label>{t("Nom d'affichage")}<input maxLength={80} minLength={2} required autoComplete="nickname"
             value={name} onChange={e=>setName(e.target.value)} placeholder={t("Ton nom public")}/></label>
           <button className="btn btn-primary" type="submit" disabled={Boolean(busy)}>
-            {busy==="name"?"Enregistrement…":"Enregistrer le nom"}</button>
+            {t(busy==="name"?"Enregistrement…":"Enregistrer le nom")}</button>
         </form>
       </section>
 
       <section className="account-panel" aria-labelledby="account-identity">
         <h2 id="account-identity"><Mail size={21}/> {t("E-mail et connexion")}</h2>
         <p>{t("Méthodes liées à ce compte :")} <strong>{props.providers.length?props.providers.map(p=>p==="email"?"E-mail":p==="google"?"Google":p).join(" · "):"E-mail"}</strong>.</p>
-        <p className="account-hint">{props.providers.includes("google") ?
+        <p className="account-hint">{t(props.providers.includes("google") ?
           "Ton identité Google est associée à ce compte. Les paramètres de Google se gèrent également chez Google." :
-          "Tu peux choisir Continuer avec Google depuis la page de connexion après avoir activé ce fournisseur dans Supabase Auth."}</p>
+          "Tu peux choisir Continuer avec Google depuis la page de connexion après avoir activé ce fournisseur dans Supabase Auth.")}</p>
         <form className="account-form" onSubmit={e=>{e.preventDefault();void saveEmail();}}>
           <label>{t("Nouvelle adresse e-mail")}<input type="email" required maxLength={320} autoComplete="email"
             value={email} onChange={e=>setEmail(e.target.value)}/></label>
           <button className="btn btn-muted" type="submit" disabled={Boolean(busy)}>
-            {busy==="email"?"Envoi…":"Demander le changement d'e-mail"}</button>
+            {t(busy==="email"?"Envoi…":"Demander le changement d'e-mail")}</button>
         </form>
       </section>
 
@@ -170,7 +170,7 @@ export function AccountClient(props: AccountProps) {
           <label>{t("Confirmer le mot de passe")}<input type="password" autoComplete="new-password" minLength={12}
             maxLength={72} required value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)}/></label>
           <button className="btn btn-muted" disabled={Boolean(busy)} type="submit">
-            {busy==="password"?"Mise à jour…":"Changer mon mot de passe"}</button>
+            {t(busy==="password"?"Mise à jour…":"Changer mon mot de passe")}</button>
         </form>
       </section>
 
@@ -190,29 +190,24 @@ export function AccountClient(props: AccountProps) {
         {props.role==="owner" ?
           <p>{t("Le compte propriétaire ne peut pas être supprimé depuis cette page. Un transfert de propriété est nécessaire.")}</p> :
           <>
-            <p>Supprime ton compte sans validation administrative. Ton accès, ton e-mail
-              et ton nom d'affichage seront effacés. Les cours, les méthodes
-              et les décisions de relecture restent conservés sans identité personnelle liée.</p>
-            <p className="account-hint">Par sécurité, reconnecte-toi dans les 15 minutes précédant cette opération.
-              La suppression est irréversible. Les contenus que tu as créés restent visibles
-              s'ils ont été approuvés.</p>
+            <p>{t("Supprime ton compte sans validation administrative. Ton accès, ton e-mail et ton nom d'affichage seront effacés. Les cours, les méthodes et les décisions de relecture restent conservés sans identité personnelle liée.")}</p>
+            <p className="account-hint">{t("Par sécurité, reconnecte-toi dans les 15 minutes précédant cette opération. La suppression est irréversible. Les contenus que tu as créés restent visibles s'ils ont été approuvés.")}</p>
             {props.deletionStatus==="pending" && <p className="account-hint">
-              Tu avais une demande en attente. Tu peux maintenant supprimer directement ton compte.
+              {t("Tu avais une demande en attente. Tu peux maintenant supprimer directement ton compte.")}
             </p>}
             <label className="review-approval-check">
               <input type="checkbox" checked={deletionConfirmed}
                 onChange={e=>setDeletionConfirmed(e.target.checked)}/>
-              Je comprends que mon compte sera supprimé et que mes contributions pédagogiques
-              et leurs validations resteront conservées sous un auteur pseudonyme.
+              {t("Je comprends que mon compte sera supprimé et que mes contributions pédagogiques et leurs validations resteront conservées sous un auteur pseudonyme.")}
             </label>
-            <label>Recopie ton e-mail pour confirmer
+            <label>{t("Recopie ton e-mail pour confirmer")}
               <input type="email" value={deletionEmail}
                 onChange={e=>setDeletionEmail(e.target.value)} placeholder={props.email}/>
             </label>
             <button className="btn btn-muted account-request-delete"
               disabled={Boolean(busy)||!deletionConfirmed||deletionEmail.trim()!==props.email}
               onClick={()=>void deleteMyAccount()}>
-              {busy==="delete"?"Suppression…":"Supprimer définitivement mon compte"}
+              {t(busy==="delete"?"Suppression…":"Supprimer définitivement mon compte")}
             </button>
           </>
         }

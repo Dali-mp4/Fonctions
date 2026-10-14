@@ -42,7 +42,7 @@ export function LessonTabs({algorithm:a}:{algorithm:Algorithm}){
    const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
    let response:Response;
    try{const res=await fetch(`${API}/api/v1/algorithms/${encodeURIComponent(a.slug)}/run`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({inputs}),signal:controller.signal});const body=await res.json();if(!res.ok)throw new Error(typeof body.detail==="string"?body.detail:"Valeurs non acceptées.");response=body;}finally{clearTimeout(timer)}
-   setRunSorted(a.slug==="tableau" && inputs.ordre!=="Aucun");setResult(response);
+   setRunSorted(a.slug==="tableau-tri");setResult(response);
  }catch(e){setError(e instanceof TypeError?"Le serveur Python ne répond pas. Vérifie que FastAPI est démarré sur le port 8000.":e instanceof Error?e.message:"Erreur inconnue.");}finally{setRunning(false)}}
  async function copy(text:string,key:string){try{await navigator.clipboard.writeText(text);setCopied(key);setTimeout(()=>setCopied(""),1600);}catch{/* Clipboard may be disabled */}}
  return <div className="lesson-tabs"><div className="tab-bar" role="tablist" aria-label="Onglets du module"><button role="tab" aria-selected={tab==="essayer"} className={tab==="essayer"?"selected":""} onClick={()=>setTab("essayer")}><Play size={17}/> Essayer</button><button role="tab" aria-selected={tab==="comprendre"} className={tab==="comprendre"?"selected":""} onClick={()=>setTab("comprendre")}><BookOpenText size={17}/> Comprendre</button><button role="tab" aria-selected={tab==="code"} className={tab==="code"?"selected":""} onClick={()=>setTab("code")}><Code2 size={17}/> Algorithme & Python</button></div>

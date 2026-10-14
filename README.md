@@ -411,3 +411,30 @@ Google callback URLs. For `pkce_missing`, use one hostname consistently
 for `provider_denied`, verify the Google OAuth Audience test users list.
 Browser OAuth errors may still require checking Supabase Auth logs when the
 provider doesn't return a precise reason.
+
+
+## Language selector: Français / English / العربية
+
+The language selector in the global header defaults to **French** and persists
+via a 1-year SameSite=Lax first-party cookie (`afj_locale`). Select English
+or Arabic; the page reloads to render the chosen text server-side with matching
+`html lang` and `dir="rtl"` for Arabic. All routes and Supabase auth/session
+behavior remain unchanged. No new environment variables or SQL migrations are
+required. Code blocks, JSON input, and Python execution retain left-to-right
+formatting even when the overall page is RTL.
+
+The website navigation, student learning controls, account security notices,
+contributor/editor/reviewer controls, and school-level navigation use shared
+English/Arabic UI dictionaries. Seven original teaching modules have explicit
+English/Arabic translations for titles, principles, worked examples, limits,
+section titles and input hints. Python source and classroom pseudocode remain
+exactly as reviewed and do not change on language selection.
+
+**Published contributor lessons are not auto-translated.** Their titles,
+explanations and original teaching text remain unchanged if no authorized
+translation has been written and reviewed; students see a notice explaining
+that the content is in its publication language. Translating contributed
+educational content correctly requires a future reviewed multilingual content
+field and contributor/reviewer workflow, not unverified live machine
+translation. Some backend validation details and source-authored notes also
+remain in the original language.

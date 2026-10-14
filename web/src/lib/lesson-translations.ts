@@ -404,7 +404,7 @@ export function localizeLesson(item:Algorithm,locale:Locale):Algorithm {
  if(locale==="fr")return item;
  if(item.slug==="tableau-tri"){
    return {...item,
-     name:locale==="en"?"ARRAY · SORT":"جدول · ترتيب",
+     name:item.name,
      title:locale==="en"?"Selection sort":"الترتيب بالاختيار",
      summary:locale==="en"?"Sort an array using selection sort in ascending or descending order.":"رتّب جدولًا بالاختيار تصاعديًا أو تنازليًا.",
      principle:locale==="en"?"On each pass, find the greatest remaining item and swap it into position. Reverse the result for ascending order.":"في كل دورة نجد أكبر عنصر متبقٍ ونبدّله مع العنصر الحالي، ثم نعكس النتيجة للترتيب التصاعدي.",
@@ -421,7 +421,7 @@ export function localizeLesson(item:Algorithm,locale:Locale):Algorithm {
  }
  const x=translations[locale][item.slug];
  if(!x)return item;
- return {...item,name:x.name,title:x.title,category:x.category,summary:x.summary,
+ return {...item,name:item.name,title:x.title,category:x.category,summary:x.summary,
   principle:x.principle,example:x.example,limits:x.limits,
   code_sections:item.code_sections.map((s,i)=>({...s,title:x.sections[i]?.[0]??s.title,note:x.sections[i]?.[1]??s.note})),
   inputs:item.inputs.map((f,i)=>({...f,label:x.inputs[i]?.[0]??f.label,hint:x.inputs[i]?.[1]??f.hint}))};

@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({params, searchParams}:Props):Promise<Metadata>{
  const {slug}=await params; const {m}=await searchParams;
  const locale=await getServerLocale();
- const {lessons,methods}=await getPublicCatalog();
+ const {lessons,methods}=await getPublicCatalog(locale);
  const raw=lessons.find(item=>item.slug===slug);
  const a=raw&&localizeLesson(raw,locale);
  const selected=methods.find(item=>item.id===m && item.topic_slug===slug);
@@ -24,7 +24,7 @@ export async function generateMetadata({params, searchParams}:Props):Promise<Met
 export default async function AlgorithmPage({params,searchParams}:Props){
  const {slug}=await params; const {m}=await searchParams;
  const locale=await getServerLocale();
- const {lessons,methods}=await getPublicCatalog();
+ const {lessons,methods}=await getPublicCatalog(locale);
  const raw=lessons.find(item=>item.slug===slug); if(!raw)notFound();
  const a=localizeLesson(raw,locale);
  const related=methods.filter(item=>item.topic_slug===slug);
@@ -55,7 +55,7 @@ export default async function AlgorithmPage({params,searchParams}:Props){
       </Link>)}
     </div>
   </section>
-  {locale!=="fr" && (!builtIn || selected) && <p className="translation-note">{tr(locale,"Contenu pédagogique dans sa langue de publication.")}</p>}
+  {locale!=="fr" && (!builtIn || selected) && selected?.translation_locale!==locale && <p className="translation-note">{tr(locale,"Contenu pédagogique dans sa langue de publication.")}</p>}
   {staticTri ? <LessonTabs algorithm={localizeLesson(tableauTriLesson,locale)}/> :
     selected ? <CommunityLessonTabs key={selected.id} method={selected}/> : <LessonTabs algorithm={a}/>}
   <div className="lesson-disclaimer"><ShieldCheck size={19}/><p>

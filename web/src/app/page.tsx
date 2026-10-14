@@ -8,7 +8,7 @@ import { tr } from "@/lib/translations";
 export const dynamic = "force-dynamic";
 export default async function Home() {
   const locale=await getServerLocale();
-  const {lessons,methods} = await getPublicCatalog();
+  const {lessons,methods} = await getPublicCatalog(locale);
   const cards = [...lessons].sort((a,b)=>a.name.localeCompare(b.name,"fr")).slice(0, 6);
   return <>
     <section className="hero shell">

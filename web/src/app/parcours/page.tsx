@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Parcours() {
   const locale=await getServerLocale();
-  const { lessons } = await getPublicCatalog();
+  const { lessons } = await getPublicCatalog(locale);
   const paths = getSchoolPaths(lessons);
 
   return <div className="shell inner-page">

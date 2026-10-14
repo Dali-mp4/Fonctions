@@ -14,6 +14,7 @@ import { FunctionTestsEditor } from "@/components/function-tests-editor";
 import { type EditableTest, type FunctionSchema, type Parameter, type ValueType,
   testsFromDatabase, validateTestCases } from "@/lib/test-contract";
 import { ReviewerWorkspace } from "@/components/reviewer-workspace";
+import { TranslationReviewQueue } from "@/components/translation-review-queue";
 import { PublicationManagement } from "@/components/publication-management";
 import { RevisionHistory } from "@/components/revision-history";
 import type { DraftRunResult } from "@/lib/draft-runner";
@@ -412,6 +413,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       runHint={!editing ? "Crée et enregistre un brouillon pour tester Python." :
         !pristine ? "Enregistre les modifications avant de relancer les tests." : "Exécution isolée · NumPy et random disponibles"}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
+    {(role === "reviewer" || role === "owner") && <TranslationReviewQueue/>}
     {role === "owner" && <PublicationManagement/>}
     {role === "owner" && <TeamRoles/>}
   </div>;

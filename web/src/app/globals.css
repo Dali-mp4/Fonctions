@@ -268,3 +268,16 @@
 .mobile-account-link{display:none}
 @media(max-width:600px){.header-login{display:none}.main-nav.open .mobile-account-link{display:block}.header-inner{gap:9px}.language-switch{margin-inline-start:auto}.mobile-menu{margin-inline-start:0;margin-left:0}}
 [dir="rtl"] .mobile-menu{margin-inline-start:0}
+
+/* Human review for generated educational translations. */
+.translation-review{margin-top:35px}
+.translation-card{min-width:0;overflow-wrap:anywhere}
+.translation-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:15px}
+.translation-head h3{margin-bottom:6px}
+.translation-pair{display:grid;gap:9px;margin:16px 0;padding-top:15px;border-top:1px solid #32394c}
+.translation-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.translation-columns label{display:grid;align-content:start;gap:6px;color:#bfc7d8;font-size:12px}
+.translation-columns textarea,.translation-columns input{width:100%;background:#111726;color:#edf0fa;border:1px solid #4c546e;border-radius:9px;padding:11px;min-width:0;font:inherit;font-size:14px;line-height:1.5}
+.translation-columns textarea:focus,.translation-columns input:focus{outline:2px solid #a48fff;outline-offset:2px}
+.translation-source{white-space:pre-wrap;background:#101624;border:1px solid #2c3548;border-radius:9px;padding:11px;min-height:44px;color:#dce1ed;font-size:14px;line-height:1.5}
+@media(max-width:720px){.translation-columns{grid-template-columns:minmax(0,1fr)}}

@@ -17,7 +17,8 @@
     "test:account": "node --test tests/account-management.test.mjs",
     "test:google": "node --test tests/google-oauth.test.mjs",
     "test:public": "node --experimental-strip-types --test tests/public-presentation.test.mjs",
-    "test:i18n": "node --experimental-strip-types --test tests/i18n.test.mjs"
+    "test:i18n": "node --experimental-strip-types --test tests/i18n.test.mjs",
+    "test:translations": "node --experimental-strip-types --test tests/translation-review.test.mjs"
   },
   "dependencies": {
     "next": "^16.0.0",

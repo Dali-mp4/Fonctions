@@ -49,6 +49,12 @@ export function ReviewerWorkspace({userId}:{userId:string}) {
     if(e)setError(e.message);else{
       setNotice(t("Méthode approuvée et publiée dans El biblioteque."));
       setCheckedById(p=>({...p,[r.id]:false}));await refresh();
+      // The database queues both locales on publication. This immediate
+      // generation is best effort; pending jobs can be retried in Studio.
+      void Promise.allSettled((["en","ar"] as const).map(locale=>fetch("/api/translations/generate",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({revision_id:r.id,locale}),
+      })));
     }
     setBusy(null);
   }

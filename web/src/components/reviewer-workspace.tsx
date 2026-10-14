@@ -39,12 +39,12 @@ export function ReviewerWorkspace({userId}:{userId:string}) {
     if(r.created_by===userId||!checkedById[r.id]||r.test_status!=="passed"){
       setError("Vérifie le code et les tests d'un autre auteur avant d'approuver.");return;
     }
-    if(!window.confirm("Approuver cette version ? Elle sera publiée en base, puis visible dans le catalogue lors de la Phase 5."))return;
+    if(!window.confirm("Approuver et publier cette méthode dans El biblioteque. ?"))return;
     const sb=browserSupabase();if(!sb)return;
     setBusy(r.id);
     const {error:e}=await sb.rpc("approve_revision",{p_revision:r.id,p_expected_edit_seq:r.edit_seq});
     if(e)setError(e.message);else{
-      setNotice("Version approuvée en base. L'intégration au catalogue public viendra en Phase 5.");
+      setNotice("Méthode approuvée et publiée dans El biblioteque.");
       setCheckedById(p=>({...p,[r.id]:false}));await refresh();
     }
     setBusy(null);

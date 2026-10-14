@@ -70,7 +70,7 @@ export function withApprovedChapters(originals: Algorithm[], methods: MethodReco
     additional.push({
       slug: method.topic_slug, name: method.topic_title, title: method.topic_title,
       category: method.category, level: method.school_level, method: "base",
-      collection: "community", icon: "📚",
+      collection: "general", icon: "📚",
       summary: method.topic_summary || method.explanation.slice(0, 180),
       principle: method.lesson_content?.principle || method.explanation,
       example: method.lesson_content?.example || "", limits: method.lesson_content?.limits || "",

@@ -119,12 +119,12 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
       </div>
     </section>}
     {tab==="code" && <section className="tab-body" role="tabpanel">
-      <div className="code-intro"><h2>Du pseudo-code au Python.</h2><p>Code testé dans Modal puis approuvé par un relecteur indépendant.</p></div>
+      <div className="code-intro"><h2>Du pseudo-code au Python.</h2><p>Explore les étapes et comprends le raisonnement de cette méthode.</p></div>
       <div className="sections-list">{sections.map((sec,i)=><details className="code-section" key={`${sec.title}-${i}`} open={i===0}>
         <summary><span><small>{String(i+1).padStart(2,"0")}</small> {sec.title}</span><ChevronDown size={20}/></summary>
         <div className="code-columns">
           <div><div className="snippet-title"><span>ALGORITHME / PSEUDO-CODE</span></div><pre><code>{sec.pseudocode || "Non fourni"}</code></pre></div>
-          <div><div className="snippet-title"><span>PYTHON APPROUVÉ</span></div><pre><code>{sec.python || "Non fourni"}</code></pre></div>
+          <div><div className="snippet-title"><span>PYTHON</span></div><pre><code>{sec.python || "Non fourni"}</code></pre></div>
         </div>{sec.note && <p className="snippet-note">{sec.note}</p>}
       </details>)}</div>
       <p className="method-security-note"><ShieldCheck size={17}/> Les exécutions se font uniquement dans un sandbox isolé, soumis à des quotas.</p>

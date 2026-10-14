@@ -19,7 +19,9 @@ test("same three tabs in community method experience, never execute contributor 
   const s=read("src/components/community-lesson-tabs.tsx");
   for(const label of ["Essayer", "Comprendre", "Algorithme & Python"])assert.ok(s.includes(label));
   assert.doesNotMatch(s,/eval\(|new Function\(|\/api\/v1\/algorithms\/\$\{/);
-  assert.match(s,/nouvelle exécution/);
+  assert.match(s,/\/api\/v1\/methods\/\$\{m.id\}\/run/);
+  assert.match(s,/browserSupabase/);
+  assert.match(s,/session\.access_token/);
   assert.match(read("src/app/methode/[id]/page.tsx"),/redirect\(`/);
   assert.match(read("src/app/methode/[id]/page.tsx"),/if\(!method\) notFound\(\)/);
 });
@@ -47,4 +49,32 @@ test("migration 007 preserves migration 006 and adds versioned content with revi
   assert.match(studio,/p_lesson_content: lesson/);
   assert.match(studio,/makeLessonContent\(/);
   assert.match(read("src/components/reviewer-workspace.tsx"),/review-lesson-preview/);
+});
+
+
+test("new chapters stay private and metered public sandbox demands approval", () => {
+  const sql=read("../supabase/migrations/008_public_execution_chapters_tableau.sql");
+  assert.match(sql,/state='pending'/);
+  assert.match(sql,/CREATE FUNCTION public\.create_chapter_lesson/);
+  assert.match(sql,/public\.revision_has_verified_tests/);
+  assert.match(sql,/pg_advisory_xact_lock/);
+  assert.match(sql,/created_at > now\(\)-interval '1 day'/);
+  assert.match(sql,/security_invoker=true/);
+  assert.match(sql,/t.state='published'/);
+  assert.doesNotMatch(sql,/GRANT INSERT ON public\.public_method_runs TO authenticated/);
+  const studio=read("src/components/studio-client.tsx");
+  assert.match(studio,/create_chapter_lesson/);
+  assert.match(studio,/p_chapter_title/);
+  const catalog=read("src/lib/public-catalog-model.ts");
+  assert.match(catalog,/withApprovedChapters/);
+});
+test("tableau tri is its own Base variant and original classroom exercise has no sort",()=>{
+  const lessons=JSON.parse(read("src/data/seed-algorithms.json"));
+  const base=lessons.find(x=>x.slug==="tableau");
+  assert.equal(base.inputs.length,1);
+  assert.equal(base.code_sections.length,4);
+  assert.ok(!base.code_sections.some(x=>/tri par sélection/i.test(x.title)));
+  assert.match(read("src/app/algorithme/[slug]/page.tsx"),/tableau-tri/);
+  assert.match(read("src/lib/tableau-tri.ts"),/Tri par sélection/);
+  assert.match(read("../api/app/main.py"),/tableau-tri/);
 });

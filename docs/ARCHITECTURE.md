@@ -92,3 +92,21 @@ removes a public contribution; detail pages resolve only active revisions.
 ### Phase 5 refinement — consistent pedagogy, protected execution
 
 Migration 007 augments each immutable reviewed revision with an atomically saved `lesson_content` JSON object (principle, example, limits, code sections). Approved alternatives now render within the original topic, using the original lesson's three tabs. Existing published revisions are backfilled from previously stored fields and retain their publication status. Library still uses anonymous RLS and `security_invoker` view, avoiding private drafts. The original seven classroom executors are never replaced. Contributor-public `Essayer` displays stored educational examples only, without real-time execution; a separate secured sandbox service would be needed to accept arbitrary public values.
+
+### Phase 5 extension: metered student execution + chapter moderation
+
+Public contributed methods remain authored/tested/independently approved
+revisions with a frozen publication pointer. Student-supplied JSON **inputs
+only** are accepted through an opt-in JWT-authenticated FastAPI endpoint;
+no source substitution, no raw eval, no untrusted execution on the API host.
+The SQL RPC checks approved status and original test evidence, enforces
+atomic global and per-user quotas before allocating fresh Modal sandboxes,
+and blocks paid anonymous runs. Production launch requires billing ceilings
+and abuse controls beyond these starter quotas.
+
+Topics created by contributors start private and pending, visible only to
+their author and reviewers. Creating the topic and the first draft is atomic.
+Approval of an independently reviewed tested method promotes the chapter;
+withdrawal hides its only public method without removing original records.
+TABLEAU's original display method and selection-sort Base variant use distinct
+trusted classroom UI and bounded execution inputs, never a forged approval.

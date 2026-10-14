@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { mergeOriginalLessons, selectPublishedMethods } from "../src/lib/public-catalog-model.ts";
+import { mergeOriginalLessons, selectPublishedMethods, withApprovedChapters } from "../src/lib/public-catalog-model.ts";
 const read=(p)=>readFileSync(p,"utf8");
 const seed=JSON.parse(read("src/data/seed-algorithms.json"));
 
@@ -43,4 +43,20 @@ test("public route never runs contributed Python and withdrawn methods 404",()=>
   assert.match(server,/persistSession: false/);
   assert.match(server,/cache: "no-store"/);
   assert.match(algo,/LessonTabs algorithm=\{a\}/);
+});
+
+
+test("new concept appears only after its active approved method is in public view",()=>{
+ const base=seed;
+ const entry={id:"5eb33ae3-3d68-4af5-bce0-63e1e3727b72",
+ topic_slug:"recherche-binaire",topic_title:"Recherche binaire",category:"Algorithmique",
+ school_level:"3ème Info",method_type:"base",title:"Recherche dichotomique",
+ explanation:"Rechercher dans un tableau trié.",pseudocode:"rechercher",
+ python_code:"def recherche(t,x): return False",reviewed_at:"2026-10-14T00:00:00Z",
+ topic_summary:"Chercher un élément par division successive.",lesson_content:null};
+ const methods=selectPublishedMethods([entry]);
+ const catalog=withApprovedChapters(base,methods);
+ assert.equal(catalog.length,8);
+ assert.equal(catalog.at(-1).slug,"recherche-binaire");
+ assert.deepEqual(withApprovedChapters(base,[]),base);
 });

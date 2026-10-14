@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { ArrowUpRight, BookOpen, Zap } from "lucide-react";
 import type { Algorithm } from "@/lib/catalog";

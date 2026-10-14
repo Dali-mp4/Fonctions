@@ -961,6 +961,160 @@ Object.assign(extra,{
     "مدخلات غير صحيحة"
   ]
 });
+Object.assign(extra,{
+  "Oui": [
+    "Yes",
+    "نعم"
+  ],
+  "En attente": [
+    "Pending",
+    "قيد الانتظار"
+  ],
+  "Enregistrement…": [
+    "Saving…",
+    "جارٍ الحفظ…"
+  ],
+  "Demander le changement d'e-mail": [
+    "Request email change",
+    "طلب تغيير البريد الإلكتروني"
+  ],
+  "Envoi…": [
+    "Sending…",
+    "جارٍ الإرسال…"
+  ],
+  "Mise à jour…": [
+    "Updating…",
+    "جارٍ التحديث…"
+  ],
+  "Suppression…": [
+    "Deleting…",
+    "جارٍ الحذف…"
+  ],
+  "Ton identité Google est associée à ce compte. Les paramètres de Google se gèrent également chez Google.": [
+    "Your Google identity is linked to this account. Google settings are managed through Google.",
+    "هويتك في Google مرتبطة بهذا الحساب. يمكن إدارة إعداداتها عبر Google."
+  ],
+  "Tu peux choisir Continuer avec Google depuis la page de connexion après avoir activé ce fournisseur dans Supabase Auth.": [
+    "You can choose Continue with Google on the sign-in page after enabling Google in Supabase Auth.",
+    "يمكنك اختيار المتابعة باستخدام Google من صفحة الدخول بعد تفعيل Google في Supabase Auth."
+  ],
+  "Supprime ton compte sans validation administrative. Ton accès, ton e-mail et ton nom d'affichage seront effacés. Les cours, les méthodes et les décisions de relecture restent conservés sans identité personnelle liée.": [
+    "You can delete your account without administrator approval. Your login, email and display name will be erased. Lessons, methods and review decisions remain without a linked personal identity.",
+    "يمكنك حذف حسابك دون موافقة المسؤول. سيُحذف الوصول إلى حسابك وبريدك الإلكتروني واسم العرض. ستبقى الدروس والطرق وقرارات المراجعة دون ربطها بهويتك الشخصية."
+  ],
+  "Par sécurité, reconnecte-toi dans les 15 minutes précédant cette opération. La suppression est irréversible. Les contenus que tu as créés restent visibles s'ils ont été approuvés.": [
+    "For security, sign in again within 15 minutes before this action. Account deletion cannot be undone. Your approved educational content stays available.",
+    "للأمان، سجّل الدخول من جديد خلال 15 دقيقة قبل هذه العملية. لا يمكن التراجع عن الحذف. سيبقى محتواك التعليمي المعتمد متاحًا."
+  ],
+  "Tu avais une demande en attente. Tu peux maintenant supprimer directement ton compte.": [
+    "You had a pending request. You can now delete your account directly.",
+    "كان لديك طلب معلّق. يمكنك الآن حذف حسابك مباشرة."
+  ],
+  "Je comprends que mon compte sera supprimé et que mes contributions pédagogiques et leurs validations resteront conservées sous un auteur pseudonyme.": [
+    "I understand that my account will be deleted and that my educational contributions and their approvals will be kept under a pseudonymous author.",
+    "أفهم أن حسابي سيُحذف، وستبقى مساهماتي التعليمية وموافقات مراجعتها محفوظة باسم مستعار."
+  ],
+  "Recopie ton e-mail pour confirmer": [
+    "Re-enter your email to confirm",
+    "أعد كتابة بريدك للتأكيد"
+  ],
+  "Veuillez patienter...": [
+    "Please wait...",
+    "يرجى الانتظار..."
+  ],
+  "Redirection vers Google…": [
+    "Redirecting to Google…",
+    "جارٍ الانتقال إلى Google…"
+  ],
+  "toi@exemple.com": [
+    "you@example.com",
+    "you@example.com"
+  ],
+  "Configure Supabase pour activer les comptes.": [
+    "Configure Supabase to enable accounts.",
+    "قم بإعداد Supabase لتفعيل الحسابات."
+  ],
+  "L'authentification n'est pas encore configurée.": [
+    "Authentication is not configured yet.",
+    "لم يتم إعداد المصادقة بعد."
+  ],
+  "Compte créé. Vérifie ta boîte mail si la confirmation est activée.": [
+    "Account created. Check your email if confirmation is enabled.",
+    "تم إنشاء الحساب. تحقق من بريدك إذا كان تأكيد البريد مفعّلًا."
+  ],
+  "La connexion Google a échoué.": [
+    "Google sign-in failed.",
+    "فشل تسجيل الدخول عبر Google."
+  ],
+  "Ton compte a été supprimé. Tes anciennes contributions restent consultables sans identité personnelle liée.": [
+    "Your account has been deleted. Your earlier contributions remain available without a linked personal identity.",
+    "تم حذف حسابك. تبقى مساهماتك السابقة متاحة دون ربطها بهويتك الشخصية."
+  ],
+  "Connexion Google interrompue. Réessaie ou utilise ton e-mail.": [
+    "Google sign-in was interrupted. Try again or use email.",
+    "انقطع تسجيل الدخول عبر Google. حاول مجددًا أو استخدم بريدك الإلكتروني."
+  ],
+  "Google a annulé ou refusé la connexion. Vérifie que ton compte Google est autorisé comme utilisateur de test si l'application est en mode Test.": [
+    "Google denied or cancelled the sign-in. If the OAuth app is in testing mode, check that your account is an allowed test user.",
+    "رفض Google أو ألغى تسجيل الدخول. إذا كان التطبيق في وضع الاختبار، تحقق من إضافة حسابك إلى المستخدمين المسموح لهم."
+  ],
+  "Google ou Supabase a refusé l'autorisation. Vérifie le fournisseur Google, l'écran de consentement et ses URL de redirection.": [
+    "Google or Supabase rejected authorization. Check your Google provider, consent screen and redirect URLs.",
+    "رفض Google أو Supabase الترخيص. تحقق من إعداد Google وشاشة الموافقة وروابط إعادة التوجيه."
+  ],
+  "Le retour de Google ne contenait pas de code de connexion. Vérifie l'URL de rappel Supabase et les URL autorisées.": [
+    "Google's callback did not include an authorization code. Check Supabase callback and allowed redirect URLs.",
+    "لم تتضمن عودة Google رمز ترخيص. تحقق من عنوان العودة في Supabase والروابط المسموحة."
+  ],
+  "La configuration Supabase de cette application est incomplète.": [
+    "The application's Supabase configuration is incomplete.",
+    "إعداد Supabase لهذا التطبيق غير مكتمل."
+  ],
+  "La vérification de sécurité PKCE a échoué. Ouvre http://localhost:3000, utilise le même nom d'hôte durant la connexion et autorise les cookies.": [
+    "PKCE verification failed. Use http://localhost:3000 consistently and allow browser cookies.",
+    "فشل تحقق PKCE الأمني. استخدم http://localhost:3000 طوال عملية الدخول واسمح بملفات تعريف الارتباط."
+  ],
+  "Supabase n'a pas pu valider la connexion Google. Vérifie les URL de rappel, puis recommence depuis la page de connexion.": [
+    "Supabase could not validate the Google sign-in. Check callback URLs and try again.",
+    "لم يتمكن Supabase من التحقق من دخول Google. افحص روابط العودة وحاول من جديد."
+  ],
+  "Une erreur inattendue est survenue pendant la connexion Google. Consulte le terminal Next.js.": [
+    "An unexpected Google sign-in error occurred. Check the Next.js server logs.",
+    "حدث خطأ غير متوقع في دخول Google. راجع سجلات خادم Next.js."
+  ],
+  "Rôle :": [
+    "Role:",
+    "الدور:"
+  ],
+  "La base de données protège tes brouillons privés.": [
+    "Your private drafts are protected by the database.",
+    "تحمي قاعدة البيانات مسوداتك الخاصة."
+  ],
+  "Structures de données": [
+    "Data structures",
+    "هياكل البيانات"
+  ],
+  "Mathématiques": [
+    "Mathematics",
+    "الرياضيات"
+  ],
+  "Traitement": [
+    "Processing",
+    "المعالجة"
+  ],
+  "Algorithmes scolaires & Python": [
+    "School algorithms & Python",
+    "خوارزميات مدرسية وبايثون"
+  ],
+  "Retrouve les modules d'algorithmique selon ton niveau.": [
+    "Browse algorithm modules for your level.",
+    "تصفح وحدات الخوارزميات حسب مستواك."
+  ],
+  "Voir les cas de test": [
+    "View test cases",
+    "عرض حالات الاختبار"
+  ]
+});
 export function tr(locale:Locale, french:string):string {
  if(locale==="fr")return french;
  if(extra[french])return extra[french][locale==="en"?0:1];

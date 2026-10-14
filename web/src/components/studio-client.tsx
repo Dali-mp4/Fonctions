@@ -339,10 +339,27 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       <div className="studio-form">
         <h2><FileCode2 size={22}/>{editing ? "Modifier le brouillon" : "Nouvelle implémentation"}</h2>
         <p className="studio-hint">{editing ? "Tu peux enregistrer plusieurs fois, sans créer de doublon." : "Choisis un concept et rédige ta méthode."}</p>
-        <label>Concept<select value={topic} disabled={Boolean(editing) || busy} onChange={e => setTopic(e.target.value)}>
-          {algorithms.map(a => <option key={a.slug} value={a.slug}>{a.name} — {a.title}</option>)}
+        <label>Concept<select value={topic} disabled={Boolean(editing) || busy || creatingChapter} onChange={e=>setTopic(e.target.value)}>
+          {allTopics.map(t=><option key={t.slug} value={t.slug}>{t.title}{t.state==="pending"?" · En attente de validation":""}</option>)}
         </select></label>
-        <label>Type<select value={method} disabled={Boolean(editing) || busy} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
+        {!editing && <label className="review-approval-check">
+          <input type="checkbox" checked={creatingChapter} disabled={busy}
+            onChange={e=>{setCreatingChapter(e.target.checked);if(e.target.checked)setMethod("base");}}/>
+          Proposer un nouveau concept / chapitre
+        </label>}
+        {!editing && creatingChapter && <section className="studio-lesson-fields" aria-label="Nouveau chapitre">
+          <h3>Nouveau chapitre</h3>
+          <p>Ce chapitre reste privé jusqu'à l'approbation de sa première méthode par un autre relecteur.</p>
+          <label>Identifiant URL<input maxLength={40} value={chapterSlug}
+            onChange={e=>setChapterSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,""))}
+            placeholder="ex. recherche-dichotomique"/></label>
+          <label>Nom<input maxLength={100} value={chapterTitle} onChange={e=>setChapterTitle(e.target.value)}/></label>
+          <label>Catégorie<input maxLength={80} value={chapterCategory} onChange={e=>setChapterCategory(e.target.value)}/></label>
+          <label>Niveau scolaire<input maxLength={80} value={chapterLevel} onChange={e=>setChapterLevel(e.target.value)}/></label>
+          <label>Présentation<textarea rows={3} maxLength={500} value={chapterSummary}
+            onChange={e=>setChapterSummary(e.target.value)} placeholder="Explique le chapitre en au moins 20 caractères."/></label>
+        </section>}
+        <label>Type<select value={method} disabled={Boolean(editing) || busy || creatingChapter} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
           <option value="base">Base — méthode scolaire</option><option value="advanced">Advanced — autre méthode</option>
         </select></label>
         <label>Titre<input maxLength={160} placeholder="Ex. PGCD avec Euclide" value={title} onChange={e => setTitle(e.target.value)}/></label>

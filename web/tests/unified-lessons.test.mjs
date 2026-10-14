@@ -40,6 +40,8 @@ test("migration 007 preserves migration 006 and adds versioned content with revi
   assert.match(sql,/security_invoker=true/);
   assert.match(sql,/r\.id=i\.published_revision_id/);
   assert.match(sql,/r\.reviewer_id <> r\.created_by/);
+  assert.match(sql,/p_lesson_content->'sections'->0->>'python' IS DISTINCT FROM p_python_code/);
+  assert.match(sql,/IS DISTINCT FROM draft.python_code/);
   assert.doesNotMatch(sql,/GRANT (?:INSERT|UPDATE|DELETE) ON public\.published_methods/);
   const studio=read("src/components/studio-client.tsx");
   assert.match(studio,/p_lesson_content: lesson/);

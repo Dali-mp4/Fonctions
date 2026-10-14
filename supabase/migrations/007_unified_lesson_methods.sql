@@ -55,6 +55,11 @@ CREATE FUNCTION public.create_draft_lesson_with_contract(
 DECLARE revision_id uuid;
 BEGIN
   PERFORM public.validate_lesson_content(p_lesson_content);
+  IF p_lesson_content->'sections'->0->>'python' IS DISTINCT FROM p_python_code
+    OR p_lesson_content->'sections'->0->>'pseudocode'
+       IS DISTINCT FROM coalesce(p_pseudocode,'') THEN
+    RAISE EXCEPTION 'La section principale doit être le Python et pseudo-code réellement enregistrés';
+  END IF;
   revision_id := public.create_draft_with_contract(
     p_topic_slug,p_method_type,p_title,p_explanation,p_pseudocode,
     p_python_code,p_entry_function,p_input_schema,p_test_cases);
@@ -72,6 +77,11 @@ CREATE FUNCTION public.update_draft_lesson_with_contract(
 DECLARE next_seq integer;
 BEGIN
   PERFORM public.validate_lesson_content(p_lesson_content);
+  IF p_lesson_content->'sections'->0->>'python' IS DISTINCT FROM p_python_code
+    OR p_lesson_content->'sections'->0->>'pseudocode'
+       IS DISTINCT FROM coalesce(p_pseudocode,'') THEN
+    RAISE EXCEPTION 'La section principale doit être le Python et pseudo-code réellement enregistrés';
+  END IF;
   next_seq := public.update_draft_with_contract(
     p_revision,p_expected_edit_seq,p_title,p_explanation,p_pseudocode,
     p_python_code,p_entry_function,p_input_schema,p_test_cases);
@@ -100,6 +110,12 @@ BEGIN
     RAISE EXCEPTION 'Only your saved, unchanged draft with verified passing tests can be submitted';
   END IF;
   PERFORM public.validate_lesson_content(draft.lesson_content);
+  IF draft.lesson_content->'sections'->0->>'python'
+       IS DISTINCT FROM draft.python_code
+    OR draft.lesson_content->'sections'->0->>'pseudocode'
+       IS DISTINCT FROM draft.pseudocode THEN
+    RAISE EXCEPTION 'La fiche soumise ne correspond pas au code testé';
+  END IF;
   UPDATE public.revisions SET status='submitted', submitted_at=now(),
     reviewer_id=NULL, review_note=NULL, reviewed_at=NULL, updated_at=now()
     WHERE id=p_revision;

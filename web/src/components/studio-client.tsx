@@ -73,7 +73,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [title, setTitle] = useState("");
   const [explanation, setExplanation] = useState("");
   const [principle, setPrinciple] = useState("");
-  const [example, setExample] = useState("PGCD(24, 18) = 6");
+  const [example, setExample] = useState("");
   const [limits, setLimits] = useState("");
   const [sectionTitle, setSectionTitle] = useState("Fonction principale");
   const [extraSections, setExtraSections] = useState<LessonSection[]>([]);
@@ -125,7 +125,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   function newDraft() {
     setEditing(null); setEditSeq(1); setTopic("pgcd"); setMethod("advanced");
     setTitle(""); setExplanation(""); setPseudocode(""); setCode(sample);
-    setPrinciple(""); setExample("PGCD(24, 18) = 6"); setLimits("");
+    setPrinciple(""); setExample(""); setLimits("");
     setSectionTitle("Fonction principale"); setExtraSections([]);
     setEntry("pgcd"); setParameters(initialParameters.map(p => ({...p})));
     setReturns("int"); setTestCases(initialTests.map(t => ({...t})));

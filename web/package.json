@@ -13,7 +13,8 @@
     "test:runner": "node --test tests/draft-runner.test.mjs",
     "test:review": "node --test tests/review-workflow.test.mjs",
     "test:catalog": "node --experimental-strip-types --test tests/public-catalog.test.mjs",
-    "test:unified": "node --experimental-strip-types --test tests/unified-lessons.test.mjs"
+    "test:unified": "node --experimental-strip-types --test tests/unified-lessons.test.mjs",
+    "test:account": "node --test tests/account-management.test.mjs"
   },
   "dependencies": {
     "next": "^16.0.0",

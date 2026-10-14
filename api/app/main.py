@@ -5,6 +5,8 @@ resource-limited sandbox will be required before draft testing is enabled.
 """
 from typing import Any
 from pathlib import Path
+import os
+from urllib.parse import urlparse
 
 # Load api/.env locally; real deployments should inject server secrets.
 try:
@@ -26,10 +28,21 @@ from .algorithms.schema import AlgorithmInputError
 app = FastAPI(title="Algo Fi Jib API", version="0.2.0")
 app.include_router(contributor_runner_router)
 app.include_router(public_method_router)
-# For local development only; set real production CORS via a gateway or strict origins.
+# Only the explicitly configured HTTPS website can make cross-origin
+# browser requests. Keep loopback addresses for local development.
+allowed_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+website_origin = os.getenv("WEB_APP_ORIGIN", "").strip().rstrip("/")
+parsed_origin = urlparse(website_origin)
+if (website_origin and parsed_origin.scheme == "https"
+        and parsed_origin.netloc and not parsed_origin.path
+        and not parsed_origin.params and not parsed_origin.query
+        and not parsed_origin.fragment and not parsed_origin.username
+        and not parsed_origin.password):
+    allowed_origins.append(website_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Authorization"],

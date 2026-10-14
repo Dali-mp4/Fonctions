@@ -23,7 +23,7 @@ export function LoginForm(){
         provider_error: "Google ou Supabase a refusé l'autorisation. Vérifie le fournisseur Google, l'écran de consentement et ses URL de redirection.",
         missing_code: "Le retour de Google ne contenait pas de code de connexion. Vérifie l'URL de rappel Supabase et les URL autorisées.",
         missing_config: "La configuration Supabase de cette application est incomplète.",
-        pkce_missing: "La vérification de sécurité PKCE a échoué. Ouvre http://localhost:3000, utilise le même nom d'hôte durant la connexion et autorise les cookies.",
+        pkce_missing: "La vérification de sécurité PKCE a échoué. Réessaie depuis l’adresse officielle du site, sans changer de domaine, avec les cookies autorisés.",
         exchange_failed: "Supabase n'a pas pu valider la connexion Google. Vérifie les URL de rappel, puis recommence depuis la page de connexion.",
         unexpected: "Une erreur inattendue est survenue pendant la connexion Google. Consulte le terminal Next.js.",
       };

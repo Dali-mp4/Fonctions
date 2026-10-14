@@ -20,9 +20,13 @@ import type { DraftRunResult } from "@/lib/draft-runner";
 import { TeamRoles } from "@/components/team-roles";
 import { type LessonContent, type LessonSection, makeLessonContent, validateLessonContent } from "@/lib/lesson-content";
 
+function LocalizedEditorLoading(){
+  const t=useTranslate();
+  return <div className="editor-loading">{t("Chargement de l'éditeur...")}</div>;
+}
 const Monaco = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
-  loading: () => <div className="editor-loading">{t("Chargement de l'éditeur...")}</div>,
+  loading: () => <LocalizedEditorLoading/>,
 });
 
 const sample = `def pgcd(a, b):\n    while b != 0:\n        a, b = b, a % b\n    return a`;

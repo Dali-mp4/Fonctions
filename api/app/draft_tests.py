@@ -8,6 +8,7 @@ import asyncio
 import hashlib
 import json
 import os
+from time import perf_counter
 from uuid import UUID
 
 import httpx
@@ -73,18 +74,27 @@ async def run_draft_tests(revision_id: UUID, request: TestDraftRequest, authoriz
     if not token:
         raise HTTPException(401, "Connexion requise")
 
+    started = perf_counter()
+    timing: dict[str, int] = {}
+    def milliseconds(since: float) -> int:
+        return round((perf_counter() - since) * 1000)
+
     url = os.environ["SUPABASE_URL"].rstrip("/")
     async with httpx.AsyncClient(base_url=url, timeout=12.0) as client:
         headers = api_headers(token)
         # Validate the token against Supabase Auth, not untrusted client metadata.
+        tick = perf_counter()
         person = await get_json(client, "GET", "/auth/v1/user", headers)
+        timing["auth"] = milliseconds(tick)
         uid = person.get("id") if isinstance(person, dict) else None
         if not uid:
             raise HTTPException(401, "Session invalide")
+        tick = perf_counter()
         rows = await get_json(client, "GET", "/rest/v1/revisions", headers, params={
             "select": "id,created_by,edit_seq,status,python_code,entry_function,input_schema,test_cases",
             "id": f"eq.{revision_id}", "created_by": f"eq.{uid}", "limit": "1",
         })
+        timing["load"] = milliseconds(tick)
         if not isinstance(rows, list) or not rows:
             raise HTTPException(404, "Brouillon introuvable ou non autorisé")
         revision = rows[0]
@@ -96,9 +106,11 @@ async def run_draft_tests(revision_id: UUID, request: TestDraftRequest, authoriz
             raise HTTPException(422, str(exc)) from exc
 
         # Reserve a quota slot atomically on the database BEFORE paying for a sandbox.
+        tick = perf_counter()
         run_id = await get_json(client, "POST", "/rest/v1/rpc/reserve_draft_test", headers, payload={
             "p_revision": str(revision_id), "p_edit_seq": request.edit_seq,
         })
+        timing["reserve"] = milliseconds(tick)
         if not isinstance(run_id, str):
             raise HTTPException(503, "Réservation du test invalide")
 
@@ -110,11 +122,13 @@ async def run_draft_tests(revision_id: UUID, request: TestDraftRequest, authoriz
         outcome = "error"
         evidence = {"runner": "modal-sandbox-v1", "run_id": run_id, "code_sha256": content_hash,
                     "edit_seq": request.edit_seq, "case_count": len(cases), "results": []}
+        modal_phases: dict[str, int] = {}
+        tick = perf_counter()
         try:
             async with _slots:
                 outputs = await asyncio.wait_for(asyncio.to_thread(
                     execute_in_modal, code=code, entry=entry,
-                    inputs=[tc["inputs"] for tc in cases],
+                    inputs=[tc["inputs"] for tc in cases], timings=modal_phases,
                 ), timeout=45)
             report = compare_outputs(outputs, cases, ret)
             outcome = "passed" if all(item["passed"] for item in report) else "failed"
@@ -122,9 +136,14 @@ async def run_draft_tests(revision_id: UUID, request: TestDraftRequest, authoriz
         except (RunnerUnavailable, RunnerFailure, ValueError, asyncio.TimeoutError) as exc:
             evidence["error"] = ("Temps limite du service dépassé" if isinstance(exc, asyncio.TimeoutError)
                                  else str(exc))[:300]
+        finally:
+            timing["sandbox"] = milliseconds(tick)
+        # Timings are diagnostic only, not a new authority for trusted results.
+        evidence["timings_ms"] = {**timing, "modal_phases": dict(modal_phases)}
 
         # Privileged access stays on the API host and is NEVER sent into Modal.
         # SQL checks reserved run, current edit_seq and status atomically.
+        tick = perf_counter()
         try:
             await get_json(client, "POST", "/rest/v1/rpc/finish_draft_test", api_headers(token, privileged=True), payload={
                 "p_run_id": run_id, "p_revision": str(revision_id), "p_edit_seq": request.edit_seq,
@@ -133,5 +152,8 @@ async def run_draft_tests(revision_id: UUID, request: TestDraftRequest, authoriz
         except HTTPException as exc:
             raise HTTPException(409 if exc.status_code == 422 else exc.status_code,
                                 "Brouillon modifié pendant le test, ou résultat non enregistré. Recharge la page.") from exc
+        timing["finish"] = milliseconds(tick)
+        timing["total"] = milliseconds(started)
         return {"run_id": run_id, "status": outcome, "case_count": len(cases),
-                "results": evidence["results"], "error": evidence.get("error")}
+                "results": evidence["results"], "error": evidence.get("error"),
+                "timings_ms": {**timing, "modal_phases": dict(modal_phases)}}

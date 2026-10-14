@@ -22,6 +22,15 @@ test("the UI keeps JSON format checks and Python runtime reports separate", () =
   assert.match(editor, /runResult\.results\.map/);
 });
 
+test("Phase 3C shows real elapsed seconds and measured server timings", () => {
+  const editor = file("web/src/components/function-tests-editor.tsx");
+  const model = file("web/src/lib/draft-runner.ts");
+  assert.match(editor, /performance\.now\(\)/);
+  assert.match(editor, /python-run-progress/);
+  assert.match(editor, /timings_ms\.total/);
+  assert.match(model, /modal_phases/);
+});
+
 test("server credentials and sandbox code aren't in frontend env samples", () => {
   const env = file("web/.env.example");
   assert.doesNotMatch(env, /SERVICE_ROLE_KEY|MODAL_TOKEN_SECRET|SUPABASE_SECRET_KEY/);

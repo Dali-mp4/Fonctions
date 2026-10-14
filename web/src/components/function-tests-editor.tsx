@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, FlaskConical, LockKeyhole, Plus, Trash2, PlayCircle } from "lucide-react";
 import type { DraftRunResult } from "@/lib/draft-runner";
 import {
@@ -24,6 +24,16 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
     runResult: DraftRunResult | null; runError: string; runHint: string;
   }) {
   const [showReport, setShowReport] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  useEffect(() => {
+    if (!running) return;
+    const began = performance.now();
+    setElapsedSeconds(0);
+    const interval = window.setInterval(
+      () => setElapsedSeconds(Math.floor((performance.now() - began) / 1000)), 1000,
+    );
+    return () => window.clearInterval(interval);
+  }, [running]);
   const report = useMemo(() => validateTestCases(entry, code, { parameters, returns }, tests), [entry, code, parameters, returns, tests]);
   const successful = report.cases.filter(c => c.ok).length;
   function setParameter(index: number, prop: keyof Parameter, value: string) {
@@ -90,11 +100,29 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
       </button>
       <span className="test-execution-note"><LockKeyhole size={15}/> {runHint}</span>
     </div>
+    {running && <div className="python-run-progress" role="status" aria-label="Exécution Python sécurisée en cours">
+      <span className="python-run-spinner" aria-hidden="true"/>
+      <div><strong>Exécution dans un sandbox sécurisé…</strong>
+        <p>Chaque lancement prépare un environnement isolé. Patiente pendant la vérification des tests.</p>
+        {elapsedSeconds >= 20 && <p>La préparation du sandbox peut prendre plusieurs secondes.</p>}
+      </div>
+      <strong className="python-run-elapsed" aria-hidden="true">{elapsedSeconds} s</strong>
+    </div>}
     {runError && <div className="run-error" role="alert">{runError}</div>}
     {runResult && <section className="python-test-results" aria-live="polite">
       <h3>Résultats réels du sandbox {runResult.status === "passed" ? "— Tous les tests réussis" :
         runResult.status === "failed" ? "— Certains tests ont échoué" : "— Erreur d'exécution"}</h3>
       {runResult.error && <p className="preflight-bad">{runResult.error}</p>}
+      {(typeof runResult.timings_ms?.total === "number" || typeof runResult.timings_ms?.sandbox === "number") && <div className="python-run-timings">
+        {typeof runResult.timings_ms?.total === "number" &&
+          <span>Durée serveur : <strong>{(runResult.timings_ms.total / 1000).toFixed(1)} s</strong></span>}
+        {typeof runResult.timings_ms.sandbox === "number" &&
+          <span>Sandbox : <strong>{(runResult.timings_ms.sandbox / 1000).toFixed(1)} s</strong></span>}
+        {typeof runResult.timings_ms.modal_phases?.create === "number" &&
+          <span>Démarrage Modal : <strong>{(runResult.timings_ms.modal_phases.create / 1000).toFixed(1)} s</strong></span>}
+        {typeof runResult.timings_ms.modal_phases?.execute === "number" &&
+          <span>Python : <strong>{(runResult.timings_ms.modal_phases.execute / 1000).toFixed(1)} s</strong></span>}
+      </div>}
       <p className="studio-hint">{runResult.results.filter(r => r.passed).length}/{runResult.case_count} tests réussis. Résultats liés au brouillon enregistré, pas aux modifications non sauvegardées.</p>
       {runResult.results.map((item, i) => <div key={`${i}-${item.label}`} className="python-test-row">
         {item.passed ? <CheckCircle2 size={17} className="python-test-ok"/> : <AlertCircle size={17} className="python-test-fail"/>}

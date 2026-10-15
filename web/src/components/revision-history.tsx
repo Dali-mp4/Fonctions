@@ -1,4 +1,5 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 import { useState } from "react";
 import { Clock3, History } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -32,7 +33,7 @@ export function RevisionHistory({revisionId}:{revisionId:string}) {
     </button>
     {open&&<div className="review-history-panel">
       {loading&&<p className="studio-hint">Chargement…</p>}
-      {error&&<p className="run-error" role="alert">{error}</p>}
+      <TransientAlert message={error} tone="error"/>
       {!loading&&!error&&events.length===0&&<p className="studio-hint">Aucun événement enregistré.</p>}
       {!loading&&!error&&events.map((evt,i)=><div className="review-history-event" key={`${evt.created_at}-${i}`}>
         <Clock3 size={14}/><div><strong>{evt.action==="draft_created" && typeof evt.details?.source_archived_revision==="string" ?

@@ -67,24 +67,10 @@ def test_tableau_defaults_to_display_without_sorting():
     assert all("Tri, passage" not in step for step in result["steps"])
 
 
-def test_tableau_sort_is_optional_and_preserves_original():
-    values = [8, 3, 11, 2, 5]
-    for order, expected in [
-        ("Croissant", [2, 3, 5, 8, 11]),
-        ("Décroissant", [11, 8, 5, 3, 2]),
-    ]:
-        r = client.post(
-            "/api/v1/algorithms/tableau-tri/run",
-            json={"inputs": {"tableau": values, "ordre": order}},
-        )
-        assert r.status_code == 200
-        assert r.json()["value"] == expected
-        assert "Tri facultatif" in r.json()["note"]
-    assert values == [8, 3, 11, 2, 5]
-    assert client.post(
-        "/api/v1/algorithms/tableau-tri/run",
-        json={"inputs": {"tableau": values, "ordre": "Inconnu"}},
-    ).status_code == 422
+def test_tableau_tri_is_not_a_builtin_route():
+    r = client.post("/api/v1/algorithms/tableau-tri/run",
+                    json={"inputs": {"tableau": [3,1,2], "ordre": "Croissant"}})
+    assert r.status_code == 404
 
 
 def test_classroom_tableau_content_prioritizes_array_basics():
@@ -131,9 +117,8 @@ def test_tableau_display_does_not_allow_sorting_input():
     assert r.status_code == 422
 
 
-def test_tableau_sort_is_separate_trusted_base_variant():
-    r = client.post("/api/v1/algorithms/tableau-tri/run",
-                    json={"inputs": {"tableau": [3, 1, 2], "ordre": "Croissant"}})
-    assert r.status_code == 200
-    assert r.json()["value"] == [1, 2, 3]
-    assert "tableau-tri" not in {x["slug"] for x in client.get("/api/v1/algorithms").json()}
+def test_numpy_array_and_matrix_backing():
+    from app.algorithms.tableau import afficher_tableau
+    from app.algorithms.matrice import remplir_matrice
+    assert afficher_tableau([3, 1]) == [3, 1]
+    assert remplir_matrice([[1, 2], [3, 4]]) == [[1, 2], [3, 4]]

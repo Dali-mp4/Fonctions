@@ -253,3 +253,13 @@
 .path-modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin:18px 0 23px}
 .path-modules>a{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:10px 12px;border:1px solid #343c56;border-radius:10px;background:#151b2b;color:#e5e8f6;text-decoration:none;font-size:13px;font-weight:600}
 .path-modules>a:hover,.path-modules>a:focus-visible{border-color:#ae92ff;color:#fff}
+
+/* Owner-only chapter title editor */
+.chapter-rename-form{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin:16px 0 20px;padding:17px;background:#101626;border:1px solid #37405b;border-radius:11px;width:100%}
+.chapter-rename-form label{display:flex;flex-direction:column;align-items:flex-start;gap:9px;width:100%;font-size:12px;font-weight:700;color:#d7dcf2}
+.chapter-rename-form label svg{display:inline;vertical-align:middle;color:#b69cff}
+.chapter-rename-form input{width:100%;min-width:0;background:#101421;border:1px solid #4b5268;color:#f1eefc;border-radius:9px;padding:12px;font-size:14px;outline:none}
+.chapter-rename-form input:focus{border-color:#b395ff}
+.chapter-rename-form p{margin:0;font-size:12px;line-height:1.6;color:#adb7c9}
+.chapter-rename-form button{display:inline-flex;align-items:center;gap:8px}
+.chapter-rename-form button:disabled{opacity:.45;cursor:not-allowed}

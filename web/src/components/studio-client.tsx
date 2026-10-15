@@ -307,11 +307,20 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   }
 
   async function deleteImplementation(draft: Revision) {
-    if (role !== "owner" || deleteImplementationBusy !== null) return;
+    const isOwner = role === "owner";
+    if (!isOwner && !(["contributor","reviewer"].includes(role) &&
+        draft.created_by === userId &&
+        ["draft","changes_requested","submitted"].includes(draft.status) &&
+        draft.implementations.published_revision_id === null &&
+        !drafts.some(other => other.implementations.id === draft.implementations.id &&
+          ["archived","published"].includes(other.status)))) return;
+    if (deleteImplementationBusy !== null) return;
     const implementationId = draft.implementations.id;
     const confirmation = window.prompt(
       "SUPPRESSION DÉFINITIVE : " + draft.title + "\n" +
-      "Cette action supprime TOUTE l'implémentation (brouillons, versions approuvées, tests, publications et historique).\n" +
+      (isOwner
+        ? "Cette action supprime TOUTE l'implémentation (versions, tests, publications et historique).\n"
+        : "Cette action supprime définitivement ta méthode privée, ses tests et sa soumission éventuelle.\n") +
       "Si c'est la dernière implémentation d'un chapitre ajouté, le chapitre sera supprimé aussi.\n" +
       "Les 7 chapitres fondateurs sont conservés.\n\n" +
       "Saisis SUPPRIMER pour confirmer :"
@@ -322,9 +331,10 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setDeleteImplementationBusy(implementationId);
     setSubmitError(""); setSubmitNotice(""); setError(""); setOk("");
     try {
-      const { data, error: rpcError } = await sb.rpc("owner_delete_implementation", {
-        p_implementation: implementationId, p_confirmation: "SUPPRIMER",
-      });
+      const { data, error: rpcError } = await sb.rpc(
+        isOwner ? "owner_delete_implementation" : "delete_own_private_implementation",
+        { p_implementation: implementationId, p_confirmation: "SUPPRIMER" },
+      );
       if (rpcError) throw rpcError;
       if (editing && drafts.some(r => r.id === editing && r.implementations.id === implementationId)) {
         newDraft();
@@ -455,7 +465,13 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
             </h3>
             <div className="draft-grid">{rows.filter(d=>d.implementations.topics.slug===chapterSlug).map(d => {
         return <div key={d.id} className={`draft-card${editing === d.id ? " selected" : ""}`}>
-          {role === "owner" && <button type="button" className="draft-card-delete"
+          {(role === "owner" || (["contributor","reviewer"].includes(role) &&
+            d.created_by === userId &&
+            ["draft","changes_requested","submitted"].includes(d.status) &&
+            d.implementations.published_revision_id === null &&
+            !drafts.some(other => other.implementations.id === d.implementations.id &&
+              ["archived","published"].includes(other.status)))) &&
+            <button type="button" className="draft-card-delete"
             aria-label={`Supprimer définitivement l'implémentation : ${d.title}`}
             title="Supprimer l'implémentation et toutes ses versions"
             disabled={busy || running || submitBusy !== null || resumeBusy !== null ||
@@ -606,7 +622,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         !pristine ? "Enregistre les modifications avant de relancer les tests." : "Exécution isolée · NumPy et random disponibles"}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
     {role === "owner" && <PublicationManagement userId={userId} onResumeArchived={(r) => void resumeArchived(r)} resumingId={resumeBusy}/>}
-    {role === "owner" && <ContentManagement onRenamed={()=>{void refresh();}}/>}
+    {["contributor","reviewer","owner"].includes(role) &&
+      <ContentManagement userId={userId} role={role} onRenamed={()=>{void refresh();}}/>}
     {role === "owner" && <TeamRoles/>}
   </div>;
 }

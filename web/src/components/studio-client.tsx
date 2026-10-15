@@ -14,10 +14,10 @@ import { type EditableTest, type FunctionSchema, type Parameter, type ValueType,
   testsFromDatabase, validateTestCases } from "@/lib/test-contract";
 import { ReviewerWorkspace } from "@/components/reviewer-workspace";
 import { PublicationManagement } from "@/components/publication-management";
-import { RevisionHistory } from "@/components/revision-history";
 import type { DraftRunResult } from "@/lib/draft-runner";
 import { TeamRoles } from "@/components/team-roles";
 import { ContentManagement } from "@/components/content-management";
+import { chaptersForStudioRevisions, selectStudioRevisions } from "@/lib/studio-revision-visibility";
 import { type LessonContent, type LessonSection, makeLessonContent, validateLessonContent } from "@/lib/lesson-content";
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), {
@@ -65,6 +65,7 @@ const statusName: Record<Revision["status"], string> = {
 
 export function StudioClient({ user, userId, role }: { user: string; userId: string; role: string }) {
   const [drafts, setDrafts] = useState<Revision[]>([]);
+  const [chapterFilter, setChapterFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [listError, setListError] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
@@ -127,7 +128,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     if(!te && rows) setAllTopics(rows);
     const { data, error: queryError } = await sb.from("revisions")
       .select(revisionWithImplementationSelect)
-      .eq("created_by", userId).order("updated_at", { ascending: false }).limit(100);
+      .eq("created_by", userId).order("updated_at", { ascending: false }).limit(500);
     if (queryError) setListError(queryError.message);
     else { setDrafts((data ?? []) as unknown as Revision[]); setListError(""); }
     setLoading(false);
@@ -435,33 +436,24 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     } finally { setResumeBusy(null); }
   }
 
-  return <div className="studio-workspace">
-    <div className="studio-banner"><ShieldCheck size={20}/><div>
-      <strong>{user}</strong><small>Rôle : {role} · La base de données protège tes brouillons privés.</small>
-    </div></div>
+  const { privateRevisions, publishedRevisions } = selectStudioRevisions(drafts);
+  const chapterOptions = chaptersForStudioRevisions([...privateRevisions, ...publishedRevisions]);
+  const byChapter = (r: Revision) =>
+    chapterFilter === "all" || r.implementations.topics.slug === chapterFilter;
+  const privateFiltered = privateRevisions.filter(byChapter);
+  const publishedFiltered = publishedRevisions.filter(byChapter);
 
-    <div className="studio-panel-head">
-      <h2><FolderOpen size={21}/> Mes implémentations</h2>
-      <div className="studio-actions">
-        <button className="btn btn-muted" disabled={loading} onClick={() => void refresh()}><RefreshCw size={15}/> Actualiser</button>
-        <button className="btn btn-primary" onClick={newDraft}><Plus size={15}/> Nouvelle</button>
-      </div>
-    </div>
-    {listError && <p className="run-error" role="alert">{listError}. Vérifie que les migrations Supabase ont été appliquées.</p>}
-    {submitError && <p className="run-error" role="alert">{submitError}</p>}
-    {submitNotice && <p className="success-strip" role="status">{submitNotice}</p>}
-    {loading ? <p className="studio-hint">Chargement des brouillons…</p> : drafts.length === 0
-      ? <p className="studio-hint">Tu n&apos;as pas encore de brouillon. Crée ta première méthode ci-dessous.</p>
-      : <div className="studio-chapter-groups">{Array.from(new Set(drafts.map(d =>
+  function renderChapterGroups(rows: Revision[]) {
+    return <div className="studio-chapter-groups">{Array.from(new Set(rows.map(d =>
           d.implementations.topics.slug))).sort((a,b)=>{
-            const aa=drafts.find(d=>d.implementations.topics.slug===a)?.implementations.topics.title??a;
-            const bb=drafts.find(d=>d.implementations.topics.slug===b)?.implementations.topics.title??b;
+            const aa=rows.find(d=>d.implementations.topics.slug===a)?.implementations.topics.title??a;
+            const bb=rows.find(d=>d.implementations.topics.slug===b)?.implementations.topics.title??b;
             return aa.localeCompare(bb,"fr");
           }).map(chapterSlug=><section key={chapterSlug} className="studio-chapter-group">
-            <h3>{drafts.find(d=>d.implementations.topics.slug===chapterSlug)?.implementations.topics.title??chapterSlug}
-              <small>{drafts.filter(d=>d.implementations.topics.slug===chapterSlug).length} version(s)</small>
+            <h3>{rows.find(d=>d.implementations.topics.slug===chapterSlug)?.implementations.topics.title??chapterSlug}
+              <small>{rows.filter(d=>d.implementations.topics.slug===chapterSlug).length} version(s)</small>
             </h3>
-            <div className="draft-grid">{drafts.filter(d=>d.implementations.topics.slug===chapterSlug).map(d => {
+            <div className="draft-grid">{rows.filter(d=>d.implementations.topics.slug===chapterSlug).map(d => {
         const activeVersion = drafts.find(r => r.id !== d.id &&
           r.implementations.id === d.implementations.id &&
           (editable(r) || r.status === "submitted"));
@@ -476,7 +468,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
           </button>}
           <span className="draft-meta">{d.implementations?.topics?.title ?? "Concept"} · {d.implementations?.method_type === "base" ? "Base" : "Advanced"}</span>
           <strong>{d.title}</strong>
-          <small>{statusName[d.status]} · version {d.edit_seq} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
+          <small>{statusName[d.status]} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
           {d.review_note && <p className="review-message">Retour : {d.review_note}</p>}
           {editable(d) ? <>
             <button type="button" onClick={() => openDraft(d)} disabled={busy || running || submitBusy !== null}>Ouvrir et modifier →</button>
@@ -518,9 +510,49 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
               {resumeBusy === d.id ? "Préparation…" : "Reprendre en brouillon →"}
             </button>}
           </> : <span className="studio-muted">Lecture seule · version validée</span>}
-          <RevisionHistory revisionId={d.id}/>
+          
         </div>;
-      })}</div></section>)}</div>}
+      })}</div></section>)}</div>;
+  }
+
+  return <div className="studio-workspace">
+    <div className="studio-banner"><ShieldCheck size={20}/><div>
+      <strong>{user}</strong><small>Rôle : {role} · La base de données protège tes brouillons privés.</small>
+    </div></div>
+
+    <div className="studio-panel-head">
+      <h2><FolderOpen size={21}/> Mes implémentations</h2>
+      <div className="studio-actions">
+        <button className="btn btn-muted" disabled={loading} onClick={() => void refresh()}><RefreshCw size={15}/> Actualiser</button>
+        <button className="btn btn-primary" onClick={newDraft}><Plus size={15}/> Nouvelle</button>
+      </div>
+    </div>
+    {listError && <p className="run-error" role="alert">{listError}. Vérifie que les migrations Supabase ont été appliquées.</p>}
+    {submitError && <p className="run-error" role="alert">{submitError}</p>}
+    {submitNotice && <p className="success-strip" role="status">{submitNotice}</p>}
+    <div className="studio-implementation-filter">
+      <label htmlFor="studio-chapter-filter">Filtrer par chapitre</label>
+      <select id="studio-chapter-filter" value={chapterFilter} onChange={e => setChapterFilter(e.target.value)}>
+        <option value="all">Tous les chapitres</option>
+        {chapterOptions.map(ch => <option key={ch.slug} value={ch.slug}>{ch.title}</option>)}
+      </select>
+    </div>
+    {loading ? <p className="studio-hint">Chargement des implémentations…</p> : <>
+      <section className="studio-private-implementations" aria-label="Implémentations privées">
+        <h3 className="studio-implementation-heading">Mes implémentations privées <small>{privateFiltered.length}</small></h3>
+        {privateFiltered.length ? renderChapterGroups(privateFiltered) :
+          <p className="studio-hint">{privateRevisions.length
+            ? "Aucune implémentation privée dans ce chapitre."
+            : "Aucun brouillon privé pour le moment. Crée ta première méthode ci-dessous."}</p>}
+      </section>
+      <details className="studio-published-disclosure">
+        <summary>Afficher les implémentations déjà publiées <span>{publishedFiltered.length}</span></summary>
+        <div className="studio-published-content">
+          {publishedFiltered.length ? renderChapterGroups(publishedFiltered) :
+            <p className="studio-hint">Aucune implémentation publiée pour ce chapitre.</p>}
+        </div>
+      </details>
+    </>}
 
     <div className="studio-layout" id="draft-editor">
       <div className="studio-form">

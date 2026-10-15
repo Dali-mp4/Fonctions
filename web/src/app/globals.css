@@ -279,3 +279,18 @@
 .studio-chapter-group>h3{display:flex;align-items:baseline;flex-wrap:wrap;gap:12px;
   margin:0 0 12px;font-size:17px;font-weight:800;color:#e8e3fd}
 .studio-chapter-group>h3 small{color:#a39db4;font-size:11px;font-weight:500}
+
+/* Current implementation cards with chapter filtering and collapsed published shelf. */
+.studio-implementation-filter{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0 22px}
+.studio-implementation-filter label{font-size:13px;font-weight:700;color:#c4cce1}
+.studio-implementation-filter select{min-width:210px;max-width:100%;padding:11px 14px;border:1px solid #434b66;border-radius:9px;background:#131a2b;color:#f3f1ff;font-size:13px}
+.studio-private-implementations{margin-bottom:26px}
+.studio-implementation-heading{display:flex;align-items:center;gap:11px;font-size:17px;font-weight:800;margin:5px 0 18px}
+.studio-implementation-heading small,.studio-published-disclosure summary span{font-size:12px;font-weight:700;color:#bfb1e9}
+.studio-published-disclosure{border:1px solid #39435e;border-radius:13px;background:#111729;margin-bottom:25px}
+.studio-published-disclosure summary{display:flex;align-items:center;gap:12px;padding:17px 20px;cursor:pointer;color:#e2dafb;font-size:14px;font-weight:800}
+.studio-published-disclosure summary span{margin-left:auto}
+.studio-published-disclosure[open] summary{border-bottom:1px solid #36405b}
+.studio-published-content{padding:20px}
+.studio-published-disclosure summary:focus-visible{outline:2px solid #b99fff;outline-offset:3px}
+@media(max-width:600px){.studio-implementation-filter{align-items:stretch;flex-direction:column}.studio-implementation-filter select{width:100%}.studio-published-content{padding:13px}}

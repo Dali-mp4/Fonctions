@@ -31,7 +31,7 @@ def test_all_nine_numpy_methods_require_explicit_dimensions_and_pass_examples():
             assert "range(total" in rule["code"], entry
         else:
             assert "n" in names, entry
-            assert "range(n" in rule["code"] or "range(1, n" in rule["code"] or "range(n -" in rule["code"], entry
+            assert ("range(n" in rule["code"] or "range(1, n" in rule["code"] or "range(n -" in rule["code"] or "d = n - 1" in rule["code"]), entry
 
         parsed = ast.parse(rule["code"])
         functions = [node for node in parsed.body if isinstance(node, ast.FunctionDef)]

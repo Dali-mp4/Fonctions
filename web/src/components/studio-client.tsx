@@ -451,12 +451,9 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
             return aa.localeCompare(bb,"fr");
           }).map(chapterSlug=><section key={chapterSlug} className="studio-chapter-group">
             <h3>{rows.find(d=>d.implementations.topics.slug===chapterSlug)?.implementations.topics.title??chapterSlug}
-              <small>{rows.filter(d=>d.implementations.topics.slug===chapterSlug).length} version(s)</small>
+              <small>{rows.filter(d=>d.implementations.topics.slug===chapterSlug).length} méthode(s)</small>
             </h3>
             <div className="draft-grid">{rows.filter(d=>d.implementations.topics.slug===chapterSlug).map(d => {
-        const activeVersion = drafts.find(r => r.id !== d.id &&
-          r.implementations.id === d.implementations.id &&
-          (editable(r) || r.status === "submitted"));
         return <div key={d.id} className={`draft-card${editing === d.id ? " selected" : ""}`}>
           {role === "owner" && <button type="button" className="draft-card-delete"
             aria-label={`Supprimer définitivement l'implémentation : ${d.title}`}
@@ -491,24 +488,6 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
               onClick={() => void retractSubmission(d)}>
               {resumeBusy === d.id ? "Retrait…" : "Retirer la soumission pour modifier →"}
             </button>
-          </> : d.status === "archived" && d.implementations.published_revision_id === null ? <>
-            <span className="studio-muted">Ancienne publication conservée en lecture seule.</span>
-            {activeVersion?.status === "submitted" ? <>
-              <span className="studio-muted">Une version corrigée a déjà été soumise.</span>
-              <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
-                onClick={() => void retractSubmission(activeVersion)}>
-                Retirer la soumission pour modifier →
-              </button>
-            </> : activeVersion && editable(activeVersion) ? <>
-              <span className="studio-muted">Un brouillon de remplacement existe déjà.</span>
-              <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
-                onClick={() => { openDraft(activeVersion); document.getElementById("draft-editor")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
-                Ouvrir le brouillon existant →
-              </button>
-            </> : <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
-              onClick={() => void resumeArchived(d)}>
-              {resumeBusy === d.id ? "Préparation…" : "Reprendre en brouillon →"}
-            </button>}
           </> : <span className="studio-muted">Lecture seule · version validée</span>}
           
         </div>;

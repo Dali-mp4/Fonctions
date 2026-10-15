@@ -1,4 +1,5 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 import { useCallback, useEffect, useState } from "react";
 import { PencilLine, RefreshCw, Save } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -67,8 +68,8 @@ export function ContentManagement({ userId, role, onRenamed }: { userId: string;
     <p className="studio-hint">Tu peux renommer {role==="owner"?"les chapitres personnalisés":"tes propres chapitres privés"}.
       Les chapitres déjà publiés restent protégés. La corbeille sur les cartes permet de supprimer tes méthodes privées.
       Un chapitre privé créé par toi disparaît si tu supprimes sa dernière implémentation.</p>
-    {error&&<p className="run-error" role="alert">{error}</p>}
-    {notice&&<p className="success-strip" role="status">{notice}</p>}
+    <TransientAlert message={error} tone="error"/>
+    <TransientAlert message={notice} tone="success"/>
     {loading?<p className="studio-hint">Chargement des chapitres…</p>:!module?
       <p className="studio-hint">Aucun chapitre à renommer pour le moment.</p>:<>
       <label>Choisir le chapitre à renommer

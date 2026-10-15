@@ -1,4 +1,5 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 
 import { useState } from "react";
 import { UserCog } from "lucide-react";
@@ -33,8 +34,8 @@ export function TeamRoles(){
       </select></label>
       <button className="btn btn-primary" disabled={busy} onClick={()=>void changeRole()}>{busy?"Modification…":"Attribuer le rôle"}</button>
     </div>
-    {error&&<p className="run-error" role="alert">{error}</p>}
-    {ok&&<p className="success-strip" role="status">{ok}</p>}
+    <TransientAlert message={error} tone="error"/>
+    <TransientAlert message={ok} tone="success"/>
     <p className="studio-hint">Le rôle propriétaire n&apos;est jamais attribuable depuis cette interface.</p>
   </section>;
 }

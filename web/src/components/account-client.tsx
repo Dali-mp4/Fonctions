@@ -1,9 +1,10 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, CheckCircle2, KeyRound, Laptop, LogOut, Mail, ShieldCheck, UserRound, Users } from "lucide-react";
+import { AlertTriangle, KeyRound, Laptop, LogOut, Mail, ShieldCheck, UserRound, Users } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
 
 type AccountProps = {
@@ -130,8 +131,8 @@ export function AccountClient(props: AccountProps) {
         <Link className="btn btn-muted account-studio-link" href="/studio">Ouvrir El studio. →</Link>}
     </div>
     <div className="account-main">
-      {error && <div className="run-error" role="alert">{error}</div>}
-      {notice && <div className="success-strip" role="status"><CheckCircle2 size={16}/>{notice}</div>}
+      <TransientAlert message={error} tone="error"/>
+      <TransientAlert message={notice} tone="success"/>
 
       <section className="account-panel" aria-labelledby="account-profile">
         <h2 id="account-profile"><UserRound size={21}/> Profil</h2>
@@ -218,7 +219,7 @@ export function AccountClient(props: AccountProps) {
       {props.role==="owner" && <section className="account-panel" aria-labelledby="account-owner-requests">
         <h2 id="account-owner-requests"><Users size={21}/> Demandes antérieures</h2>
         <p>Ces demandes datent de l'ancien système. Les membres peuvent désormais supprimer directement leur compte après confirmation et reconnexion récente.</p>
-        {queueError && <p className="run-error" role="alert">{queueError}</p>}
+        <TransientAlert message={queueError} tone="error"/>
         {queueLoading ? <p>Chargement…</p> :
           pendingRequests.length ? <div className="account-requests">{pendingRequests.map(request=>
             <div key={request.user_id}><code>{request.user_id}</code><span>{formatDate(request.requested_at)}</span></div>)}</div> :

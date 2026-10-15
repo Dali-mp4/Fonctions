@@ -294,3 +294,13 @@
 .studio-published-content{padding:20px}
 .studio-published-disclosure summary:focus-visible{outline:2px solid #b99fff;outline-offset:3px}
 @media(max-width:600px){.studio-implementation-filter{align-items:stretch;flex-direction:column}.studio-implementation-filter select{width:100%}.studio-published-content{padding:13px}}
+
+/* Accessible, automatically fading action feedback across the website. */
+.transient-alert{display:flex;align-items:flex-start;gap:10px;max-width:100%;margin:12px 0;transition:opacity 550ms ease,transform 550ms ease}
+.transient-alert>svg{flex:none;margin-top:1px}
+.transient-alert__text{flex:1;min-width:0;overflow-wrap:anywhere}
+.transient-alert__dismiss{flex:none;margin:-5px -6px -5px 4px;min-width:30px;min-height:30px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:inherit;cursor:pointer;opacity:.78}
+.transient-alert__dismiss:hover{background:rgba(255,255,255,.10);opacity:1}
+.transient-alert__dismiss:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.transient-alert--fading{opacity:0;transform:translateY(-5px);pointer-events:none}
+@media(prefers-reduced-motion:reduce){.transient-alert{transition:none}.transient-alert--fading{transform:none}}

@@ -101,6 +101,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [submitBusy, setSubmitBusy] = useState<string | null>(null);
   const [resumeBusy, setResumeBusy] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState<string | null>(null);
+  const [deleteImplementationBusy, setDeleteImplementationBusy] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [submitNotice, setSubmitNotice] = useState("");
 
@@ -304,6 +305,38 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     } finally { setSubmitBusy(null); }
   }
 
+  async function deleteImplementation(draft: Revision) {
+    if (role !== "owner" || deleteImplementationBusy !== null) return;
+    const implementationId = draft.implementations.id;
+    const confirmation = window.prompt(
+      "SUPPRESSION DÉFINITIVE : " + draft.title + "\n" +
+      "Cette action supprime TOUTE l'implémentation (brouillons, versions approuvées, tests, publications et historique).\n" +
+      "Si c'est la dernière implémentation d'un chapitre ajouté, le chapitre sera supprimé aussi.\n" +
+      "Les 7 chapitres fondateurs sont conservés.\n\n" +
+      "Saisis SUPPRIMER pour confirmer :"
+    );
+    if (confirmation !== "SUPPRIMER") return;
+    const sb = browserSupabase();
+    if (!sb) { setSubmitError("Supabase non configuré."); return; }
+    setDeleteImplementationBusy(implementationId);
+    setSubmitError(""); setSubmitNotice(""); setError(""); setOk("");
+    try {
+      const { data, error: rpcError } = await sb.rpc("owner_delete_implementation", {
+        p_implementation: implementationId, p_confirmation: "SUPPRIMER",
+      });
+      if (rpcError) throw rpcError;
+      if (editing && drafts.some(r => r.id === editing && r.implementations.id === implementationId)) {
+        newDraft();
+      }
+      await refresh();
+      setSubmitNotice(data?.chapter_deleted
+        ? "Implémentation et son chapitre désormais vide supprimés définitivement."
+        : "Implémentation et toutes ses versions supprimées définitivement. Le chapitre est conservé.");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "La suppression a échoué.");
+    } finally { setDeleteImplementationBusy(null); }
+  }
+
   async function deleteDraftRevision(draft: Revision) {
     if (role !== "owner" || draft.status !== "draft" ||
         !drafts.some(other => other.id !== draft.id &&
@@ -424,6 +457,14 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
           r.implementations.id === d.implementations.id &&
           (editable(r) || r.status === "submitted"));
         return <div key={d.id} className={`draft-card${editing === d.id ? " selected" : ""}`}>
+          {role === "owner" && <button type="button" className="draft-card-delete"
+            aria-label={`Supprimer définitivement l'implémentation : ${d.title}`}
+            title="Supprimer l'implémentation et toutes ses versions"
+            disabled={busy || running || submitBusy !== null || resumeBusy !== null ||
+              deleteBusy !== null || deleteImplementationBusy !== null}
+            onClick={() => void deleteImplementation(d)}>
+            <Trash2 size={17} aria-hidden="true"/>
+          </button>}
           <span className="draft-meta">{d.implementations?.topics?.title ?? "Concept"} · {d.implementations?.method_type === "base" ? "Base" : "Advanced"}</span>
           <strong>{d.title}</strong>
           <small>{statusName[d.status]} · version {d.edit_seq} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
@@ -543,7 +584,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         !pristine ? "Enregistre les modifications avant de relancer les tests." : "Exécution isolée · NumPy et random disponibles"}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
     {role === "owner" && <PublicationManagement userId={userId} onResumeArchived={(r) => void resumeArchived(r)} resumingId={resumeBusy}/>}
-    {role === "owner" && <ContentManagement onDeleted={()=>{newDraft();void refresh();}} onRenamed={()=>{void refresh();}}/>}
+    {role === "owner" && <ContentManagement onRenamed={()=>{void refresh();}}/>}
     {role === "owner" && <TeamRoles/>}
   </div>;
 }

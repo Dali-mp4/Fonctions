@@ -263,3 +263,12 @@
 .chapter-rename-form p{margin:0;font-size:12px;line-height:1.6;color:#adb7c9}
 .chapter-rename-form button{display:inline-flex;align-items:center;gap:8px}
 .chapter-rename-form button:disabled{opacity:.45;cursor:not-allowed}
+
+/* Owner actions live in the top-right corner of each implementation card. */
+.draft-card{position:relative;padding-right:58px}
+.draft-card .draft-card-delete{position:absolute;top:13px;right:13px;display:inline-flex;align-items:center;justify-content:center;
+ width:33px;height:33px;border:1px solid #5c3f4a;background:#2a1c29;color:#ffc4cf;border-radius:9px;
+ padding:0;cursor:pointer;transition:background .15s,border-color .15s}
+.draft-card .draft-card-delete:hover{background:#512632;border-color:#e78b9d;text-decoration:none}
+.draft-card .draft-card-delete:focus-visible{outline:2px solid #f3a3bc;outline-offset:3px}
+.draft-card .draft-card-delete:disabled{opacity:.45;cursor:not-allowed}

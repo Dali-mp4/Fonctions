@@ -321,7 +321,9 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       (isOwner
         ? "Cette action supprime TOUTE l'implémentation (versions, tests, publications et historique).\n"
         : "Cette action supprime définitivement ta méthode privée, ses tests et sa soumission éventuelle.\n") +
-      "Si c'est la dernière implémentation d'un chapitre ajouté, le chapitre sera supprimé aussi.\n" +
+      (isOwner
+        ? "Si c'est la dernière implémentation d'un chapitre ajouté, le chapitre sera supprimé aussi.\n"
+        : "Si tu as créé le chapitre et qu'il devient vide, il sera aussi supprimé.\n") +
       "Les 7 chapitres fondateurs sont conservés.\n\n" +
       "Saisis SUPPRIMER pour confirmer :"
     );

@@ -1,4 +1,5 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 import { useState } from "react";
 import Link from "next/link";
 import { BookOpenText, Code2, Play, ChevronDown, ShieldCheck } from "lucide-react";
@@ -102,7 +103,7 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
           <p className="studio-hint">Connexion requise · 2 exécutions/minute et 15/jour par compte · quota global de protection. <Link href="/connexion">Se connecter</Link></p>
         </div>
         <div className="panel output-panel"><div className="panel-title"><ShieldCheck size={18}/> Résultat réel</div>
-          {error ? <div className="run-error" role="alert">{error}</div> : didRun ?
+          {error ? <TransientAlert message={error} tone="error"/> : didRun ?
             <div className="result-success"><strong>EXÉCUTION RÉUSSIE</strong><ResultDisplay slug={m.topic_slug} value={output}/></div> :
             <div className="result-idle"><span className="idle-icon"><Play size={23}/></span><strong>Prêt à tester ?</strong>
               <p>Entre tes valeurs et lance une exécution Python isolée.</p></div>}

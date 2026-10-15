@@ -1,4 +1,5 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 import { useCallback, useEffect, useState } from "react";
 import { ArchiveRestore, BookCheck, FilePenLine, RefreshCw, ShieldAlert } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -42,8 +43,8 @@ export function PublicationManagement({userId,onResumeArchived,resumingId}:{
       <button className="btn btn-muted" onClick={()=>void refresh()} disabled={loading||busy!==null}><RefreshCw size={15}/> Actualiser</button>
     </div>
     <p className="studio-hint">Les méthodes approuvées rejoignent immédiatement la bibliothèque. Retirer une publication la rend indisponible sans effacer son historique. Pour la modifier, crée un nouveau brouillon depuis la version archivée ; elle devra être testée et approuvée à nouveau.</p>
-    {error&&<p className="run-error" role="alert">{error}</p>}
-    {notice&&<p className="success-strip" role="status">{notice}</p>}
+    <TransientAlert message={error} tone="error"/>
+    <TransientAlert message={notice} tone="success"/>
     {loading?<p className="studio-hint">Chargement…</p>:versions.length===0?
       <div className="studio-empty">Aucune version publiée ou archivée.</div>:
       <div className="review-grid">{versions.map(r=><article className="review-card" key={r.id}>

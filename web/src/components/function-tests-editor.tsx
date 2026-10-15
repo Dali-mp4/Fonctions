@@ -49,7 +49,10 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
       <h2 id="tests-title"><FlaskConical size={21}/> Définition et cas de test</h2>
       <span className="test-pill">TESTS PYTHON ISOLÉS</span>
     </div>
-    <p className="studio-hint">Déclare le nom de la fonction, les paramètres et le résultat attendu. Les valeurs sont enregistrées avec ton brouillon. Cette vérification contrôle <strong>le format</strong>, pas le résultat du code Python.</p>
+    <p className="studio-hint">Déclare les paramètres et le résultat attendu. Le site transforme automatiquement les tableaux JSON en tableaux NumPy avant l'exécution.
+      Tu peux utiliser directement <code>T[i]</code> ou <code>M[i, j]</code> et retourner le tableau sans <code>.tolist()</code>.
+      Saisis <code>n</code> pour un tableau ou une matrice carrée, et <code>l</code>, <code>c</code> pour une matrice rectangulaire.
+      Cette vérification contrôle <strong>le format</strong>, pas le résultat du code Python.</p>
 
     <div className="test-definition">
       <div className="test-definition-head">

@@ -43,8 +43,9 @@ BEGIN
    IF r.entry_function IN ('parcours_tableau','maximum_tableau','recherche_sequentielle',
     'recherche_dichotomique','tri_selection','tri_bulles','tri_selection_matrice',
     'tri_bulles_matrice','somme_diagonale','somme_matrice','meilleur_eleve') THEN
-     IF jsonb_array_length(tests)<3 THEN RAISE EXCEPTION 'Missing third test for %',r.entry_function; END IF;
-     tests:=jsonb_set(tests,'{2,inputs}',CASE r.entry_function
+     -- Some original drafts have only two cases. Replace their last case.
+     IF jsonb_array_length(tests)=0 THEN RAISE EXCEPTION 'No tests for %',r.entry_function; END IF;
+     tests:=jsonb_set(tests,ARRAY[(jsonb_array_length(tests)-1)::text,'inputs'],CASE r.entry_function
        WHEN 'parcours_tableau' THEN '{"t":[0],"n":1}'::jsonb
        WHEN 'maximum_tableau' THEN '{"t":[0],"n":1}'::jsonb
        WHEN 'recherche_sequentielle' THEN '{"t":[2],"n":1,"valeur":3}'::jsonb
@@ -56,7 +57,7 @@ BEGIN
        WHEN 'somme_diagonale' THEN '{"matrice":[[0]],"n":1}'::jsonb
        WHEN 'somme_matrice' THEN '{"matrice":[[0]],"l":1,"c":1}'::jsonb
        ELSE '{"noms":"A","notes":[10],"n":1}'::jsonb END,true);
-     tests:=jsonb_set(tests,'{2,expected}',CASE r.entry_function
+     tests:=jsonb_set(tests,ARRAY[(jsonb_array_length(tests)-1)::text,'expected'],CASE r.entry_function
        WHEN 'parcours_tableau' THEN '[0]'::jsonb
        WHEN 'maximum_tableau' THEN '0'::jsonb
        WHEN 'recherche_sequentielle' THEN '-1'::jsonb

@@ -40,6 +40,16 @@ def normalize(value, depth=0):
     raise TypeError("Type de résultat non JSON pris en charge")
 
 
+def infer_array_parameters(args):
+    """The input contracts only allow 1D/2D numeric arrays, not arbitrary lists."""
+    parameters = []
+    for name, value in args.items():
+        if isinstance(value, list):
+            is_matrix = bool(value) and all(isinstance(row, list) for row in value)
+            parameters.append({"name": name, "type": "list[list[int]]" if is_matrix else "list[int]"})
+    return parameters
+
+
 def check_dimensions(args, parameters):
     """School bounds, checked before calling the student's function."""
     for param in parameters:
@@ -101,8 +111,9 @@ def main():
                     np.random.seed(0)
                 except ImportError:
                     pass
-                check_dimensions(args, parameters)
-                result = normalize(fn(**prepare_inputs(args, parameters)))
+                case_params = parameters or infer_array_parameters(args)
+                check_dimensions(args, case_params)
+                result = normalize(fn(**prepare_inputs(args, case_params)))
                 results.append({"ok": True, "value": result})
             except BaseException as exc:
                 results.append({"ok": False, "error": f"{type(exc).__name__}: {str(exc)[:320]}"})

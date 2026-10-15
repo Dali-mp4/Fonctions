@@ -76,8 +76,8 @@
     "collection": "general",
     "icon": "▦",
     "summary": "Remplir et afficher une matrice d'entiers.",
-    "principle": "Une matrice est organisée en lignes et colonnes. On parcourt ses cellules à l'aide de deux indices.",
-    "example": "[[1, 2, 3], [4, 5, 6]] → 2 lignes × 3 colonnes",
+    "principle": "Une matrice est organisée en lignes et colonnes. On parcourt ses cellules à l'aide de deux indices. En Python, utiliser numpy.array et M[i, j] pour accéder à une cellule.",
+    "example": "M = array([[1, 2, 3], [4, 5, 6]]) → 2 lignes × 3 colonnes",
     "tags": [
       "matrice",
       "indices",
@@ -270,8 +270,8 @@
     "collection": "general",
     "icon": "📊",
     "summary": "Comprendre la déclaration, le remplissage et l’affichage d’un tableau.",
-    "principle": "Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre.",
-    "example": "T = [8, 3, 11, 2, 5] ; T[0] = 8 ; n = 5",
+    "principle": "Un tableau contient plusieurs valeurs du même type, accessibles par leur indice. On le déclare, on remplit ses cases, puis on les affiche dans l’ordre. En Python scolaire, on crée le tableau avec numpy.array plutôt qu'une liste.",
+    "example": "T = array([8, 3, 11, 2, 5]) ; T[0] = 8 ; n = 5",
     "tags": [
       "tableau",
       "déclaration",

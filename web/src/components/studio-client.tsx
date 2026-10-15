@@ -98,6 +98,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [runError, setRunError] = useState("");
   const [running, setRunning] = useState(false);
   const [submitBusy, setSubmitBusy] = useState<string | null>(null);
+  const [resumeBusy, setResumeBusy] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [submitNotice, setSubmitNotice] = useState("");
 
@@ -301,6 +302,30 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     } finally { setSubmitBusy(null); }
   }
 
+  async function resumeArchived(draft: Revision) {
+    if (draft.status !== "archived" || draft.created_by !== userId ||
+        draft.implementations.published_revision_id !== null || resumeBusy !== null) return;
+    const sb = browserSupabase();
+    if (!sb) { setSubmitError("Supabase non configuré."); return; }
+    setResumeBusy(draft.id); setSubmitError(""); setSubmitNotice(""); setError(""); setOk("");
+    try {
+      const { data: newId, error: rpcError } = await sb.rpc("reopen_archived_revision_as_draft", {
+        p_revision: draft.id,
+      });
+      if (rpcError) throw rpcError;
+      if (typeof newId !== "string") throw new Error("Le nouveau brouillon est introuvable.");
+      const { data: newDraft, error: fetchError } = await sb.from("revisions")
+        .select(revisionWithImplementationSelect).eq("id", newId).single();
+      if (fetchError || !newDraft) throw fetchError ?? new Error("Recharge El studio pour ouvrir le brouillon.");
+      await refresh();
+      openDraft(newDraft as unknown as Revision);
+      setOk("Copie privée créée depuis la version retirée. Modifie-la, enregistre et relance les tests Python avant de soumettre.");
+      document.getElementById("draft-editor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Impossible de reprendre cette publication.");
+    } finally { setResumeBusy(null); }
+  }
+
   return <div className="studio-workspace">
     <div className="studio-banner"><ShieldCheck size={20}/><div>
       <strong>{user}</strong><small>Rôle : {role} · La base de données protège tes brouillons privés.</small>
@@ -331,11 +356,17 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
               onClick={() => void submitDraft(d)}>
               {submitBusy === d.id ? "Envoi…" : "Soumettre à la relecture →"}
             </button> : <span className="studio-muted">Réussis les tests Python avant de soumettre.</span>}
+          </> : d.status === "archived" && d.implementations.published_revision_id === null ? <>
+            <span className="studio-muted">Ancienne publication conservée en lecture seule.</span>
+            <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
+              onClick={() => void resumeArchived(d)}>
+              {resumeBusy === d.id ? "Préparation…" : "Reprendre en brouillon →"}
+            </button>
           </> : <span className="studio-muted">Lecture seule · {d.status === "submitted" ? "en attente d'un relecteur" : "version validée"}</span>}
           <RevisionHistory revisionId={d.id}/>
         </div>)}</div>}
 
-    <div className="studio-layout">
+    <div className="studio-layout" id="draft-editor">
       <div className="studio-form">
         <h2><FileCode2 size={22}/>{editing ? "Modifier le brouillon" : "Nouvelle implémentation"}</h2>
         <p className="studio-hint">{editing ? "Tu peux enregistrer plusieurs fois, sans créer de doublon." : "Choisis un concept et rédige ta méthode."}</p>
@@ -405,7 +436,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       runHint={!editing ? "Crée et enregistre un brouillon pour tester Python." :
         !pristine ? "Enregistre les modifications avant de relancer les tests." : "Exécution isolée · NumPy et random disponibles"}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
-    {role === "owner" && <PublicationManagement/>}
+    {role === "owner" && <PublicationManagement userId={userId} onResumeArchived={(r) => void resumeArchived(r)} resumingId={resumeBusy}/>}
     {role === "owner" && <TeamRoles/>}
   </div>;
 }

@@ -34,7 +34,8 @@ export function RevisionHistory({revisionId}:{revisionId:string}) {
       {error&&<p className="run-error" role="alert">{error}</p>}
       {!loading&&!error&&events.length===0&&<p className="studio-hint">Aucun événement enregistré.</p>}
       {!loading&&!error&&events.map((evt,i)=><div className="review-history-event" key={`${evt.created_at}-${i}`}>
-        <Clock3 size={14}/><div><strong>{labels[evt.action]??evt.action}</strong>
+        <Clock3 size={14}/><div><strong>{evt.action==="draft_created" && typeof evt.details?.source_archived_revision==="string" ?
+            "Brouillon repris depuis une ancienne publication" : labels[evt.action]??evt.action}</strong>
           <small>{new Date(evt.created_at).toLocaleString("fr-FR")}</small>
           {typeof evt.details?.note==="string"&&<p>{evt.details.note}</p>}
         </div>

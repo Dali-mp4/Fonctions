@@ -40,6 +40,43 @@ def normalize(value, depth=0):
     raise TypeError("Type de résultat non JSON pris en charge")
 
 
+def check_dimensions(args, parameters):
+    """School bounds, checked before calling the student's function."""
+    for param in parameters:
+        name, kind = param["name"], param["type"]
+        if kind == "list[int]" and "n" in args:
+            n = args["n"]
+            if type(n) is not int or n <= 0 or len(args[name]) != n:
+                raise ValueError("n doit être positif et correspondre au tableau.")
+        if kind == "list[list[int]]":
+            rows = args[name]
+            if "l" in args and "c" in args:
+                l, c = args["l"], args["c"]
+                if (type(l) is not int or type(c) is not int or l <= 0 or c <= 0
+                    or len(rows) != l or any(len(row) != c for row in rows)):
+                    raise ValueError("La matrice doit avoir l lignes et c colonnes, strictement positives.")
+            elif "n" in args:
+                n = args["n"]
+                if (type(n) is not int or n <= 0 or len(rows) != n
+                    or any(len(row) != n for row in rows)):
+                    raise ValueError("La matrice carrée doit avoir n lignes et n colonnes.")
+            elif rows and any(len(row) != len(rows[0]) for row in rows):
+                raise ValueError("Les lignes de la matrice doivent avoir la même taille.")
+
+
+def prepare_inputs(args, parameters):
+    """Technical adapter, inside isolated sandbox, before student code runs."""
+    if not parameters:
+        return dict(args)
+    import numpy as np
+    prepared = dict(args)
+    for param in parameters:
+        name, kind = param["name"], param["type"]
+        if kind in ("list[int]", "list[list[int]]"):
+            prepared[name] = np.array(args[name], dtype=int)
+    return prepared
+
+
 def main():
     # File output avoids trusting stdout; we suppress both stdout/stderr of user code.
     payload = json.loads(open("/tmp/afj-payload.json", encoding="utf-8").read())
@@ -48,6 +85,7 @@ def main():
     source = payload["code"]
     entry = payload["entry"]
     cases = payload["cases"]
+    parameters = payload.get("parameters", [])
     results = []
     try:
         namespace = {"__name__": "afj_contribution"}
@@ -63,7 +101,8 @@ def main():
                     np.random.seed(0)
                 except ImportError:
                     pass
-                result = normalize(fn(**args))
+                check_dimensions(args, parameters)
+                result = normalize(fn(**prepare_inputs(args, parameters)))
                 results.append({"ok": True, "value": result})
             except BaseException as exc:
                 results.append({"ok": False, "error": f"{type(exc).__name__}: {str(exc)[:320]}"})

@@ -1,21 +1,21 @@
 """Two-dimensional array initialization and display."""
 
 from .schema import AlgorithmInputError, AlgorithmResult, AlgorithmSpec, CodeSection, InputField
+from numpy import array
 
 
 def remplir_matrice(matrice: list[list[int]]) -> list[list[int]]:
-    """Construire une matrice rectangulaire à partir de ses valeurs."""
     if not matrice or not matrice[0]:
         raise AlgorithmInputError("La matrice doit contenir au moins une ligne et une colonne.")
-    largeur = len(matrice[0])
-    if any(len(ligne) != largeur for ligne in matrice):
+    c = len(matrice[0])
+    if any(len(ligne) != c for ligne in matrice):
         raise AlgorithmInputError("Toutes les lignes doivent avoir le même nombre de colonnes.")
-    resultat = [[0] * largeur for _ in range(len(matrice))]
+    source = array(matrice, dtype=int)
+    M = array([[int()] * c] * len(matrice))
     for i in range(len(matrice)):
-        for j in range(largeur):
-            resultat[i][j] = matrice[i][j]
-    return resultat
-
+        for j in range(c):
+            M[i, j] = source[i, j]
+    return M.tolist()
 
 def execute(matrice: list[list[int]]) -> AlgorithmResult:
     resultat = remplir_matrice(matrice)
@@ -28,8 +28,7 @@ def execute(matrice: list[list[int]]) -> AlgorithmResult:
     if total > 16:
         steps.append(f"… {total - 16} cellules supplémentaires non affichées.")
     return AlgorithmResult(resultat, tuple(steps),
-                           f"Matrice de {len(resultat)} ligne(s) et {len(resultat[0])} colonne(s).")
-
+        f"Matrice NumPy de {len(resultat)} ligne(s) et {len(resultat[0])} colonne(s).")
 
 SPEC = AlgorithmSpec(
     slug="matrice", name="MATRICE", full_name="Tableau à deux dimensions",
@@ -47,7 +46,7 @@ Début
 Fin""",
     inputs=(InputField("matrice", "Valeurs de la matrice", "matrix", "1, 2, 3\n4, 5, 6",
                         hint="Une ligne par rangée, avec les entiers séparés par des virgules."),),
-    function=remplir_matrice, execute=execute, example="[[1, 2, 3], [4, 5, 6]] → 2 lignes × 3 colonnes",
+    function=remplir_matrice, execute=execute, example="M = array([[1, 2, 3], [4, 5, 6]]) → 2 lignes × 3 colonnes",
     tags=("matrice", "indices", "tableau"),
     code_sections=(
         CodeSection(

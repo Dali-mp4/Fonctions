@@ -32,6 +32,7 @@ def _modal_resources():
 
 
 def execute_in_modal(*, code: str, entry: str, inputs: list[dict],
+                     parameters: list[dict] | None = None,
                      timings: dict[str, int] | None = None) -> list[dict]:
     """Coarse monotonic diagnostics; never log or return submitted code."""
     phases = timings if timings is not None else {}
@@ -52,7 +53,8 @@ def execute_in_modal(*, code: str, entry: str, inputs: list[dict],
         tick = perf_counter()
         # Trusted harness is pinned inside the image. Only arguments are uploaded.
         sandbox.filesystem.write_text(
-            json.dumps({"code": code, "entry": entry, "cases": inputs}, ensure_ascii=False),
+            json.dumps({"code": code, "entry": entry, "cases": inputs,
+                        "parameters": parameters or []}, ensure_ascii=False),
             "/tmp/afj-payload.json",
         )
         phases["payload"] = round((perf_counter() - tick) * 1000)

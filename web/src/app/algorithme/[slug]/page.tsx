@@ -6,6 +6,7 @@ import { getPublicCatalog } from "@/lib/public-catalog-server";
 import { LessonTabs } from "@/components/lesson-tabs";
 import { algorithms } from "@/lib/catalog";
 import { CommunityLessonTabs } from "@/components/community-lesson-tabs";
+import { lessonPath, seoDescription } from "@/lib/seo";
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ m?: string }> };
 export const dynamic = "force-dynamic";
 export async function generateMetadata({params, searchParams}:Props):Promise<Metadata>{
@@ -13,7 +14,20 @@ export async function generateMetadata({params, searchParams}:Props):Promise<Met
  const {lessons,methods}=await getPublicCatalog();
  const a=lessons.find(item=>item.slug===slug);
  const selected=methods.find(item=>item.id===m && item.topic_slug===slug);
- return {title:selected?`${a?.name??slug} · ${selected.title}`:a?.name??"Algorithme"};
+ if(!a || (m && !selected) || (!algorithms.some(item=>item.slug===slug) &&
+     !methods.some(item=>item.topic_slug===slug))) {
+   return { title:"Méthode indisponible", robots:{index:false,follow:false} };
+ }
+ const title=selected ? `${a.name} · ${selected.title}` : a.name;
+ const description=seoDescription(
+   selected ? `${selected.explanation} — Méthode d'algorithmique en Python, Tunisie.`
+     : `${a.summary} — Cours et exercices d'algorithmique en Python pour les lycéens tunisiens.`);
+ const canonical=lessonPath(slug,selected?.id);
+ return {
+   title,description,
+   alternates:{canonical},
+   openGraph:{title:`${title} | Algo Fi Jib`,description,url:canonical,siteName:"Algo Fi Jib",locale:"fr_TN",type:"article"},
+ };
 }
 export default async function AlgorithmPage({params,searchParams}:Props){
  const {slug}=await params; const {m}=await searchParams;

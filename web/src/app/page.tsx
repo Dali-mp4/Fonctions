@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BookOpenText, ChevronRight, Code2, GitPullRequestArrow, Play, ShieldCheck, Sparkles, TerminalSquare, Users } from "lucide-react";
 import { getPublicCatalog } from "@/lib/public-catalog-server";
 import { AlgorithmCard } from "@/components/algorithm-card";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export const dynamic = "force-dynamic";
 export default async function Home() {

@@ -4,7 +4,7 @@ import { LockKeyhole, ArrowRight } from "lucide-react";
 import { authConfigured, serverSupabase } from "@/lib/supabase-server";
 import { AccountClient } from "@/components/account-client";
 
-export const metadata: Metadata = { title: "Mon compte" };
+export const metadata: Metadata = { title: "Mon compte", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {

@@ -2,11 +2,28 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { Header } from "@/components/header";
+import { SITE_ORIGIN } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Algo Fi Jib.", template: "%s | Algo Fi Jib" },
-  description: "Explore, teste et comprends les algorithmes en Python. Une bibliothèque collaborative pensée pour les lycéens tunisiens.",
+  metadataBase: new URL(SITE_ORIGIN),
+  title: { default: "Algo Fi Jib. — Algorithmique et Python en Tunisie", template: "%s | Algo Fi Jib" },
+  description: "Cours, exercices et méthodes d'algorithmique en Python pour les lycéens tunisiens : tableaux NumPy, matrices, PGCD, chaînes de caractères et programmation.",
+  applicationName: "Algo Fi Jib",
+  keywords: ["algorithmique Tunisie", "3ème informatique", "Python lycée", "tableaux NumPy", "matrices", "exercices algorithmes"],
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Algo Fi Jib — L'algorithmique, dans ta poche",
+    description: "Apprends l'algorithmique et Python avec des méthodes expliquées pour les lycéens tunisiens.",
+    url: SITE_ORIGIN,
+    siteName: "Algo Fi Jib",
+    locale: "fr_TN",
+    type: "website",
+  },
+  twitter: { card: "summary", title: "Algo Fi Jib — Algorithmique en Tunisie" },
+  // Paste the verification token from Search Console into Vercel Environment Variables.
+  verification: process.env.GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

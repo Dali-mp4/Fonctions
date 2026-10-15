@@ -4,7 +4,12 @@ import { ArrowRight, GraduationCap, Layers3 } from "lucide-react";
 import { getPublicCatalog } from "@/lib/public-catalog-server";
 import { getSchoolPaths } from "@/lib/school-paths";
 
-export const metadata: Metadata = { title: "Parcours scolaires" };
+export const metadata: Metadata = {
+  title: "Parcours scolaires d'algorithmique",
+  description: "Explore les notions d'algorithmique selon ton niveau en Sciences de l'Informatique en Tunisie. Cours et méthodes Python expliqués.",
+  alternates: { canonical: "/parcours" },
+  openGraph: { title: "Parcours scolaires | Algo Fi Jib", url: "/parcours" },
+};
 export const dynamic = "force-dynamic";
 
 export default async function Parcours() {

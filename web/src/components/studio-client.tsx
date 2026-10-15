@@ -452,7 +452,16 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     {submitNotice && <p className="success-strip" role="status">{submitNotice}</p>}
     {loading ? <p className="studio-hint">Chargement des brouillons…</p> : drafts.length === 0
       ? <p className="studio-hint">Tu n&apos;as pas encore de brouillon. Crée ta première méthode ci-dessous.</p>
-      : <div className="draft-grid">{drafts.map(d => {
+      : <div className="studio-chapter-groups">{Array.from(new Set(drafts.map(d =>
+          d.implementations.topics.slug))).sort((a,b)=>{
+            const aa=drafts.find(d=>d.implementations.topics.slug===a)?.implementations.topics.title??a;
+            const bb=drafts.find(d=>d.implementations.topics.slug===b)?.implementations.topics.title??b;
+            return aa.localeCompare(bb,"fr");
+          }).map(chapterSlug=><section key={chapterSlug} className="studio-chapter-group">
+            <h3>{drafts.find(d=>d.implementations.topics.slug===chapterSlug)?.implementations.topics.title??chapterSlug}
+              <small>{drafts.filter(d=>d.implementations.topics.slug===chapterSlug).length} version(s)</small>
+            </h3>
+            <div className="draft-grid">{drafts.filter(d=>d.implementations.topics.slug===chapterSlug).map(d => {
         const activeVersion = drafts.find(r => r.id !== d.id &&
           r.implementations.id === d.implementations.id &&
           (editable(r) || r.status === "submitted"));
@@ -511,7 +520,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
           </> : <span className="studio-muted">Lecture seule · version validée</span>}
           <RevisionHistory revisionId={d.id}/>
         </div>;
-      })}</div>}
+      })}</div></section>)}</div>}
 
     <div className="studio-layout" id="draft-editor">
       <div className="studio-form">

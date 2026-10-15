@@ -68,17 +68,14 @@ test("new chapters stay private and metered public sandbox demands approval", ()
   const catalog=read("src/lib/public-catalog-model.ts");
   assert.match(catalog,/withApprovedChapters/);
 });
-test("tableau tri is its own Base variant and original classroom exercise has no sort",()=>{
-  const lessons=JSON.parse(read("src/data/seed-algorithms.json"));
-  const base=lessons.find(x=>x.slug==="tableau");
-  assert.equal(base.inputs.length,1);
-  assert.equal(base.code_sections.length,4);
-  assert.ok(!base.code_sections.some(x=>/tri par sélection/i.test(x.title)));
-  assert.match(read("src/app/algorithme/[slug]/page.tsx"),/tableau-tri/);
-  assert.match(read("src/lib/tableau-tri.ts"),/Tri par sélection/);
-  assert.match(read("../api/app/main.py"),/tableau-tri/);
+test("sorting is in a separate TRI chapter, not on TABLEAU",()=>{
+ const lessons=JSON.parse(read("src/data/seed-algorithms.json"));
+ const base=lessons.find(x=>x.slug==="tableau");
+ assert.equal(base.inputs.length,1);
+ assert.equal(base.code_sections.length,4);
+ assert.doesNotMatch(read("src/app/algorithme/[slug]/page.tsx"),/tableau-tri/);
+ assert.doesNotMatch(read("../api/app/main.py"),/tableau-tri/);
 });
-
 
 test("published modules have equal visible status regardless of who created them",()=>{
   const home=read("src/app/page.tsx");

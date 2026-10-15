@@ -3,10 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { PencilLine, RefreshCw, Save } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
 
-type Module = { id: string; slug: string; title: string; state: string };
+type Module = { id: string; slug: string; title: string; state: string; created_by: string | null };
 const originalSlugs = new Set(["pgcd","ppcm","verif","som-ch","tableau","matrice","enregistrement"]);
 
-export function ContentManagement({ onRenamed }: { onRenamed: () => void }) {
+export function ContentManagement({ userId, role, onRenamed }: { userId: string; role: string; onRenamed: () => void }) {
   const [modules,setModules] = useState<Module[]>([]);
   const [selectedId,setSelectedId] = useState("");
   const [renameTitle,setRenameTitle] = useState("");
@@ -19,16 +19,19 @@ export function ContentManagement({ onRenamed }: { onRenamed: () => void }) {
     const sb=browserSupabase();
     if(!sb){setError("Supabase non configuré.");setLoading(false);return;}
     setLoading(true);
-    const {data,error:e}=await sb.from("topics").select("id,slug,title,state").order("title").limit(1000);
+    let query=sb.from("topics").select("id,slug,title,state,created_by").order("title").limit(1000);
+    if(role!=="owner") query=query.eq("created_by",userId).eq("state","pending");
+    const {data,error:e}=await query;
     if(e)setError(e.message);
     else {setModules((data??[]) as Module[]);setError("");}
     setLoading(false);
-  },[]);
+  },[role,userId]);
   useEffect(()=>{void refresh();},[refresh]);
 
   const module = modules.find(t=>t.id===selectedId)??modules[0];
   useEffect(()=>{setRenameTitle(module?.title??"");},[module?.id,module?.title]);
-  const canRename = Boolean(module && !originalSlugs.has(module.slug));
+  const canRename = Boolean(module && !originalSlugs.has(module.slug) &&
+    (role==="owner" || (module.created_by===userId && module.state==="pending")));
   const trimmedRename = renameTitle.trim();
   const renameValid = trimmedRename.length>=3 && trimmedRename.length<=100 &&
     !/[\u0000-\u001f\u007f]/.test(trimmedRename);
@@ -41,7 +44,8 @@ export function ContentManagement({ onRenamed }: { onRenamed: () => void }) {
     if(!sb){setError("Supabase non configuré.");return;}
     setBusy(true);setError("");setNotice("");
     try {
-      const {error:rpcError}=await sb.rpc("owner_rename_module",{
+      const {error:rpcError}=await sb.rpc(
+        role==="owner" ? "owner_rename_module" : "rename_own_private_chapter",{
         p_topic:module.id,p_expected_title:module.title,p_new_title:trimmedRename,
       });
       if(rpcError)throw rpcError;
@@ -55,18 +59,18 @@ export function ContentManagement({ onRenamed }: { onRenamed: () => void }) {
 
   return <section className="workspace-section" aria-labelledby="content-rename-heading">
     <div className="studio-panel-head">
-      <h2 id="content-rename-heading"><PencilLine size={20}/> Renommer un chapitre · Propriétaire</h2>
+      <h2 id="content-rename-heading"><PencilLine size={20}/> {role==="owner"?"Renommer un chapitre · Propriétaire":"Renommer mes chapitres privés"}</h2>
       <button type="button" className="btn btn-muted" disabled={loading||busy} onClick={()=>void refresh()}>
         <RefreshCw size={15}/> Actualiser
       </button>
     </div>
-    <p className="studio-hint">La suppression se fait maintenant depuis l'icône corbeille en haut à droite de chaque
-      implémentation dans « Mes implémentations ». Si une implémentation était la dernière d'un chapitre ajouté, le chapitre disparaît aussi.
-      Ici tu peux toujours modifier les noms des chapitres ajoutés.</p>
+    <p className="studio-hint">Tu peux renommer {role==="owner"?"les chapitres personnalisés":"tes propres chapitres privés"}.
+      Les chapitres déjà publiés restent protégés. La corbeille sur les cartes permet de supprimer tes méthodes privées.
+      Un chapitre privé créé par toi disparaît si tu supprimes sa dernière implémentation.</p>
     {error&&<p className="run-error" role="alert">{error}</p>}
     {notice&&<p className="success-strip" role="status">{notice}</p>}
     {loading?<p className="studio-hint">Chargement des chapitres…</p>:!module?
-      <p className="studio-hint">Aucun chapitre en base.</p>:<>
+      <p className="studio-hint">Aucun chapitre à renommer pour le moment.</p>:<>
       <label>Choisir le chapitre à renommer
         <select value={module.id} disabled={busy} onChange={e=>setSelectedId(e.target.value)}>
           {modules.map(t=><option value={t.id} key={t.id}>{t.title} · {t.slug}</option>)}

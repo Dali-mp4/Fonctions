@@ -61,8 +61,8 @@ def validate_inputs(slug: str, data: dict[str, Any]) -> dict[str, Any]:
         "ppcm": {"a", "b"},
         "som-ch": {"a"},
         "verif": {"a", "borne_min", "borne_max"},
-        "tableau": {"tableau"},
-        "matrice": {"matrice"},
+        "tableau": {"tableau", "n"},
+        "matrice": {"matrice", "l", "c"},
         "enregistrement": {"champs"},
     }
     expected = shapes.get(slug)
@@ -88,20 +88,24 @@ def validate_inputs(slug: str, data: dict[str, Any]) -> dict[str, Any]:
             integer(data[k])
     elif slug == "tableau":
         values = data["tableau"]
-        if not isinstance(values, list) or not (1 <= len(values) <= 40):
-            raise ValueError("Le tableau doit contenir de 1 à 40 entiers.")
+        n = integer(data["n"], max_abs=40)
+        if not (1 <= n <= 40):
+            raise ValueError("La taille n doit être comprise entre 1 et 40.")
+        if not isinstance(values, list) or len(values) != n:
+            raise ValueError("Le tableau doit contenir exactement n éléments.")
         for item in values:
             integer(item)
     elif slug == "matrice":
         matrix = data["matrice"]
-        if not isinstance(matrix, list) or not (1 <= len(matrix) <= 10):
-            raise ValueError("La matrice doit comporter 1 à 10 lignes.")
-        width = len(matrix[0]) if isinstance(matrix[0], list) else 0
-        if not (1 <= width <= 10):
-            raise ValueError("La matrice doit comporter 1 à 10 colonnes.")
+        l = integer(data["l"], max_abs=10)
+        c = integer(data["c"], max_abs=10)
+        if not (1 <= l <= 10 and 1 <= c <= 10):
+            raise ValueError("l et c doivent être compris entre 1 et 10.")
+        if not isinstance(matrix, list) or len(matrix) != l:
+            raise ValueError("La matrice doit comporter exactement l lignes.")
         for row in matrix:
-            if not isinstance(row, list) or len(row) != width:
-                raise ValueError("Toutes les lignes doivent avoir la même longueur.")
+            if not isinstance(row, list) or len(row) != c:
+                raise ValueError("Chaque ligne doit comporter exactement c colonnes.")
             for item in row:
                 integer(item)
     elif slug == "enregistrement":

@@ -94,6 +94,26 @@
         "max_value": null,
         "options": [],
         "hint": "Une ligne par rangée, avec les entiers séparés par des virgules."
+      },
+      {
+        "name": "l",
+        "label": "Nombre de lignes (l)",
+        "kind": "int",
+        "default": 2,
+        "min_value": 1,
+        "max_value": 10,
+        "options": [],
+        "hint": "Nombre de lignes de M."
+      },
+      {
+        "name": "c",
+        "label": "Nombre de colonnes (c)",
+        "kind": "int",
+        "default": 3,
+        "min_value": 1,
+        "max_value": 10,
+        "options": [],
+        "hint": "Nombre de colonnes par ligne."
       }
     ],
     "code_sections": [
@@ -289,6 +309,16 @@
         "max_value": null,
         "options": [],
         "hint": "Séparer les entiers par des virgules."
+      },
+      {
+        "name": "n",
+        "label": "Taille du tableau (n)",
+        "kind": "int",
+        "default": 5,
+        "min_value": 1,
+        "max_value": 40,
+        "options": [],
+        "hint": "n doit être égal au nombre de valeurs."
       }
     ],
     "code_sections": [

@@ -18,15 +18,15 @@ def test_catalog_has_original_seven():
 
 def test_pgcd_and_tableau():
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 48, "b": 18}}).json()["value"] == 6
-    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [8, 3, 11, 2, 5]}}).json()["value"] == [8, 3, 11, 2, 5]
+    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [8, 3, 11, 2, 5], "n": 5}}).json()["value"] == [8, 3, 11, 2, 5]
 
 
 def test_schema_rejects_extra_unknown_or_huge_payload():
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 48, "b": 18, "evil": 1}}).status_code == 422
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 0, "b": 18}}).status_code == 422
     assert client.post("/api/v1/algorithms/pgcd/run", json={"inputs": {"a": 10**100, "b": 1}}).status_code == 422
-    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [1] * 41}}).status_code == 422
-    assert client.post("/api/v1/algorithms/matrice/run", json={"inputs": {"matrice": [[1, 2], [3]]}}).status_code == 422
+    assert client.post("/api/v1/algorithms/tableau/run", json={"inputs": {"tableau": [1] * 41, "n": 41}}).status_code == 422
+    assert client.post("/api/v1/algorithms/matrice/run", json={"inputs": {"matrice": [[1, 2], [3]], "l": 2, "c": 2}}).status_code == 422
     assert client.post("/api/v1/algorithms/x/run", json={"inputs": {}}).status_code == 404
 
 
@@ -41,8 +41,8 @@ def test_all_seven_can_be_executed_with_classroom_examples():
         "ppcm": ({"a": 12, "b": 18}, 36),
         "som-ch": ({"a": 4825}, 19),
         "verif": ({"a": 3, "borne_min": 0, "borne_max": 10}, True),
-        "tableau": ({"tableau": [8, 3, 11, 2, 5]}, [8, 3, 11, 2, 5]),
-        "matrice": ({"matrice": [[1, 2], [3, 4]]}, [[1, 2], [3, 4]]),
+        "tableau": ({"tableau": [8, 3, 11, 2, 5], "n": 5}, [8, 3, 11, 2, 5]),
+        "matrice": ({"matrice": [[1, 2], [3, 4]], "l": 2, "c": 2}, [[1, 2], [3, 4]]),
         "enregistrement": ({"champs": [{"nom": "age", "type": "entier", "valeur": "17"}]}, {"age": 17}),
     }
     for slug, (inputs, expected) in cases.items():
@@ -55,7 +55,7 @@ def test_tableau_defaults_to_display_without_sorting():
     values = [8, 3, 11, 2, 5]
     response = client.post(
         "/api/v1/algorithms/tableau/run",
-        json={"inputs": {"tableau": values}},
+        json={"inputs": {"tableau": values, "n": 5}},
     )
     assert response.status_code == 200
     result = response.json()
@@ -77,7 +77,7 @@ def test_classroom_tableau_content_prioritizes_array_basics():
     spec = client.get("/api/v1/algorithms/tableau").json()
     assert "remplir" in spec["title"]
     assert "affichage" in spec["summary"]
-    assert len(spec["inputs"]) == 1
+    assert [field["name"] for field in spec["inputs"]] == ["tableau", "n"]
     assert [c["title"] for c in spec["code_sections"]][:4] == [
         "Déclarer le tableau — TDNT et TDOG",
         "Remplir manuellement",
@@ -90,12 +90,11 @@ def test_classroom_tableau_content_prioritizes_array_basics():
 
 def test_matrice_stays_unchanged_and_has_no_sort_option():
     spec = client.get("/api/v1/algorithms/matrice").json()
-    assert len(spec["inputs"]) == 1
-    assert spec["inputs"][0]["name"] == "matrice"
+    assert [field["name"] for field in spec["inputs"]] == ["matrice", "l", "c"]
     assert all("trier" not in c["title"].lower() for c in spec["code_sections"])
     r = client.post(
         "/api/v1/algorithms/matrice/run",
-        json={"inputs": {"matrice": [[8, 3, 11], [2, 5, 1]]}},
+        json={"inputs": {"matrice": [[8, 3, 11], [2, 5, 1]], "l": 2, "c": 3}},
     )
     assert r.status_code == 200
     assert r.json()["value"] == [[8, 3, 11], [2, 5, 1]]
@@ -104,7 +103,7 @@ def test_matrice_stays_unchanged_and_has_no_sort_option():
 def test_tableau_omitting_sort_choice_also_defaults_to_display():
     r = client.post(
         "/api/v1/algorithms/tableau/run",
-        json={"inputs": {"tableau": [7, 1, 5]}},
+        json={"inputs": {"tableau": [7, 1, 5], "n": 3}},
     )
     assert r.status_code == 200
     assert r.json()["value"] == [7, 1, 5]
@@ -113,7 +112,7 @@ def test_tableau_omitting_sort_choice_also_defaults_to_display():
 
 def test_tableau_display_does_not_allow_sorting_input():
     r = client.post("/api/v1/algorithms/tableau/run",
-                    json={"inputs": {"tableau": [3, 1, 2], "ordre": "Croissant"}})
+                    json={"inputs": {"tableau": [3, 1, 2], "n": 3, "ordre": "Croissant"}})
     assert r.status_code == 422
 
 
@@ -122,3 +121,23 @@ def test_numpy_array_and_matrix_backing():
     from app.algorithms.matrice import remplir_matrice
     assert afficher_tableau([3, 1]) == [3, 1]
     assert remplir_matrice([[1, 2], [3, 4]]) == [[1, 2], [3, 4]]
+
+def test_array_and_matrix_sizes_are_required_and_consistent():
+    for slug, inputs in [
+        ("tableau", {"tableau": [1, 2], "n": 3}),
+        ("tableau", {"tableau": [1, 2]}),
+        ("tableau", {"tableau": [1, 2], "n": True}),
+        ("matrice", {"matrice": [[1, 2], [3, 4]], "l": 1, "c": 2}),
+        ("matrice", {"matrice": [[1, 2], [3, 4]], "l": 2, "c": 3}),
+        ("matrice", {"matrice": [[1, 2], [3, 4]]}),
+    ]:
+        r = client.post(f"/api/v1/algorithms/{slug}/run", json={"inputs": inputs})
+        assert r.status_code == 422, (slug, r.text)
+
+
+def test_classroom_numpy_code_uses_explicit_dimensions():
+    import inspect
+    from app.algorithms import tableau, matrice
+    for fn in [tableau.afficher_tableau, tableau.execute,
+               matrice.remplir_matrice, matrice.execute]:
+        assert "len(" not in inspect.getsource(fn)

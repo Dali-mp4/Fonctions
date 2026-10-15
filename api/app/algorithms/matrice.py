@@ -4,31 +4,33 @@ from .schema import AlgorithmInputError, AlgorithmResult, AlgorithmSpec, CodeSec
 from numpy import array
 
 
-def remplir_matrice(matrice: list[list[int]]) -> list[list[int]]:
-    if not matrice or not matrice[0]:
-        raise AlgorithmInputError("La matrice doit contenir au moins une ligne et une colonne.")
-    c = len(matrice[0])
-    if any(len(ligne) != c for ligne in matrice):
-        raise AlgorithmInputError("Toutes les lignes doivent avoir le même nombre de colonnes.")
+def remplir_matrice(matrice: list[list[int]], l: int, c: int) -> list[list[int]]:
+    """Le nombre de lignes et de colonnes est fourni explicitement."""
+    if l <= 0 or c <= 0:
+        raise AlgorithmInputError("l et c doivent être strictement positifs.")
     source = array(matrice, dtype=int)
-    M = array([[int()] * c] * len(matrice))
-    for i in range(len(matrice)):
+    if source.shape != (l, c):
+        raise AlgorithmInputError("La matrice fournie doit avoir l lignes et c colonnes.")
+    M = array([[int()] * c] * l)
+    for i in range(l):
         for j in range(c):
             M[i, j] = source[i, j]
     return M.tolist()
 
-def execute(matrice: list[list[int]]) -> AlgorithmResult:
-    resultat = remplir_matrice(matrice)
+
+def execute(matrice: list[list[int]], l: int, c: int) -> AlgorithmResult:
+    resultat = remplir_matrice(matrice, l, c)
     steps = []
-    for i, ligne in enumerate(resultat):
-        for j, valeur in enumerate(ligne):
-            if len(steps) < 16:
-                steps.append(f"M[{i}, {j}] ← {valeur} (ligne {i + 1}, colonne {j + 1})")
-    total = len(resultat) * len(resultat[0])
+    for i in range(l):
+        for j in range(c):
+            if i * c + j < 16:
+                steps.append(f"M[{i}, {j}] ← {resultat[i][j]} (ligne {i + 1}, colonne {j + 1})")
+    total = l * c
     if total > 16:
         steps.append(f"… {total - 16} cellules supplémentaires non affichées.")
     return AlgorithmResult(resultat, tuple(steps),
-        f"Matrice NumPy de {len(resultat)} ligne(s) et {len(resultat[0])} colonne(s).")
+        f"Matrice NumPy de {l} ligne(s) et {c} colonne(s).")
+
 
 SPEC = AlgorithmSpec(
     slug="matrice", name="MATRICE", full_name="Tableau à deux dimensions",
@@ -44,8 +46,14 @@ Début
         Fin Pour
     Fin Pour
 Fin""",
-    inputs=(InputField("matrice", "Valeurs de la matrice", "matrix", "1, 2, 3\n4, 5, 6",
-                        hint="Une ligne par rangée, avec les entiers séparés par des virgules."),),
+    inputs=(
+        InputField("matrice", "Valeurs de la matrice", "matrix", "1, 2, 3\n4, 5, 6",
+                   hint="Une ligne par rangée, avec les entiers séparés par des virgules."),
+        InputField("l", "Nombre de lignes (l)", "int", 2, min_value=1, max_value=10,
+                   hint="Nombre de lignes de M."),
+        InputField("c", "Nombre de colonnes (c)", "int", 3, min_value=1, max_value=10,
+                   hint="Nombre de colonnes par ligne."),
+    ),
     function=remplir_matrice, execute=execute, example="M = array([[1, 2, 3], [4, 5, 6]]) → 2 lignes × 3 colonnes",
     tags=("matrice", "indices", "tableau"),
     code_sections=(

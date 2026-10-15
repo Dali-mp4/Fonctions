@@ -5,26 +5,30 @@ from .schema import AlgorithmInputError, AlgorithmResult, AlgorithmSpec, CodeSec
 
 from numpy import array
 
-def afficher_tableau(tableau: list[int]) -> list[int]:
-    """Tableau scolaire : stockage NumPy, sortie JSON sérialisable."""
-    if not tableau:
-        raise AlgorithmInputError("Le tableau doit contenir au moins une valeur.")
+def afficher_tableau(tableau: list[int], n: int) -> list[int]:
+    """Un tableau NumPy se parcourt avec n transmis en paramètre."""
+    if n <= 0:
+        raise AlgorithmInputError("n doit être strictement positif.")
     T = array(tableau, dtype=int)
-    R = array([int()] * len(T))
-    for i in range(len(T)):
+    if T.shape != (n,):
+        raise AlgorithmInputError("Le nombre d'éléments doit être égal à n.")
+    R = array([int()] * n)
+    for i in range(n):
         R[i] = T[i]
     return R.tolist()
 
-def execute(tableau: list[int]) -> AlgorithmResult:
-    resultat = afficher_tableau(tableau)
-    n = len(resultat)
+
+def execute(tableau: list[int], n: int) -> AlgorithmResult:
+    resultat = afficher_tableau(tableau, n)
     steps = [f"Déclaration NumPy : tableau T de {n} éléments (indices de 0 à {n - 1})."]
-    for i, val in enumerate(resultat[:12]):
-        steps.append(f"Remplissage : T[{i}] ← {val}")
-    if n > 12: steps.append(f"… {n - 12} valeurs non détaillées.")
+    for i in range(min(n, 12)):
+        steps.append(f"Remplissage : T[{i}] ← {resultat[i]}")
+    if n > 12:
+        steps.append(f"… {n - 12} autres valeurs non détaillées.")
     steps.append("Affichage : parcourir T de l'indice 0 au dernier, sans changer l'ordre.")
     return AlgorithmResult(resultat, tuple(steps),
         f"Tableau NumPy affiché : {n} élément(s). Aucun tri appliqué.")
+
 
 SPEC = AlgorithmSpec(
     slug="tableau", name="TABLEAU", full_name="Déclarer, remplir et afficher un tableau",
@@ -44,9 +48,12 @@ Début
         Écrire(T[i])
     Fin Pour
 Fin""",
-    inputs=(InputField("tableau", "Éléments du tableau", "int_list", "8, 3, 11, 2, 5",
-                        hint="Séparer les entiers par des virgules."),
-),
+    inputs=(
+        InputField("tableau", "Éléments du tableau", "int_list", "8, 3, 11, 2, 5",
+                   hint="Séparer les entiers par des virgules."),
+        InputField("n", "Taille du tableau (n)", "int", 5,
+                   min_value=1, max_value=40, hint="n doit être égal au nombre de valeurs."),
+    ),
     function=afficher_tableau, execute=execute, example="T = array([8, 3, 11, 2, 5]) ; T[0] = 8 ; n = 5",
     tags=("tableau", "déclaration", "remplissage", "affichage"),
     code_sections=(

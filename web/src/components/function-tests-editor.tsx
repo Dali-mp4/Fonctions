@@ -89,7 +89,7 @@ export function FunctionTestsEditor({ entry, onEntry, parameters, onParameters, 
         <label>Nom du test<input maxLength={100} value={tc.label} onChange={e => changeTest(index, "label", e.target.value)} placeholder="Ex. PGCD(24,18)"/></label>
         <label>Entrées (objet JSON)<textarea rows={3} spellCheck={false} value={tc.inputsText} onChange={e => changeTest(index, "inputsText", e.target.value)} placeholder='{"a":24,"b":18}'/></label>
         <label>Résultat attendu (JSON)<textarea rows={2} spellCheck={false} value={tc.expectedText} onChange={e => changeTest(index, "expectedText", e.target.value)} placeholder="6"/></label>
-        <p className="test-example">Tableau : <code>[1,2,3]</code> · Matrice : <code>[[1,2],[3,4]]</code></p>
+        <p className="test-example">Tableau : <code>{'{"t":[1,2,3],"n":3}'}</code> · Matrice rectangulaire : <code>{'{"matrice":[[1,2],[3,4]],"l":2,"c":2}'}</code> · Matrice carrée : <code>{'{"matrice":[[1,2],[3,4]],"n":2}'}</code></p>
       </article>)}
     </div>
     <div className="test-report-action">

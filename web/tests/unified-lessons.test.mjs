@@ -71,7 +71,7 @@ test("new chapters stay private and metered public sandbox demands approval", ()
 test("sorting is in a separate TRI chapter, not on TABLEAU",()=>{
  const lessons=JSON.parse(read("src/data/seed-algorithms.json"));
  const base=lessons.find(x=>x.slug==="tableau");
- assert.equal(base.inputs.length,1);
+ assert.deepEqual(base.inputs.map(x=>x.name),["tableau","n"]);
  assert.equal(base.code_sections.length,4);
  assert.doesNotMatch(read("src/app/algorithme/[slug]/page.tsx"),/tableau-tri/);
  assert.doesNotMatch(read("../api/app/main.py"),/tableau-tri/);

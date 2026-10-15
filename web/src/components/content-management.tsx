@@ -49,7 +49,7 @@ export function ContentManagement({ onDeleted, onRenamed }: { onDeleted: () => v
   const canRename = Boolean(module && !originalSlugs.has(module.slug));
   const trimmedRename = renameTitle.trim();
   const renameValid = trimmedRename.length>=3 && trimmedRename.length<=100 &&
-    !/[\\u0000-\\u001f\\u007f]/.test(trimmedRename);
+    !/[\u0000-\u001f\u007f]/.test(trimmedRename);
   const renameChanged = Boolean(module && trimmedRename!==module.title);
   const related=implementations.filter(i=>i.topic_id===module?.id);
   const versionsByImplementation = useMemo(()=>{

@@ -24,6 +24,30 @@ def value_matches(value, kind):
     return False
 
 
+def validate_array_dimensions(args, parameters):
+    """Reject mismatched dimensions on API host, before metered sandbox work."""
+    for param in parameters:
+        name, kind = param["name"], param["type"]
+        if kind == "list[int]" and "n" in args:
+            n = args["n"]
+            if type(n) is not int or n <= 0 or len(args[name]) != n:
+                raise ValueError("La taille n doit être positive et correspondre au tableau.")
+        if kind == "list[list[int]]":
+            matrix = args[name]
+            if "l" in args and "c" in args:
+                l, c = args["l"], args["c"]
+                if (type(l) is not int or type(c) is not int or l <= 0 or c <= 0
+                        or len(matrix) != l or any(len(row) != c for row in matrix)):
+                    raise ValueError("La matrice doit avoir l lignes et c colonnes, strictement positives.")
+            elif "n" in args:
+                n = args["n"]
+                if (type(n) is not int or n <= 0 or len(matrix) != n
+                        or any(len(row) != n for row in matrix)):
+                    raise ValueError("La matrice carrée doit avoir n lignes et n colonnes (n positif).")
+            elif matrix and any(len(row) != len(matrix[0]) for row in matrix):
+                raise ValueError("Toutes les lignes doivent avoir la même longueur.")
+
+
 def validate_revision(revision):
     code, entry = revision.get("python_code"), revision.get("entry_function")
     schema, cases = revision.get("input_schema"), revision.get("test_cases")
@@ -51,6 +75,7 @@ def validate_revision(revision):
             raise ValueError("Entrées ou résultat attendu incompatibles")
         if not all(value_matches(args[p["name"]], p["type"]) for p in params):
             raise ValueError("Type d'entrée invalide")
+        validate_array_dimensions(args, params)
     return code, entry, cases, ret
 
 

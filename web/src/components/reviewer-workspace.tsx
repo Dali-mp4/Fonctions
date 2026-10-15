@@ -1,6 +1,7 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, ClipboardCheck, RefreshCw, Send, ShieldCheck } from "lucide-react";
+import { ClipboardCheck, RefreshCw, Send, ShieldCheck } from "lucide-react";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { revisionWithImplementationSelect } from "@/lib/revision-select";
 import { RevisionHistory } from "@/components/revision-history";
@@ -53,8 +54,8 @@ export function ReviewerWorkspace({userId}:{userId:string}) {
     <div className="studio-panel-head"><h2 id="review-heading"><ClipboardCheck size={21}/> File de relecture</h2>
       <button className="btn btn-muted" disabled={loading||busy!==null} onClick={()=>void refresh()}><RefreshCw size={15}/> Actualiser</button></div>
     <p className="studio-hint">Inspecte le code Python, le pseudo-code, les cas de test et les résultats avant d'approuver. Un test réussi n'est pas une preuve de correction complète. Tu ne peux pas relire ton propre travail.</p>
-    {error&&<p className="run-error" role="alert">{error}</p>}
-    {notice&&<p className="success-strip" role="status"><CheckCircle2 size={15}/>{notice}</p>}
+    <TransientAlert message={error} tone="error"/>
+    <TransientAlert message={notice} tone="success"/>
     {loading?<p className="studio-hint">Chargement…</p>:queue.length===0?
       <div className="studio-empty">Aucune soumission en attente. Les brouillons privés ne figurent pas ici.</div>:
       <div className="review-grid">{queue.map(r=>{

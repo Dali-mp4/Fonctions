@@ -62,14 +62,12 @@ def validate_inputs(slug: str, data: dict[str, Any]) -> dict[str, Any]:
         "som-ch": {"a"},
         "verif": {"a", "borne_min", "borne_max"},
         "tableau": {"tableau"},
-        "tableau-tri": {"tableau", "ordre"},
         "matrice": {"matrice"},
         "enregistrement": {"champs"},
     }
     expected = shapes.get(slug)
     if expected is None:
         raise ValueError("Algorithme inconnu")
-    # Original TABLEAU requires one field; sorting has its own trusted route.
     if set(data) != expected:
         raise ValueError("Les champs fournis ne correspondent pas à cet algorithme.")
 
@@ -94,14 +92,6 @@ def validate_inputs(slug: str, data: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("Le tableau doit contenir de 1 à 40 entiers.")
         for item in values:
             integer(item)
-    elif slug == "tableau-tri":
-        values = data["tableau"]
-        if not isinstance(values, list) or not (1 <= len(values) <= 40):
-            raise ValueError("Le tableau doit contenir de 1 à 40 entiers.")
-        for item in values:
-            integer(item)
-        if data["ordre"] not in ("Croissant", "Décroissant"):
-            raise ValueError("Choisis Croissant ou Décroissant.")
     elif slug == "matrice":
         matrix = data["matrice"]
         if not isinstance(matrix, list) or not (1 <= len(matrix) <= 10):
@@ -146,7 +136,7 @@ def get_algorithm(slug: str):
 
 @app.post("/api/v1/algorithms/{slug}/run")
 def run_reviewed_algorithm(slug: str, request: RunRequest):
-    spec = get_specs().get("tableau" if slug == "tableau-tri" else slug)
+    spec = get_specs().get(slug)
     if not spec:
         raise HTTPException(status_code=404, detail="Algorithme inconnu.")
     try:

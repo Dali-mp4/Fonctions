@@ -32,3 +32,19 @@ test("UI starts a new version instead of unlocking the archived publication",()=
   assert.match(pub,/r\.created_by===userId/);
   assert.match(pub,/Reprendre en brouillon/);
 });
+
+test("an already submitted replacement can be retracted and opened for editing", () => {
+  const migration=read("../supabase/migrations/012_retract_submitted_revision.sql");
+  assert.match(migration,/item\.created_by <> actor/);
+  assert.match(migration,/item\.status <> 'submitted'/);
+  assert.match(migration,/item\.edit_seq <> p_expected_edit_seq/);
+  assert.match(migration,/test_status='not_run', test_evidence='\{\}'::jsonb/);
+  assert.match(migration,/edit_seq=edit_seq\+1/);
+  assert.match(migration,/submitted_at=NULL/);
+  assert.match(migration,/submission_retracted/);
+  assert.match(migration,/REVOKE ALL ON FUNCTION public\.retract_submitted_revision\(uuid,integer\) FROM PUBLIC,anon/);
+  assert.match(studio,/rpc\("retract_submitted_revision"/);
+  assert.match(studio,/Retirer la soumission pour modifier/);
+  assert.match(studio,/openDraft\(updated as unknown as Revision\)/);
+  assert.match(studio,/existing\?\.status === "submitted"/);
+});

@@ -302,9 +302,48 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     } finally { setSubmitBusy(null); }
   }
 
+  async function retractSubmission(draft: Revision) {
+    if (draft.status !== "submitted" || draft.created_by !== userId) return;
+    if (!window.confirm("Retirer cette soumission de la file de relecture pour la modifier ? Les tests devront être relancés et une nouvelle soumission sera nécessaire.")) return;
+    const sb = browserSupabase();
+    if (!sb) { setSubmitError("Supabase non configuré."); return; }
+    setResumeBusy(draft.id); setSubmitError(""); setSubmitNotice(""); setError(""); setOk("");
+    try {
+      const { error: rpcError } = await sb.rpc("retract_submitted_revision", {
+        p_revision: draft.id, p_expected_edit_seq: draft.edit_seq,
+      });
+      if (rpcError) throw rpcError;
+      const { data: updated, error: fetchError } = await sb.from("revisions")
+        .select(revisionWithImplementationSelect).eq("id", draft.id).single();
+      if (fetchError || !updated) throw fetchError ?? new Error("Recharge El studio pour ouvrir le brouillon.");
+      await refresh();
+      openDraft(updated as unknown as Revision);
+      setOk("Soumission retirée. Le brouillon est de nouveau modifiable ; enregistre, teste et soumets à nouveau.");
+      document.getElementById("draft-editor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Impossible de retirer la soumission. Actualise El studio.");
+    } finally { setResumeBusy(null); }
+  }
+
   async function resumeArchived(draft: Revision) {
     if (draft.status !== "archived" || draft.created_by !== userId ||
         draft.implementations.published_revision_id !== null || resumeBusy !== null) return;
+    // An earlier "Reprendre" may already have created a replacement version.
+    // Never attempt to duplicate it; reuse an editable copy or retract a pending submission.
+    const existing = drafts.find(r => r.id !== draft.id &&
+      r.implementations.id === draft.implementations.id &&
+      (editable(r) || r.status === "submitted"));
+    if (existing?.status === "submitted") {
+      await retractSubmission(existing);
+      return;
+    }
+    if (existing && editable(existing)) {
+      openDraft(existing);
+      setSubmitError("");
+      setOk("Une version privée existe déjà : elle est ouverte dans l'éditeur.");
+      document.getElementById("draft-editor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     const sb = browserSupabase();
     if (!sb) { setSubmitError("Supabase non configuré."); return; }
     setResumeBusy(draft.id); setSubmitError(""); setSubmitNotice(""); setError(""); setOk("");
@@ -312,7 +351,13 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       const { data: newId, error: rpcError } = await sb.rpc("reopen_archived_revision_as_draft", {
         p_revision: draft.id,
       });
-      if (rpcError) throw rpcError;
+      if (rpcError) {
+        if (rpcError.message?.includes("already exists")) {
+          await refresh();
+          throw new Error("Une autre version existe déjà. Actualise El studio pour ouvrir la version en cours.");
+        }
+        throw rpcError;
+      }
       if (typeof newId !== "string") throw new Error("Le nouveau brouillon est introuvable.");
       const { data: newDraft, error: fetchError } = await sb.from("revisions")
         .select(revisionWithImplementationSelect).eq("id", newId).single();
@@ -343,8 +388,11 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     {submitNotice && <p className="success-strip" role="status">{submitNotice}</p>}
     {loading ? <p className="studio-hint">Chargement des brouillons…</p> : drafts.length === 0
       ? <p className="studio-hint">Tu n&apos;as pas encore de brouillon. Crée ta première méthode ci-dessous.</p>
-      : <div className="draft-grid">{drafts.map(d =>
-        <div key={d.id} className={`draft-card${editing === d.id ? " selected" : ""}`}>
+      : <div className="draft-grid">{drafts.map(d => {
+        const activeVersion = drafts.find(r => r.id !== d.id &&
+          r.implementations.id === d.implementations.id &&
+          (editable(r) || r.status === "submitted"));
+        return <div key={d.id} className={`draft-card${editing === d.id ? " selected" : ""}`}>
           <span className="draft-meta">{d.implementations?.topics?.title ?? "Concept"} · {d.implementations?.method_type === "base" ? "Base" : "Advanced"}</span>
           <strong>{d.title}</strong>
           <small>{statusName[d.status]} · version {d.edit_seq} · {d.test_status === "passed" ? "Tests Python réussis" : d.test_status === "failed" ? "Tests Python échoués" : "Tests Python non exécutés"}</small>
@@ -356,15 +404,34 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
               onClick={() => void submitDraft(d)}>
               {submitBusy === d.id ? "Envoi…" : "Soumettre à la relecture →"}
             </button> : <span className="studio-muted">Réussis les tests Python avant de soumettre.</span>}
+          </> : d.status === "submitted" ? <>
+            <span className="studio-muted">En attente d'un relecteur. Tu peux retirer ta soumission pour corriger le contenu.</span>
+            <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
+              onClick={() => void retractSubmission(d)}>
+              {resumeBusy === d.id ? "Retrait…" : "Retirer la soumission pour modifier →"}
+            </button>
           </> : d.status === "archived" && d.implementations.published_revision_id === null ? <>
             <span className="studio-muted">Ancienne publication conservée en lecture seule.</span>
-            <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
+            {activeVersion?.status === "submitted" ? <>
+              <span className="studio-muted">Une version corrigée a déjà été soumise.</span>
+              <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
+                onClick={() => void retractSubmission(activeVersion)}>
+                Retirer la soumission pour modifier →
+              </button>
+            </> : activeVersion && editable(activeVersion) ? <>
+              <span className="studio-muted">Un brouillon de remplacement existe déjà.</span>
+              <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
+                onClick={() => { openDraft(activeVersion); document.getElementById("draft-editor")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
+                Ouvrir le brouillon existant →
+              </button>
+            </> : <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}
               onClick={() => void resumeArchived(d)}>
               {resumeBusy === d.id ? "Préparation…" : "Reprendre en brouillon →"}
-            </button>
-          </> : <span className="studio-muted">Lecture seule · {d.status === "submitted" ? "en attente d'un relecteur" : "version validée"}</span>}
+            </button>}
+          </> : <span className="studio-muted">Lecture seule · version validée</span>}
           <RevisionHistory revisionId={d.id}/>
-        </div>)}</div>}
+        </div>;
+      })}</div>}
 
     <div className="studio-layout" id="draft-editor">
       <div className="studio-form">

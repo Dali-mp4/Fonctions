@@ -8,6 +8,7 @@ const labels:Record<string,string> = {
   draft_created:"Brouillon créé", draft_updated:"Brouillon modifié",
   draft_test_passed:"Tests Python réussis",draft_test_failed:"Tests Python échoués",
   draft_test_error:"Erreur des tests", submitted:"Soumission envoyée",
+  submission_retracted:"Soumission retirée pour modification",
   changes_requested:"Modifications demandées",published:"Approuvé et publié",
   publication_withdrawn:"Publication retirée",publication_restored:"Version restaurée",
 };

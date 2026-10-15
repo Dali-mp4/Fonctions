@@ -84,7 +84,7 @@ export function CommunityLessonTabs({ method: m }: { method: MethodRecord }) {
     {tab==="essayer" && <section className="tab-body" role="tabpanel">
       <div className="workspace-grid">
         <div className="panel"><div className="panel-title"><Play size={18}/> Tes paramètres</div>
-          <p>Modifie librement les valeurs, puis exécute la méthode approuvée dans un sandbox isolé.</p>
+          <p>Modifie librement les valeurs, puis exécute la méthode approuvée dans un sandbox isolé. Le site prépare automatiquement les tableaux NumPy avant l'exécution.</p>
           <form onSubmit={e=>void run(e)} className="run-form">
             {params.map(p=><label key={p.name}><span>{p.name} · {p.type}</span>
               {p.type === "bool" ? <select value={values[p.name]??"false"} onChange={e=>setValues(v=>({...v,[p.name]:e.target.value}))}>

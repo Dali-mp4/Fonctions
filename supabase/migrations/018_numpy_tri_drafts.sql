@@ -73,7 +73,7 @@ BEGIN
     INSERT INTO public.revisions(implementation_id,created_by,title,explanation,pseudocode,python_code,
       entry_function,input_schema,test_cases,lesson_content,status,test_status)
       VALUES(matrix_impl,owner_id,method->>'title',
-        method->>'principle'||E'\n\n'||method->>'example'||E'\n'||method->>'limits',
+        (method->>'principle')||E'\n\n'||(method->>'example')||E'\n'||(method->>'limits'),
         method->>'pseudo',method->>'code',method->>'entry',schema,cases,new_lesson,'draft','not_run')
       RETURNING id INTO fresh_id;
     INSERT INTO public.audit_events(actor_id,revision_id,action,details)

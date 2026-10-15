@@ -1,70 +1,30 @@
-"""Tableau: classroom-style declaration, filling and display; sorting is optional."""
+"""Tableau: classroom-style declaration, filling and display; sorting is taught in TRI."""
 
 from .schema import AlgorithmInputError, AlgorithmResult, AlgorithmSpec, CodeSection, InputField
 
 
-def tri(tableau: list[int], ordre: str = "Croissant") -> list[int]:
-    """Tri par sélection décroissant, avec inversion finale pour le croissant."""
-    t = tableau.copy()
-    n = len(t)
-    for i in range(n - 1):
-        p = i
-        for j in range(i + 1, n):
-            if t[j] > t[p]:
-                p = j
-        if p != i:
-            t[i], t[p] = t[p], t[i]
-    if ordre == "Croissant":
-        return t[::-1]
-    if ordre == "Décroissant":
-        return t
-    raise AlgorithmInputError("L'ordre de tri doit être croissant ou décroissant.")
-
+from numpy import array
 
 def afficher_tableau(tableau: list[int]) -> list[int]:
-    """Return a copy of the filled array without modifying its order."""
+    """Tableau scolaire : stockage NumPy, sortie JSON sérialisable."""
     if not tableau:
         raise AlgorithmInputError("Le tableau doit contenir au moins une valeur.")
-    return tableau.copy()
+    T = array(tableau, dtype=int)
+    R = array([int()] * len(T))
+    for i in range(len(T)):
+        R[i] = T[i]
+    return R.tolist()
 
-
-def execute(tableau: list[int], ordre: str = "Aucun") -> AlgorithmResult:
-    """Display the original array, or run the optional selection-sort exercise."""
-    initial = afficher_tableau(tableau)
-    n = len(initial)
-    steps = [f"Déclaration : tableau T de {n} éléments (indices de 0 à {n - 1})."]
-    for i, value in enumerate(initial[:12]):
-        steps.append(f"Remplissage : T[{i}] ← {value}")
-    if n > 12:
-        steps.append(f"… {n - 12} autres éléments remplis, non détaillés.")
-
-    if ordre == "Aucun":
-        steps.append("Affichage : lire T de l'indice 0 au dernier, sans changer l'ordre.")
-        return AlgorithmResult(initial, tuple(steps),
-                               f"Tableau affiché : {n} élément(s), indices de 0 à {n - 1}. Aucun tri appliqué.")
-
-    if ordre not in ("Croissant", "Décroissant"):
-        raise AlgorithmInputError("Choisis Aucun, Croissant ou Décroissant.")
-
-    steps.append(f"Exercice facultatif : tri par sélection ({ordre.lower()}).")
-    t = initial.copy()
-    for i in range(n - 1):
-        p = i
-        for j in range(i + 1, n):
-            if t[j] > t[p]:
-                p = j
-        t[i], t[p] = t[p], t[i]
-        if i < 8:
-            steps.append(f"Tri, passage {i + 1} : {t}")
-    if n - 1 > 8:
-        steps.append("… autres passages du tri non détaillés.")
-    if ordre == "Croissant":
-        steps.append("Inversion du résultat décroissant pour obtenir l'ordre croissant.")
-    result = tri(initial, ordre)
-    steps.append("Affichage du tableau trié.")
-    return AlgorithmResult(result, tuple(steps),
-                           f"Tri facultatif ({ordre.lower()}) appliqué. Le tableau initial n'est pas modifié.")
-
+def execute(tableau: list[int]) -> AlgorithmResult:
+    resultat = afficher_tableau(tableau)
+    n = len(resultat)
+    steps = [f"Déclaration NumPy : tableau T de {n} éléments (indices de 0 à {n - 1})."]
+    for i, val in enumerate(resultat[:12]):
+        steps.append(f"Remplissage : T[{i}] ← {val}")
+    if n > 12: steps.append(f"… {n - 12} valeurs non détaillées.")
+    steps.append("Affichage : parcourir T de l'indice 0 au dernier, sans changer l'ordre.")
+    return AlgorithmResult(resultat, tuple(steps),
+        f"Tableau NumPy affiché : {n} élément(s). Aucun tri appliqué.")
 
 SPEC = AlgorithmSpec(
     slug="tableau", name="TABLEAU", full_name="Déclarer, remplir et afficher un tableau",
@@ -87,7 +47,7 @@ Fin""",
     inputs=(InputField("tableau", "Éléments du tableau", "int_list", "8, 3, 11, 2, 5",
                         hint="Séparer les entiers par des virgules."),
 ),
-    function=afficher_tableau, execute=execute, example="T = [8, 3, 11, 2, 5] ; T[0] = 8 ; n = 5",
+    function=afficher_tableau, execute=execute, example="T = array([8, 3, 11, 2, 5]) ; T[0] = 8 ; n = 5",
     tags=("tableau", "déclaration", "remplissage", "affichage"),
     code_sections=(
         CodeSection(

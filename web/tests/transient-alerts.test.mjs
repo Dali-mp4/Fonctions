@@ -44,4 +44,7 @@ test("the supplied logo is installed as the browser tab favicon",()=>{
   assert.equal(ico.readUInt16LE(2),1);
   assert.ok(ico.readUInt16LE(4)>0);
   assert.ok(ico.length>500);
+  const imageOffset=ico.readUInt32LE(18);
+  assert.equal(ico.subarray(imageOffset,imageOffset+8).toString("hex"),"89504e470d0a1a0a");
+  assert.equal(ico[imageOffset+25],6,"ICO PNG must be RGBA for Next.js image decoding");
 });

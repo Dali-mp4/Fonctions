@@ -119,8 +119,8 @@ def test_tableau_display_does_not_allow_sorting_input():
 def test_numpy_array_and_matrix_backing():
     from app.algorithms.tableau import afficher_tableau
     from app.algorithms.matrice import remplir_matrice
-    assert afficher_tableau([3, 1]) == [3, 1]
-    assert remplir_matrice([[1, 2], [3, 4]]) == [[1, 2], [3, 4]]
+    assert afficher_tableau([3, 1], 2) == [3, 1]
+    assert remplir_matrice([[1, 2], [3, 4]], 2, 2) == [[1, 2], [3, 4]]
 
 def test_array_and_matrix_sizes_are_required_and_consistent():
     for slug, inputs in [

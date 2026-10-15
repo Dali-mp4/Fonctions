@@ -1,4 +1,5 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -82,8 +83,8 @@ export function LoginForm(){
     <form onSubmit={e=>void submit(e)} className="auth-form">
       <label>E-mail<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="toi@exemple.com"/></label>
       <label>Mot de passe<input type="password" required minLength={6} value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••"/></label>
-      {error&&<div className="run-error" role="alert">{error}</div>}
-      {notice&&<div className="success-strip">{notice}</div>}
+      <TransientAlert message={error} tone="error"/>
+      <TransientAlert message={notice} tone="success"/>
       <button className="btn btn-primary" disabled={pending||googlePending||!authConfigured}>
         {pending?"Veuillez patienter...":mode==="login"?"Se connecter":"Créer mon compte"}<ArrowRight size={17}/>
       </button>

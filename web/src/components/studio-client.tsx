@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   CheckCircle2, FileCode2, FolderOpen, LockKeyhole, Plus, RefreshCw,
-  Save, ShieldCheck, TerminalSquare,
+  Save, ShieldCheck, TerminalSquare, Trash2,
 } from "lucide-react";
 import { algorithms } from "@/lib/catalog";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -100,6 +100,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [running, setRunning] = useState(false);
   const [submitBusy, setSubmitBusy] = useState<string | null>(null);
   const [resumeBusy, setResumeBusy] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [submitNotice, setSubmitNotice] = useState("");
 
@@ -303,6 +304,35 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     } finally { setSubmitBusy(null); }
   }
 
+  async function deleteDraftRevision(draft: Revision) {
+    if (role !== "owner" || draft.status !== "draft" ||
+        !drafts.some(other => other.id !== draft.id &&
+          other.implementations.id === draft.implementations.id)) return;
+    const confirmation = window.prompt(
+      "Supprimer définitivement ce brouillon (version " + draft.edit_seq + ") : " +
+      draft.title + "\\n" +
+      "Les tests et l'historique de CE brouillon seront supprimés. " +
+      "Les autres versions, notamment la version publiée, seront conservées.\\n" +
+      "Saisis SUPPRIMER pour confirmer :"
+    );
+    if (confirmation !== "SUPPRIMER") return;
+    const sb = browserSupabase();
+    if (!sb) { setSubmitError("Supabase non configuré."); return; }
+    setDeleteBusy(draft.id); setSubmitError(""); setSubmitNotice(""); setError(""); setOk("");
+    try {
+      const { error: rpcError } = await sb.rpc("owner_delete_draft_revision", {
+        p_revision: draft.id, p_expected_edit_seq: draft.edit_seq,
+        p_confirmation: "SUPPRIMER",
+      });
+      if (rpcError) throw rpcError;
+      if (editing === draft.id) newDraft();
+      await refresh();
+      setSubmitNotice("Brouillon supprimé. Les autres versions de l'implémentation ont été conservées.");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Impossible de supprimer le brouillon.");
+    } finally { setDeleteBusy(null); }
+  }
+
   async function retractSubmission(draft: Revision) {
     if (draft.status !== "submitted" || draft.created_by !== userId) return;
     if (!window.confirm("Retirer cette soumission de la file de relecture pour la modifier ? Les tests devront être relancés et une nouvelle soumission sera nécessaire.")) return;
@@ -405,6 +435,14 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
               onClick={() => void submitDraft(d)}>
               {submitBusy === d.id ? "Envoi…" : "Soumettre à la relecture →"}
             </button> : <span className="studio-muted">Réussis les tests Python avant de soumettre.</span>}
+            {role === "owner" && d.status === "draft" &&
+              drafts.some(other => other.id !== d.id &&
+                other.implementations.id === d.implementations.id) && <button
+                type="button" className="btn btn-muted"
+                disabled={busy || running || submitBusy !== null || deleteBusy !== null || resumeBusy !== null}
+                onClick={() => void deleteDraftRevision(d)}>
+                <Trash2 size={14}/> {deleteBusy === d.id ? "Suppression…" : "Supprimer ce brouillon"}
+              </button>}
           </> : d.status === "submitted" ? <>
             <span className="studio-muted">En attente d'un relecteur. Tu peux retirer ta soumission pour corriger le contenu.</span>
             <button type="button" disabled={busy || running || submitBusy !== null || resumeBusy !== null}

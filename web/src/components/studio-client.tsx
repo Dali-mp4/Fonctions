@@ -575,7 +575,9 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         {ok && <div className="success-strip" role="status"><CheckCircle2 size={15}/> {ok}</div>}
       </div>
       <div className="studio-editor">
-        <div className="editor-toolbar"><span><TerminalSquare size={17}/> Code Python</span><span className="tiny-tag">NUMPY + RANDOM PRÉVUS</span></div>
+        <div className="editor-toolbar"><span><TerminalSquare size={17}/> Code Python</span><span className="tiny-tag">TABLEAUX NUMPY PRÉPARÉS</span></div>
+        <p className="studio-hint">Écris uniquement l'algorithme étudié. Le sandbox prépare les tableaux et matrices NumPy, vérifie n / l / c et formate les résultats.
+          Tu n'as pas besoin d'écrire <code>array(...)</code>, <code>dtype</code> ou <code>.tolist()</code> dans ta fonction.</p>
         <Monaco height="480px" language="python" theme="vs-dark" value={code} onChange={v => setCode(v ?? "")}
           options={{ minimap: { enabled: false }, fontSize: 14, tabSize: 4, wordWrap: "on", scrollBeyondLastLine: false, automaticLayout: true }}/>
         <div className="sandbox-note"><LockKeyhole size={18}/><p>

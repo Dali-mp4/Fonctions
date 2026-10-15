@@ -1,9 +1,10 @@
 "use client";
+import { TransientAlert } from "@/components/transient-alert";
 
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import {
-  CheckCircle2, FileCode2, FolderOpen, LockKeyhole, Plus, RefreshCw,
+  FileCode2, FolderOpen, LockKeyhole, Plus, RefreshCw,
   Save, ShieldCheck, TerminalSquare, Trash2,
 } from "lucide-react";
 import { algorithms } from "@/lib/catalog";
@@ -524,9 +525,9 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         <button className="btn btn-primary" onClick={newDraft}><Plus size={15}/> Nouvelle</button>
       </div>
     </div>
-    {listError && <p className="run-error" role="alert">{listError}. Vérifie que les migrations Supabase ont été appliquées.</p>}
-    {submitError && <p className="run-error" role="alert">{submitError}</p>}
-    {submitNotice && <p className="success-strip" role="status">{submitNotice}</p>}
+    <TransientAlert message={listError ? `${listError}. Vérifie que les migrations Supabase ont été appliquées.` : ""} tone="error"/>
+    <TransientAlert message={submitError} tone="error"/>
+    <TransientAlert message={submitNotice} tone="success"/>
     <div className="studio-implementation-filter">
       <label htmlFor="studio-chapter-filter">Filtrer par chapitre</label>
       <select id="studio-chapter-filter" value={chapterFilter} onChange={e => setChapterFilter(e.target.value)}>
@@ -600,8 +601,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
           <button type="button" className="btn btn-muted" disabled={extraSections.length>=7} onClick={()=>setExtraSections(old=>[...old,{title:"",pseudocode:"",python:"",note:""}])}>Ajouter une section (TDNT, TDOG, algorithme…)</button>
         </section>
         <button className="btn btn-primary" onClick={() => void save()} disabled={busy}><Save size={17}/>{busy ? "Enregistrement…" : editing ? "Enregistrer les changements" : "Créer le brouillon"}</button>
-        {error && <div className="run-error" role="alert">{error}</div>}
-        {ok && <div className="success-strip" role="status"><CheckCircle2 size={15}/> {ok}</div>}
+        <TransientAlert message={error} tone="error"/>
+        <TransientAlert message={ok} tone="success"/>
       </div>
       <div className="studio-editor">
         <div className="editor-toolbar"><span><TerminalSquare size={17}/> Code Python</span><span className="tiny-tag">TABLEAUX NUMPY PRÉPARÉS</span></div>

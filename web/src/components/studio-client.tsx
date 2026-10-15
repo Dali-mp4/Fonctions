@@ -17,6 +17,7 @@ import { PublicationManagement } from "@/components/publication-management";
 import { RevisionHistory } from "@/components/revision-history";
 import type { DraftRunResult } from "@/lib/draft-runner";
 import { TeamRoles } from "@/components/team-roles";
+import { ContentManagement } from "@/components/content-management";
 import { type LessonContent, type LessonSection, makeLessonContent, validateLessonContent } from "@/lib/lesson-content";
 
 const Monaco = dynamic(() => import("@monaco-editor/react"), {
@@ -504,6 +505,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         !pristine ? "Enregistre les modifications avant de relancer les tests." : "Exécution isolée · NumPy et random disponibles"}/>
     {(role === "reviewer" || role === "owner") && <ReviewerWorkspace userId={userId}/>}
     {role === "owner" && <PublicationManagement userId={userId} onResumeArchived={(r) => void resumeArchived(r)} resumingId={resumeBusy}/>}
+    {role === "owner" && <ContentManagement onDeleted={()=>{newDraft();void refresh();}}/>}
     {role === "owner" && <TeamRoles/>}
   </div>;
 }

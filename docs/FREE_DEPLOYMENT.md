@@ -67,3 +67,29 @@ Configure production email delivery before enabling unrestricted email/password 
 - `api/requirements.txt` — production Python dependencies
 
 Never commit `.env.local`, secret tokens, Supabase service-role keys, or OAuth client secrets to GitHub.
+## 6. Opt-in: contributor draft Python testing via Modal
+
+This is **not enabled by default**. Do not run contributor code directly inside the Render web service. The built-in algorithms run without Modal, but private revisions stay `not_run` and cannot be submitted or approved until their test cases pass in an isolated sandbox.
+
+**Cost:** Modal Starter currently includes $30/month of compute credits, but **is pay-as-you-go** above the allowance and can incur charges. Check https://modal.com/pricing and set a Modal workspace spending limit/budget before enabling. Existing SQL reservation/quota functions also limit invocations but are **not** a substitute for a billing cap. No charge is incurred merely by leaving this feature disabled in the API.
+
+1. Register at https://modal.com and create an API token (see https://modal.com/docs/cli/latest/token). Store the token ID and secret privately. Never paste them into GitHub, the frontend, or chat.
+2. In Render → Web Service → Environment, set the following **private server environment variables**:
+
+   ```dotenv
+   SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+   SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_KEY
+   SUPABASE_SERVICE_ROLE_KEY=YOUR_LEGACY_SERVICE_ROLE_JWT
+   MODAL_TOKEN_ID=YOUR_MODAL_TOKEN_ID
+   MODAL_TOKEN_SECRET=YOUR_MODAL_TOKEN_SECRET
+   ENABLE_DRAFT_RUNNER=true
+   ENABLE_PUBLIC_METHOD_RUNNER=false
+   ```
+
+   The **service role** is a privileged credential. This backend currently uses it as an `Authorization: Bearer` value to finish test reservations, so use the legacy `service_role` JWT from Supabase, **not** a newer `sb_secret_` key, unless the API is updated to support that credential type. Leave it on Render only. Do not replace existing `WEB_APP_ORIGIN`.
+3. The API's `requirements.txt` includes `modal>=1.6,<2.0`. The existing Render build command (`pip install -r requirements.txt`) installs it on redeploy. Deploy the updated `algo-fi-jib-v2` branch and check Render logs for build success.
+4. Verify that the needed Supabase SQL functions exist: `public.reserve_draft_test`, `public.finish_draft_test`, and `public.revision_has_verified_tests`. These come from the project's existing SQL migrations. Do not change test statuses or bypass SQL review gates manually.
+5. Sign into https://algofijib.vercel.app/studio as an authorized contributor/owner and run the tests for one saved draft. The **first** sandbox creation may take longer because Modal must build the image. Check Render logs and the Modal dashboard if the runner returns an error.
+6. Keep `ENABLE_PUBLIC_METHOD_RUNNER=false` until public contributed-code execution is separately assessed and budgeted. Once a draft passes, it can be submitted, but **a different reviewer** must approve it; the author cannot approve their own draft.
+
+If sandbox testing must remain entirely cost-free without any risk of usage charges, leave the runner disabled for now and review the draft text/pseudocode manually until an alternative secure test runner and evidence path are implemented.

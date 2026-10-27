@@ -13,7 +13,7 @@ test("original seven remain unchanged and are grouped into their school concepts
   assert.doesNotMatch(lib,/filteredMethods\.map/);
   assert.match(lib,/counts\[a\.slug\]/);
   assert.match(read("src/app/algorithme/[slug]/page.tsx"),/CommunityLessonTabs/);
-  assert.match(read("src/app/algorithme/[slug]/page.tsx"),/LessonTabs algorithm=\{a\}/);
+  assert.ok(read("src/app/algorithme/[slug]/page.tsx").includes("algorithm={legacySelected??a}"));
 });
 test("same three tabs in community method experience, never execute contributor Python publicly",()=>{
   const s=read("src/components/community-lesson-tabs.tsx");

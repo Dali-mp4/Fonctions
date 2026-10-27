@@ -44,10 +44,6 @@ BEGIN
   IF NOT FOUND OR original.created_by IS DISTINCT FROM actor THEN
     RAISE EXCEPTION 'You cannot change another contributor''s implementation';
   END IF;
-  IF original.published_revision_id IS NOT NULL THEN
-    RAISE EXCEPTION 'Retire the published method before changing its chapter or type';
-  END IF;
-
   SELECT * INTO destination FROM public.topics WHERE slug=p_topic_slug FOR UPDATE;
   IF NOT FOUND OR (destination.state <> 'published'
       AND NOT (destination.state='pending' AND destination.created_by=actor)) THEN
@@ -57,6 +53,9 @@ BEGIN
   SELECT slug INTO previous_slug FROM public.topics WHERE id=original.topic_id;
   placement_changed := original.topic_id IS DISTINCT FROM destination.id
     OR original.method_type IS DISTINCT FROM p_method_type;
+  IF placement_changed AND original.published_revision_id IS NOT NULL THEN
+    RAISE EXCEPTION 'Retire the published method before changing its chapter or type';
+  END IF;
   approved_history := original.archived_at IS NOT NULL
     OR EXISTS(SELECT 1 FROM public.revisions r
        WHERE r.implementation_id=original.id

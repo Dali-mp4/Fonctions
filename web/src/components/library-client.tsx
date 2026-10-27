@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import type { Algorithm } from "@/lib/catalog";
 import type { MethodRecord } from "@/lib/public-catalog-model";
 import { AlgorithmCard } from "@/components/algorithm-card";
-import { legacyMethodsForChapter } from "@/lib/legacy-method-placement";
+import { countPublicImplementations, legacyMethodsForChapter } from "@/lib/legacy-method-placement";
 import { algorithms } from "@/lib/catalog";
 
 /** Each approved topic has the same card and place in the library. */
@@ -18,6 +18,7 @@ export function LibraryClient({ lessons, methods, connected }: {
   const counts=useMemo(()=>methods.reduce<Record<string,number>>((all,m)=>{
     all[m.topic_slug]=(all[m.topic_slug]??0)+1; return all;
   },{}),[methods]);
+  const implementationCount = countPublicImplementations(algorithms, methods);
   const text=query.trim().toLowerCase();
   const filtered=lessons.filter(a=>
     (category==="Toutes"||a.category===category) &&
@@ -30,7 +31,7 @@ export function LibraryClient({ lessons, methods, connected }: {
       <label className="filter-field"><SlidersHorizontal size={17}/><select aria-label="Filtrer par catégorie" value={category} onChange={e=>setCategory(e.target.value)}><option>Toutes</option>{categories.map(c=><option key={c}>{c}</option>)}</select></label>
       <label className="filter-field"><select aria-label="Filtrer par méthode" value={collection} onChange={e=>setCollection(e.target.value)}><option>Toutes</option><option>Avec variantes</option></select></label>
     </div>
-    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>{lessons.length} modules publiés · {connected ? `${methods.length} implémentation${methods.length !== 1 ? "s" : ""} publiée${methods.length !== 1 ? "s" : ""}` : "Implémentations temporairement indisponibles"} · Toutes les méthodes réunies dans El biblioteque.</span></div>
+    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>{lessons.length} modules publiés · {connected ? `${implementationCount} implémentation${implementationCount !== 1 ? "s" : ""} publiée${implementationCount !== 1 ? "s" : ""}` : "Implémentations temporairement indisponibles"} · Toutes les méthodes réunies dans El biblioteque.</span></div>
     {filtered.length?<div className="algorithm-grid">{filtered.map(a=><AlgorithmCard algorithm={a} key={a.slug}/>)}</div>:<div className="empty-state">Aucun résultat pour cette recherche.</div>}
   </>;
 }

@@ -19,6 +19,25 @@ export function legacyMethodsForChapter(chapter: string, reviewedOriginals: read
     RELOCATED_LEGACY_CHAPTERS[lesson.slug as RelocatedSlug] === chapter);
 }
 
+/**
+ * Total public implementations = reviewed built-in algorithms (including ones
+ * regrouped as methods) + independently approved Supabase implementations.
+ * A method's Base/Advanced type does not affect whether it counts.
+ */
+export function countPublicImplementations(
+  reviewedOriginals: readonly {slug: string}[],
+  approvedMethods: readonly {implementation_id: string; topic_slug: string}[],
+  chapterSlug?: string,
+): number {
+  const originals = reviewedOriginals.filter(original =>
+    !chapterSlug ||
+      (RELOCATED_LEGACY_CHAPTERS[original.slug as RelocatedSlug] ?? original.slug) === chapterSlug
+  );
+  const approved = approvedMethods.filter(method => !chapterSlug || method.topic_slug === chapterSlug);
+  return new Set(originals.map(original => original.slug)).size
+    + new Set(approved.map(method => method.implementation_id)).size;
+}
+
 export function relocatedLegacyPath(slug: string): string | undefined {
   const chapter = RELOCATED_LEGACY_CHAPTERS[slug as RelocatedSlug];
   return chapter ? `/algorithme/${chapter}?m=${encodeURIComponent(slug)}` : undefined;

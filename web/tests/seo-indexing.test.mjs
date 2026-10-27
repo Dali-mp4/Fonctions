@@ -68,3 +68,22 @@ test("description cleans whitespace without leaking huge content",()=>{
   assert.ok(seoDescription("Algorithmique ".repeat(30)).length<=160);
   assert.equal(lessonPath("som-ch"),"/algorithme/som-ch");
 });
+
+test("Google can read Algo Fi Jib as a distinct site name on the homepage",()=>{
+  const homepage=read("src/app/page.tsx");
+  const layout=read("src/app/layout.tsx");
+  const seo=read("src/lib/seo.ts");
+  assert.match(homepage,/"@context": "https:\/\/schema\.org"/);
+  assert.match(homepage,/"@type": "WebSite"/);
+  assert.match(homepage,/name: "Algo Fi Jib"/);
+  assert.match(homepage,/alternateName: \["AlgoFiJib", "algofijib\.vercel\.app"\]/);
+  assert.match(homepage,/url: `\$\{SITE_ORIGIN\}\/`/);
+  assert.match(homepage,/type="application\/ld\+json"/);
+  assert.match(homepage,/JSON\.stringify\(websiteIdentity\)/);
+  assert.match(homepage,/title: "Algo Fi Jib — Algorithmique et Python en Tunisie"/);
+  assert.match(layout,/siteName: "Algo Fi Jib"/);
+  assert.match(layout,/applicationName: "Algo Fi Jib"/);
+  assert.match(seo,/SITE_ORIGIN = "https:\/\/algofijib\.vercel\.app"/);
+  assert.equal((homepage.match(/type="application\/ld\+json"/g)||[]).length,1);
+  assert.doesNotMatch(layout,/type="application\/ld\+json"/);
+});

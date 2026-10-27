@@ -57,7 +57,7 @@ test("SEO routes only draw public catalog and never index workspaces",()=>{
     assert.match(read(`src/app/${path}/page.tsx`),/index: false, follow: false/);
   }
   assert.match(page,/alternates:\{canonical\}/);
-  assert.match(page,/!a \|\| \(m && !selected\)/);
+  assert.ok(page.includes("if(!a || (m && !selected && !legacy)"));
   assert.match(layout,/GOOGLE_SITE_VERIFICATION/);
   assert.match(layout,/metadataBase: new URL\(SITE_ORIGIN\)/);
   assert.match(read("src/app/bibliotheque/page.tsx"),/canonical: "\/bibliotheque"/);

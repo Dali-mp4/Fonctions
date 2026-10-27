@@ -42,7 +42,8 @@ test("public route never runs contributed Python and withdrawn methods 404",()=>
   assert.match(server,/published_methods/);
   assert.match(server,/persistSession: false/);
   assert.match(server,/cache: "no-store"/);
-  assert.match(algo,/LessonTabs algorithm=\{a\}/);
+  assert.match(algo,/algorithm=\\{legacySelected\\?\\?a\\}/);
+  assert.match(algo,/relocatedLegacyPath/);
 });
 
 

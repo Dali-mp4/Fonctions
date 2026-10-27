@@ -27,7 +27,8 @@ BEGIN
     RAISE EXCEPTION 'Contributor access required';
   END IF;
   IF p_expected_edit_seq IS NULL OR p_expected_edit_seq<1 OR
-     p_method_type NOT IN ('base','advanced') OR p_topic_slug IS NULL THEN
+     p_method_type IS NULL OR p_method_type NOT IN ('base','advanced')
+     OR p_topic_slug IS NULL THEN
     RAISE EXCEPTION 'Invalid chapter or method type';
   END IF;
 

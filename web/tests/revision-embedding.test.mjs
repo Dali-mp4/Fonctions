@@ -19,7 +19,9 @@ test("contract persistence requires an owned, editable draft and always invalida
   assert.match(sql,/edit_seq=p_expected_edit_seq/);
   assert.match(sql,/test_status='not_run'/);
   assert.match(sql,/p_test_cases jsonb/);
-  assert.match(readFileSync("src/components/studio-client.tsx", "utf8"),/update_draft_lesson_with_contract/);
+  assert.match(readFileSync("src/components/studio-client.tsx", "utf8"),/save_private_lesson_with_placement/);
+  assert.match(readFileSync("../supabase/migrations/026_private_draft_placement.sql", "utf8"),
+    /public\\.update_draft_lesson_with_contract\\(/);
   const wrapper = readFileSync("../supabase/migrations/007_unified_lesson_methods.sql", "utf8");
   assert.match(wrapper,/public\.update_draft_with_contract\(/);
   assert.match(wrapper,/public\.validate_lesson_content/);

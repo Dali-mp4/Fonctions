@@ -39,3 +39,20 @@ test("public presentation includes the user's attribution, without unfinished-re
  assert.doesNotMatch(read("../api/app/draft_tests.py"),/Phase 3B/);
  assert.doesNotMatch(read("../api/app/public_method_runs.py"),/Atelier communautaire/);
 });
+
+test("homepage and library show the same live count of approved implementations",()=>{
+ const home=read("src/app/page.tsx");
+ const library=read("src/components/library-client.tsx");
+ const catalog=read("src/lib/public-catalog-server.ts");
+ assert.match(catalog,/sb\.from\("published_methods"\)/);
+ assert.match(catalog,/selectPublishedMethods\(approved\.data\)/);
+ assert.match(home,/const \{lessons,methods,connected\} = await getPublicCatalog\(\)/);
+ assert.match(home,/String\(methods\.length\)\.padStart\(2,"0"\)/);
+ assert.match(home,/implémentations publiées/);
+ assert.doesNotMatch(home,/approches Base et Advanced/);
+ assert.match(library,/\{lessons\.length\} modules publiés/);
+ assert.match(library,/methods\.length/);
+ assert.match(library,/implémentation\$\{methods\.length !== 1 \? "s" : ""\} publiée/);
+ assert.match(library,/Implémentations temporairement indisponibles/);
+ assert.match(home,/connected \?/);
+});

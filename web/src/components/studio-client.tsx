@@ -258,7 +258,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         setEditing(String(data)); setEditSeq(1);
         setOk("Brouillon privé créé. Aucun code n'a été exécuté ni publié.");
       }
-      setSavedSignature(signature); setSavedPlacement(placementSignature); setRunResult(null); setRunError("");
+      setSavedSignature(signature); setSavedPlacement(creatingChapter ? `${chapterSlug.trim()}:base` : placementSignature); setRunResult(null); setRunError("");
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible d'enregistrer le brouillon.");

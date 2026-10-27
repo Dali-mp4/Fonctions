@@ -30,7 +30,7 @@ export function LibraryClient({ lessons, methods, connected }: {
       <label className="filter-field"><SlidersHorizontal size={17}/><select aria-label="Filtrer par catégorie" value={category} onChange={e=>setCategory(e.target.value)}><option>Toutes</option>{categories.map(c=><option key={c}>{c}</option>)}</select></label>
       <label className="filter-field"><select aria-label="Filtrer par méthode" value={collection} onChange={e=>setCollection(e.target.value)}><option>Toutes</option><option>Avec variantes</option></select></label>
     </div>
-    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>{lessons.length} modules publiés · Toutes les méthodes réunies dans El biblioteque.</span></div>
+    <div className="list-meta"><strong>{filtered.length} module{filtered.length!==1?"s":""}</strong><span>{lessons.length} modules publiés · {connected ? `${methods.length} implémentation${methods.length !== 1 ? "s" : ""} publiée${methods.length !== 1 ? "s" : ""}` : "Implémentations temporairement indisponibles"} · Toutes les méthodes réunies dans El biblioteque.</span></div>
     {filtered.length?<div className="algorithm-grid">{filtered.map(a=><AlgorithmCard algorithm={a} key={a.slug}/>)}</div>:<div className="empty-state">Aucun résultat pour cette recherche.</div>}
   </>;
 }

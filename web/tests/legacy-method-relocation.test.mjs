@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   visibleChapterLessons, legacyMethodsForChapter, relocatedLegacyPath,
-  legacySitemapPaths, ensureLegacyMethodChapters,
+  legacySitemapPaths, ensureLegacyMethodChapters, countPublicImplementations,
 } from "../src/lib/legacy-method-placement.ts";
 import { publicSitemapEntries, SITE_ORIGIN } from "../src/lib/seo.ts";
 
@@ -69,4 +69,29 @@ test("runtime execution remains on reviewed built-in API, not unapproved contrib
   assert.match(read("../api/app/main.py"),/"pgcd": \{"a", "b"\}/);
   assert.match(read("../api/app/main.py"),/"ppcm": \{"a", "b"\}/);
   assert.match(read("../api/app/main.py"),/"som-ch": \{"a"\}/);
+});
+
+test("public implementations count each built-in Base method and each approved implementation",()=>{
+  // Approved-method fixture mirrors the existing group sizes, not private drafts.
+  const approved=[
+    ...Array.from({length:2},(_,i)=>({topic_slug:"arithmetique",implementation_id:`arith-${i}`})),
+    {topic_slug:"chaines",implementation_id:"chain-1"},
+    ...Array.from({length:2},(_,i)=>({topic_slug:"matrice",implementation_id:`matrix-${i}`})),
+    ...Array.from({length:3},(_,i)=>({topic_slug:"tableau",implementation_id:`table-${i}`})),
+    {topic_slug:"tri",implementation_id:"tri-1"},
+  ];
+  assert.equal(originals.length,7);
+  assert.equal(approved.length,9);
+  assert.equal(countPublicImplementations(originals,approved),16);
+  assert.equal(countPublicImplementations(originals,approved,"arithmetique"),4); // PGCD + PPCM + 2 approved
+  assert.equal(countPublicImplementations(originals,approved,"chaines"),2); // SOM_CH + 1 approved
+  assert.equal(countPublicImplementations(originals,approved,"enregistrement"),1);
+  assert.equal(countPublicImplementations(originals,approved,"matrice"),3);
+  assert.equal(countPublicImplementations(originals,approved,"tableau"),4);
+  assert.equal(countPublicImplementations(originals,approved,"tri"),1);
+  assert.equal(countPublicImplementations(originals,approved,"verif"),1);
+  // Repeated public view entries never inflate the number.
+  assert.equal(countPublicImplementations(originals,[...approved,approved[0]]),16);
+  // A withdrawn method disappears from the approved-method view.
+  assert.equal(countPublicImplementations(originals,approved.slice(1)),15);
 });

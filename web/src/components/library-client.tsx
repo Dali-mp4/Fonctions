@@ -4,6 +4,8 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import type { Algorithm } from "@/lib/catalog";
 import type { MethodRecord } from "@/lib/public-catalog-model";
 import { AlgorithmCard } from "@/components/algorithm-card";
+import { legacyMethodsForChapter } from "@/lib/legacy-method-placement";
+import { algorithms } from "@/lib/catalog";
 
 /** Each approved topic has the same card and place in the library. */
 export function LibraryClient({ lessons, methods, connected }: {
@@ -19,8 +21,8 @@ export function LibraryClient({ lessons, methods, connected }: {
   const text=query.trim().toLowerCase();
   const filtered=lessons.filter(a=>
     (category==="Toutes"||a.category===category) &&
-    (collection!=="Avec variantes" || Boolean(counts[a.slug])) &&
-    `${a.name} ${a.title} ${a.summary} ${a.tags.join(" ")} ${methods.filter(m=>m.topic_slug===a.slug).map(m=>m.title).join(" ")}`.toLowerCase().includes(text)).sort((a,b)=>a.name.localeCompare(b.name,"fr"));
+    (collection!=="Avec variantes" || Boolean(counts[a.slug] || legacyMethodsForChapter(a.slug,algorithms).length)) &&
+    `${a.name} ${a.title} ${a.summary} ${a.tags.join(" ")} ${methods.filter(m=>m.topic_slug===a.slug).map(m=>m.title).join(" ")} ${legacyMethodsForChapter(a.slug,algorithms).map(m=>`${m.name} ${m.title}`).join(" ")}`.toLowerCase().includes(text)).sort((a,b)=>a.name.localeCompare(b.name,"fr"));
   return <>
     {!connected && <p className="catalog-offline" role="status">La bibliothèque est momentanément indisponible en partie. Certains modules peuvent manquer ; réessaie plus tard.</p>}
     <div className="library-tools">

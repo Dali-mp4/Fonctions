@@ -13,12 +13,16 @@ export type ApprovedMethodRef = { id: string; topic_slug: string; reviewed_at: s
 /** Input methods must come from getPublicCatalog() (anonymous approved-method view). */
 export function publicSitemapEntries(
   lessons: readonly PublicLessonRef[], approvedMethods: readonly ApprovedMethodRef[],
+  trustedLegacyPaths: readonly string[] = [],
 ) {
   const allowed = new Set(lessons.map(lesson => lesson.slug));
   const entries = [
     { url: SITE_ORIGIN + "/", changeFrequency: "weekly" as const, priority: 1 },
     { url: SITE_ORIGIN + "/bibliotheque", changeFrequency: "weekly" as const, priority: 0.9 },
     { url: SITE_ORIGIN + "/parcours", changeFrequency: "monthly" as const, priority: 0.8 },
+    ...trustedLegacyPaths.map(path => ({
+      url: SITE_ORIGIN + path, changeFrequency: "monthly" as const, priority: 0.7,
+    })),
     ...lessons.map(lesson => ({
       url: SITE_ORIGIN + lessonPath(lesson.slug),
       changeFrequency: "weekly" as const, priority: 0.8,

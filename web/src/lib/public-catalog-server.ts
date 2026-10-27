@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { algorithms, type Algorithm } from "@/lib/catalog";
+import { visibleChapterLessons } from "@/lib/legacy-method-placement";
 import { mergeOriginalLessons, selectPublishedMethods, withApprovedChapters, type MethodRecord } from "@/lib/public-catalog-model";
 
 export type PublicCatalog = {
@@ -18,7 +19,7 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
     console.error("[public-catalog] Missing Supabase configuration", {
       urlConfigured: Boolean(url), publishableKeyConfigured: Boolean(key),
     });
-    return { lessons: algorithms, methods: [], connected: false };
+    return { lessons: visibleChapterLessons(algorithms), methods: [], connected: false };
   }
   const sb = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
@@ -36,11 +37,11 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
         publishedCode: approved.error?.code ?? null,
       });
       // No fallback to privileged cookies, browser RPCs, or draft tables.
-      return { lessons: algorithms, methods: [], connected: false };
+      return { lessons: visibleChapterLessons(algorithms), methods: [], connected: false };
     }
     const methods = selectPublishedMethods(approved.data);
     return {
-      lessons: withApprovedChapters(mergeOriginalLessons(algorithms, legacy.data) as Algorithm[], methods),
+      lessons: withApprovedChapters(visibleChapterLessons(mergeOriginalLessons(algorithms, legacy.data) as Algorithm[]), methods),
       methods,
       connected: true,
     };
@@ -48,7 +49,7 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
     console.error("[public-catalog] Supabase request failed", {
       errorType: error instanceof Error ? error.name : "unknown",
     });
-    return { lessons: algorithms, methods: [], connected: false };
+    return { lessons: visibleChapterLessons(algorithms), methods: [], connected: false };
   }
 }
 

@@ -5,8 +5,22 @@ import { AlgorithmCard } from "@/components/algorithm-card";
 import { algorithms } from "@/lib/catalog";
 import { countPublicImplementations } from "@/lib/legacy-method-placement";
 import type { Metadata } from "next";
+import { SITE_ORIGIN } from "@/lib/seo";
 
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+// Google uses the homepage's WebSite structured data to choose a search-result
+// site name. The title/og:site_name alone do not establish that preference.
+const websiteIdentity = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Algo Fi Jib",
+  alternateName: ["AlgoFiJib", "algofijib.vercel.app"],
+  url: `${SITE_ORIGIN}/`,
+};
+
+export const metadata: Metadata = {
+  title: "Algo Fi Jib — Algorithmique et Python en Tunisie",
+  alternates: { canonical: "/" },
+};
 
 export const dynamic = "force-dynamic";
 export default async function Home() {
@@ -14,6 +28,8 @@ export default async function Home() {
   const implementationCount = countPublicImplementations(algorithms, methods);
   const cards = [...lessons].sort((a,b)=>a.name.localeCompare(b.name,"fr")).slice(0, 6);
   return <>
+    <script type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteIdentity).replace(/</g, "\\u003c") }}/>
     <section className="hero shell">
       <div className="hero-glow" />
       <div className="hero-copy">

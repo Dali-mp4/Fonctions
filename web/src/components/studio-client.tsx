@@ -71,7 +71,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [listError, setListError] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [editSeq, setEditSeq] = useState(1);
-  const [topic, setTopic] = useState("pgcd");
+  const [topic, setTopic] = useState("arithmetique");
   const [allTopics, setAllTopics] = useState<{slug:string;title:string;state:string}[]>(algorithms.map(a=>({slug:a.slug,title:a.name,state:"published"})));
   const [creatingChapter,setCreatingChapter] = useState(false);
   const [chapterSlug,setChapterSlug] = useState("");
@@ -97,6 +97,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
   const [savedSignature, setSavedSignature] = useState<string | null>(null);
+  const [savedPlacement, setSavedPlacement] = useState<string | null>(null);
   const [runResult, setRunResult] = useState<DraftRunResult | null>(null);
   const [runError, setRunError] = useState("");
   const [running, setRunning] = useState(false);
@@ -119,7 +120,8 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   }
   const lesson = makeLessonContent(principle, example, limits, sectionTitle, pseudocode, code, extraSections);
   const signature = contentSignature({ title, explanation, pseudocode, code, entry, parameters, returns, tests: testCases, lesson });
-  const pristine = Boolean(editing && savedSignature === signature);
+  const placementSignature = `${topic}:${method}`;
+  const pristine = Boolean(editing && savedSignature === signature && savedPlacement === placementSignature);
 
   const refresh = useCallback(async () => {
     const sb = browserSupabase();
@@ -138,14 +140,14 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
   useEffect(() => { void refresh(); }, [refresh]);
 
   function newDraft() {
-    setEditing(null); setEditSeq(1); setTopic("pgcd"); setMethod("advanced");
+    setEditing(null); setEditSeq(1); setTopic("arithmetique"); setMethod("advanced");
     setCreatingChapter(false);setChapterSlug("");setChapterTitle("");setChapterSummary("");
     setTitle(""); setExplanation(""); setPseudocode(""); setCode(sample);
     setPrinciple(""); setExample(""); setLimits("");
     setSectionTitle("Fonction principale"); setExtraSections([]);
     setEntry("pgcd"); setParameters(initialParameters.map(p => ({...p})));
     setReturns("int"); setTestCases(initialTests.map(t => ({...t})));
-    setError(""); setOk(""); setSavedSignature(null); setRunResult(null); setRunError("");
+    setError(""); setOk(""); setSavedSignature(null); setSavedPlacement(null); setRunResult(null); setRunError("");
   }
 
   function openDraft(draft: Revision) {
@@ -153,6 +155,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setEditing(draft.id); setEditSeq(draft.edit_seq);
     setTopic(draft.implementations.topics.slug);setCreatingChapter(false);
     setMethod(draft.implementations.method_type);
+    setSavedPlacement(`${draft.implementations.topics.slug}:${draft.implementations.method_type}`);
     setTitle(draft.title); setExplanation(draft.explanation);
     setPseudocode(draft.pseudocode); setCode(draft.python_code);
     const teaching = draft.lesson_content;
@@ -217,15 +220,20 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
     setBusy(true);
     try {
       if (editing) {
-        const { data, error: saveError } = await sb.rpc("update_draft_lesson_with_contract", {
+        const { data, error: saveError } = await sb.rpc("save_private_lesson_with_placement", {
           p_revision: editing, p_expected_edit_seq: editSeq,
+          p_topic_slug: topic, p_method_type: method,
           p_title: title.trim(), p_explanation: explanation.trim(),
           p_pseudocode: pseudocode, p_python_code: code,
           p_entry_function: entry, p_input_schema: schema, p_test_cases: preflight.testCases, p_lesson_content: lesson,
         });
         if (saveError) throw saveError;
-        setEditSeq(Number(data));
-        setOk("Brouillon mis à jour. Les éventuels anciens tests ont été annulés.");
+        setEditSeq(Number(data.edit_seq));
+        setOk(data.forked
+          ? "Brouillon déplacé vers une nouvelle implémentation privée. L'ancienne publication et son historique sont conservés. Relance les tests."
+          : data.placement_changed
+          ? "Concept et type enregistrés. Relance les tests avant la relecture."
+          : "Brouillon mis à jour. Les éventuels anciens tests ont été annulés.");
       } else if (creatingChapter) {
         const {data,error:saveError}=await sb.rpc("create_chapter_lesson",{
           p_slug:chapterSlug.trim(),p_chapter_title:chapterTitle.trim(),
@@ -237,7 +245,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         });
         if(saveError) throw saveError;
         setEditing(String(data));setEditSeq(1);setTopic(chapterSlug.trim());
-        setMethod("base");setCreatingChapter(false);
+        setMethod("base");setSavedPlacement(`${chapterSlug.trim()}:base`);setCreatingChapter(false);
         setOk("Chapitre proposé avec son premier brouillon. Relecture nécessaire avant publication.");
       } else {
         const { data, error: saveError } = await sb.rpc("create_draft_lesson_with_contract", {
@@ -250,7 +258,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
         setEditing(String(data)); setEditSeq(1);
         setOk("Brouillon privé créé. Aucun code n'a été exécuté ni publié.");
       }
-      setSavedSignature(signature); setRunResult(null); setRunError("");
+      setSavedSignature(signature); setSavedPlacement(placementSignature); setRunResult(null); setRunError("");
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Impossible d'enregistrer le brouillon.");
@@ -556,7 +564,7 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
       <div className="studio-form">
         <h2><FileCode2 size={22}/>{editing ? "Modifier le brouillon" : "Nouvelle implémentation"}</h2>
         <p className="studio-hint">{editing ? "Tu peux enregistrer plusieurs fois, sans créer de doublon." : "Choisis un concept et rédige ta méthode."}</p>
-        <label>Concept<select value={topic} disabled={Boolean(editing) || busy || creatingChapter} onChange={e=>setTopic(e.target.value)}>
+        <label>Concept<select value={topic} disabled={busy || creatingChapter} onChange={e=>setTopic(e.target.value)}>
           {allTopics.map(t=><option key={t.slug} value={t.slug}>{t.title}{t.state==="pending"?" · En attente de validation":""}</option>)}
         </select></label>
         {!editing && <label className="review-approval-check">
@@ -576,9 +584,10 @@ export function StudioClient({ user, userId, role }: { user: string; userId: str
           <label>Présentation<textarea rows={3} maxLength={500} value={chapterSummary}
             onChange={e=>setChapterSummary(e.target.value)} placeholder="Explique le chapitre en au moins 20 caractères."/></label>
         </section>}
-        <label>Type<select value={method} disabled={Boolean(editing) || busy || creatingChapter} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
+        <label>Type<select value={method} disabled={busy || creatingChapter} onChange={e => setMethod(e.target.value as "base" | "advanced")}>
           <option value="base">Base — méthode progressive</option><option value="advanced">Advanced — autre méthode</option>
         </select></label>
+        {editing && <p className="studio-hint">Tu peux changer le concept ou le type de ce brouillon privé. Si cette méthode a déjà été publiée puis retirée, l'ancienne version approuvée restera dans son chapitre d'origine. Enregistre, reteste et soumets à nouveau.</p>}
         <label>Titre<input maxLength={160} placeholder="Ex. PGCD avec Euclide" value={title} onChange={e => setTitle(e.target.value)}/></label>
         <label>Explication<textarea rows={5} maxLength={20000} placeholder="Explique la méthode aux élèves…" value={explanation} onChange={e => setExplanation(e.target.value)}/></label>
         <section className="studio-lesson-fields" aria-label="Présentation pédagogique">

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   visibleChapterLessons, legacyMethodsForChapter, relocatedLegacyPath,
-  legacySitemapPaths,
+  legacySitemapPaths, ensureLegacyMethodChapters,
 } from "../src/lib/legacy-method-placement.ts";
 import { publicSitemapEntries, SITE_ORIGIN } from "../src/lib/seo.ts";
 
@@ -19,6 +19,10 @@ test("PGCD, PPCM and SOM_CH are no longer standalone chapter cards",()=>{
   for(const live of ["arithmetique","chaines","tableau","matrice"])
     assert.ok(slugs.includes(live));
   assert.equal(originals.length,7,"Original reviewed source code remains preserved");
+  const offline = ensureLegacyMethodChapters(visibleChapterLessons(originals));
+  assert.ok(offline.some(x=>x.slug==="arithmetique"));
+  assert.ok(offline.some(x=>x.slug==="chaines"));
+  assert.equal(offline.filter(x=>x.slug==="arithmetique").length,1);
 });
 
 test("reviewed school methods appear inside the target chapters",()=>{

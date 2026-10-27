@@ -46,7 +46,8 @@ export default async function AlgorithmPage({params,searchParams}:Props){
  const related=methods.filter(item=>item.topic_slug===slug);
  const builtIn=algorithms.some(item=>item.slug===slug);
  const legacyMethods=legacyMethodsForChapter(slug,algorithms);
- const legacySelected=legacyMethods.find(item=>item.slug===m);
+ const legacySelected=legacyMethods.find(item=>item.slug===m) ||
+   (!m && related.length===0 ? legacyMethods[0] : undefined);
  const totalMethods=related.length+(builtIn?1:0)+legacyMethods.length;
  const selected=related.find(item=>item.id===m) || (!builtIn && !m ? related.find(item=>item.method_type==="base") || related[0] : undefined);
  if (m && !selected && !legacySelected) notFound();

@@ -31,3 +31,22 @@ export function legacySitemapPaths<T extends {slug: string}>(
     legacyMethodsForChapter(chapter.slug, reviewedOriginals).map(method =>
       `/algorithme/${chapter.slug}?m=${encodeURIComponent(method.slug)}`));
 }
+
+const destinationFallbacks: Algorithm[] = [
+  { slug:"arithmetique", name:"Arithmétique et nombres", title:"Arithmétique et nombres",
+    category:"Algorithmique", level:"3ème Info", method:"base", collection:"general",
+    icon:"🔢", summary:"PGCD, PPCM, primalité et autres algorithmes sur les nombres.",
+    principle:"Explore les méthodes de calcul sur les nombres.", example:"",
+    limits:"", tags:["arithmetique","pgcd","ppcm","nombres"], inputs:[], code_sections:[] },
+  { slug:"chaines", name:"Chaînes de caractères", title:"Chaînes de caractères",
+    category:"Algorithmique", level:"3ème Info", method:"base", collection:"general",
+    icon:"🔤", summary:"Somme des chiffres, chaînes et vérifications.",
+    principle:"Explore les méthodes de traitement des chaînes.", example:"",
+    limits:"", tags:["chaines","som-ch","vérifications"], inputs:[], code_sections:[] },
+];
+
+/** Reviewed Git-backed methods keep the destination chapter discoverable even offline. */
+export function ensureLegacyMethodChapters(lessons: readonly Algorithm[]): Algorithm[] {
+  const existing = new Set(lessons.map(chapter => chapter.slug));
+  return [...lessons, ...destinationFallbacks.filter(chapter => !existing.has(chapter.slug))];
+}

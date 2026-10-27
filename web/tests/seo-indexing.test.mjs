@@ -47,7 +47,7 @@ test("SEO routes only draw public catalog and never index workspaces",()=>{
   const layout=read("src/app/layout.tsx");
   assert.match(sitemap,/getPublicCatalog\(\)/);
   assert.match(sitemap,/dynamic = "force-dynamic"/);
-  assert.match(sitemap,/publicSitemapEntries\(lessons, methods\)/);
+  assert.match(sitemap,/publicSitemapEntries\(lessons, methods, legacySitemapPaths/);
   assert.match(server,/published_methods/);
   assert.match(server,/persistSession: false/);
   for(const path of ["/studio","/compte","/connexion","/auth/","/methode/"]){

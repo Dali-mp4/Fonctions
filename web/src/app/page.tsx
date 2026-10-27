@@ -8,7 +8,7 @@ export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export const dynamic = "force-dynamic";
 export default async function Home() {
-  const {lessons,methods} = await getPublicCatalog();
+  const {lessons,methods,connected} = await getPublicCatalog();
   const cards = [...lessons].sort((a,b)=>a.name.localeCompare(b.name,"fr")).slice(0, 6);
   return <>
     <section className="hero shell">
@@ -18,7 +18,7 @@ export default async function Home() {
         <h1>L&apos;algorithmique,<br/><em>dans ta poche.</em></h1>
         <p>Tous les modules publiés réunis au même endroit. Des explications claires, plusieurs méthodes et du Python à tester.</p>
         <div className="hero-actions"><Link className="btn btn-primary" href="/bibliotheque">Explorer les fonctions <ArrowRight size={18}/></Link><Link className="btn btn-muted" href="/parcours">Choisir mon parcours <ChevronRight size={17}/></Link></div>
-        <div className="hero-metrics"><div><strong>{String(lessons.length).padStart(2,"0")}</strong><span>modules disponibles</span></div><div><strong>02</strong><span>approches Base et Advanced</span></div><div><strong>∞</strong><span>idées à partager</span></div></div>
+        <div className="hero-metrics"><div><strong>{String(lessons.length).padStart(2,"0")}</strong><span>modules disponibles</span></div><div><strong>{connected ? String(methods.length).padStart(2,"0") : "—"}</strong><span>implémentations publiées</span></div><div><strong>∞</strong><span>idées à partager</span></div></div>
       </div>
       <div className="hero-visual" aria-label="Exemple de code PGCD en Python">
         <div className="code-window"><div className="code-window-bar"><span className="window-dots"><i/><i/><i/></span><span><Code2 size={15}/> pgcd.py</span><span className="code-label">PYTHON</span></div><div className="code-body"><div className="line"><span>01</span><code><b>def</b> <strong>pgcd</strong>(a, b):</code></div><div className="line"><span>02</span><code>    <b>while</b> a != b:</code></div><div className="line"><span>03</span><code>        <b>if</b> a &gt; b:</code></div><div className="line"><span>04</span><code>            a -= b</code></div><div className="line"><span>05</span><code>        <b>else</b>:</code></div><div className="line"><span>06</span><code>            b -= a</code></div><div className="line"><span>07</span><code>    <b>return</b> a</code></div></div><div className="code-result"><span><TerminalSquare size={15}/> EXECUTION</span><span>pgcd(48, 18) <i>→</i> <strong>6</strong></span></div></div>
